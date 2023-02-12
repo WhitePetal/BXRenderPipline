@@ -35,7 +35,7 @@ public partial class MainCameraRender
 		GenerateBuffers_Editor();
 		DrawGeometryGBuffer_Editor(useDynamicBatching, useGPUInstancing, useLightsPerObject);
 		DrawDefferedShading_Editor();
-		DrawDefferedCombine_Editor();
+		//DrawDefferedCombine_Editor();
 		DrawSkyBoxAndTransparent_Editor();
 		DrawUnsupportShader();
 		DrawGizmosBeforePostProcess();

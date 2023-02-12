@@ -8,7 +8,7 @@ Shader "BXDefferedShadings/Shading"
             ZWrite Off
             ZTest Always
             BlendOp Add
-            Blend One One, One One
+            Blend One One, Zero One
             HLSLPROGRAM
             #pragma target 3.5
             #pragma multi_compile _ _DIRECTIONAL_PCF3 _DIRECTIONAL_PCF5 _DIRECTIONAL_PCF7
@@ -29,6 +29,7 @@ Shader "BXDefferedShadings/Shading"
 
             FRAMEBUFFER_INPUT_HALF_MS(0)
             FRAMEBUFFER_INPUT_HALF_MS(1)
+            FRAMEBUFFER_INPUT_HALF_MS(2)
             // TEXTURE2D(_BXDepthNormalBuffer);
             // SAMPLER(sampler_bilinear_clamp);
 
@@ -65,11 +66,13 @@ Shader "BXDefferedShadings/Shading"
                 int needShading = materialFlag >> 1;
                 if(needShading == 0) return 0.0;
 
+                half4 depthNormalData = LOAD_FRAMEBUFFER_INPUT_MS(1, 0, _BXDepthNormalBuffer);
+                half4 baseColor = LOAD_FRAMEBUFFER_INPUT_MS(2, 0, _BaseColorBuffer);
+
                 int needShadowed = (materialFlag & 1);
 
                 half3 point_light_pos = half3(1, 1, 0);
                 half3 lightCol = half3(2, 0, 0);
-                half4 depthNormalData = LOAD_FRAMEBUFFER_INPUT_MS(1, 0, _BXDepthNormalBuffer);
                 half3 n;
                 float depth01;
                 DecodeDepthNormal(depthNormalData, depth01, n);
@@ -86,16 +89,16 @@ Shader "BXDefferedShadings/Shading"
                 half ldoth = max(0.0, dot(l, h));
                 half atten = 1.0 / dot(lenV, lenV);
                 lightCol *= atten;
-                half lightIntensity = RGB2Grayscale(lightCol);
 
+                half3 specCol = lerp(0.04, baseColor, materialData.r * 0.5);
                 half f0 = PBR_F0(ndotl, ndotv, ldoth, materialData.g);
-                half fgd = PBR_SchlickFresnelFunction(ldoth) * PBR_G(ndotl, ndotv, materialData.g) * PBR_D(materialData.g, ndoth);
+                half3 fgd = PBR_SchlickFresnelFunction(specCol, ldoth) * PBR_G(ndotl, ndotv, materialData.g) * PBR_D(materialData.g, ndoth);
                 
                 half oneMinusMetallic = (1.0 - materialData.r);
                 half ndotv_inv = 0.25 / ndotv;
                 
                 half3 diffuseColor = lightCol * f0 * ndotl;
-                half specularColor = lightIntensity * fgd;
+                half3 specularColor = lightCol * fgd;
 
                 for(int lightIndex = 1; lightIndex < _DirectionalLightCount; ++lightIndex)
                 {
@@ -106,19 +109,19 @@ Shader "BXDefferedShadings/Shading"
                     ndoth = max(0.0, dot(n, h));
                     ldoth = max(0.0, dot(l, h));
                     f0 = PBR_F0(ndotl, ndotv, ldoth, materialData.g);
-                    fgd = PBR_SchlickFresnelFunction(ldoth) * PBR_G(ndotl, ndotv, materialData.g) * PBR_D(materialData.g, ndoth);
-                    half shadowAtten = 1.0;
+                    fgd = PBR_SchlickFresnelFunction(specCol, ldoth) * PBR_G(ndotl, ndotv, materialData.g) * PBR_D(materialData.g, ndoth);
                     half3 shadowCol = 1.0;
                     if(needShadowed == 1)
                     {
-                        shadowAtten = GetDirectionalShadow(lightIndex, i.uv_screen, pos_world.xyz, n, depth01 * _ProjectionParams.z);
+                        half shadowAtten = GetDirectionalShadow(lightIndex, i.uv_screen, pos_world.xyz, n, depth01 * _ProjectionParams.z);
                         shadowCol = lerp(_BXShadowsColor.xyz, 1.0, shadowAtten);
                     }
-                    diffuseColor += shadowCol * lightCol * f0 * ndotl;
-                    specularColor += shadowAtten * RGB2Grayscale(lightCol) * fgd;
+                    lightCol *= shadowCol;
+                    diffuseColor += lightCol * f0 * ndotl;
+                    specularColor += lightCol * fgd;
                 }
 
-                return half4(diffuseColor * oneMinusMetallic, specularColor * ndotv_inv);
+                return half4(diffuseColor * oneMinusMetallic * baseColor + specularColor * ndotv_inv, 1.0);
             }
             ENDHLSL
         }

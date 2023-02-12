@@ -2,6 +2,7 @@ Shader "BXCharacters/PBR_BRDF"
 {
     Properties
     {
+        _BaseColor("Color", Color) = (1, 1, 1, 1)
         _MainTex ("Texture", 2D) = "white" {}
         _MRATex("Metallic_Roughness_AO", 2D) = "white" {}
         [VectorRange(0, 1, 0.01, 1, 0, 1)]_Metallic_Roughness_AOOffset("Metallic_Roughness_AOOffset", Vector) = (1, 1, 0, 1)
@@ -53,6 +54,7 @@ Shader "BXCharacters/PBR_BRDF"
 
             UNITY_INSTANCING_BUFFER_START(UnityPerMaterial)
                 UNITY_DEFINE_INSTANCED_PROP(float4, _MainTex_ST)
+                UNITY_DEFINE_INSTANCED_PROP(half4, _BaseColor)
                 UNITY_DEFINE_INSTANCED_PROP(half4, _Metallic_Roughness_AOOffset)
             UNITY_INSTANCING_BUFFER_END(UnityPerMaterial)
 
@@ -104,16 +106,18 @@ Shader "BXCharacters/PBR_BRDF"
                 half roughness = mra.g * GET_PROP(_Metallic_Roughness_AOOffset).y;
                 half ao = saturate(mra.b + GET_PROP(_Metallic_Roughness_AOOffset).z);
 
+                baseColor *= GET_PROP(_BaseColor);
+                half3 specCol = lerp(0.04, baseColor, metallic * 0.5);
                 half f0 = PBR_F0(ndotl, ndotv, ldoth, roughness);
-                half fgd = PBR_SchlickFresnelFunction(ldoth) * PBR_G(ndotl, ndotv, roughness) * PBR_D(roughness, ndoth);
+                half3 fgd = PBR_SchlickFresnelFunction(specCol, ldoth) * PBR_G(ndotl, ndotv, roughness) * PBR_D(roughness, ndoth);
 
                 half shadowAtten = GetDirectionalShadow(0, i.vertex.xy, i.pos_world.xyz, n, i.pos_world.w * _ProjectionParams.z);
                 half3 shadowCol = lerp(_BXShadowsColor.xyz, 1.0, shadowAtten);
 
-                half3 diffuseColor = shadowCol * lightColor * (1.0 - metallic) * (f0 * ndotl + 0.2 * ao);
-                half specularColor = shadowAtten * RGB2Grayscale(lightColor) * fgd * 0.25 / ndotv;
+                half3 diffuseColor = baseColor * (1.0 - metallic) * (f0 * ndotl + 0.2 * ao);
+                half3 specularColor = fgd * 0.25 / ndotv;
 
-                output.lightingBuffer = half4(diffuseColor, specularColor);
+                output.lightingBuffer = half4((diffuseColor + specularColor) * shadowCol * lightColor, 1.0);
                 output.baseColorBuffer = baseColor;
                 int materialFlag = 2; // 1 << 1
                 #ifndef _RECEIVE_SHADOWS_OFF

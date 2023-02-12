@@ -201,7 +201,7 @@ public partial class MainCameraRender
 		GenerateBuffers();
 		DrawGeometryGBuffer(useDynamicBatching, useGPUInstancing, useLightsPerObject);
 		DrawDefferedShading();
-		DrawDefferedCombine();
+		//DrawDefferedCombine();
 		DrawSkyBoxAndTransparent();
 		DrawPostProcess();
 		RenderToCameraTargetAndTonemapping();
@@ -328,9 +328,10 @@ public partial class MainCameraRender
 
 		var shadingOutputs = new NativeArray<int>(1, Allocator.Temp);
 		shadingOutputs[0] = lightingBufferIndex;
-		var shadingInputs = new NativeArray<int>(2, Allocator.Temp);
+		var shadingInputs = new NativeArray<int>(3, Allocator.Temp);
 		shadingInputs[0] = materialDataBufferIndex;
 		shadingInputs[1] = depthNormalBufferIndex;
+		shadingInputs[2] = baseColorBufferIndex;
 		context.BeginSubPass(shadingOutputs, shadingInputs, true);
 		shadingOutputs.Dispose();
 		shadingInputs.Dispose();
@@ -346,16 +347,16 @@ public partial class MainCameraRender
 		combineOutputs[0] = lightingBufferIndex;
 		var combineInputs = new NativeArray<int>(1, Allocator.Temp);
 		combineInputs[0] = baseColorBufferIndex;
-		context.BeginSubPass(combineOutputs, combineInputs, true);
+		context.BeginSubPass(combineOutputs, true);
 		combineOutputs.Dispose();
 		combineInputs.Dispose();
-		// BlendMode为 DstColor * srcCol(baseColor) + Zero * dstCol, Zero * srcAlpha + One * dstAlpha(specular intensity)
-		// 来将漫反射光累计与baseColor相乘
+		//BlendMode为 DstColor *srcCol(baseColor) + Zero * dstCol, Zero* srcAlpha +One * dstAlpha(specular intensity)
+		 //来将漫反射光累计与baseColor相乘
 		commandBuffer.DrawProcedural(Matrix4x4.identity, DefferedCombineMaterial, 0, MeshTopology.Triangles, 3);
-		// BlendMode为 DstAlpha * srcCol(one) + One * dstCol, One * srcAlpha(one) +  Zero * dstAlpha
-		// 来加上镜面反射光累计
+		//BlendMode为 DstAlpha *srcCol(one) + One * dstCol, One* srcAlpha(one) +Zero * dstAlpha
+		 //来加上镜面反射光累计
 		commandBuffer.DrawProcedural(Matrix4x4.identity, DefferedCombineMaterial, 1, MeshTopology.Triangles, 3);
-		// 通过这两次混合可以做到在不切换渲染目标的同时完成光累计和baseColor的Combine
+		//通过这两次混合可以做到在不切换渲染目标的同时完成光累计和baseColor的Combine
 		ExecuteBuffer();
 		context.EndSubPass();
 	}

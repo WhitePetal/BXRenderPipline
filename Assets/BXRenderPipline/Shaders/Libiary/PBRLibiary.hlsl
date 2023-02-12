@@ -26,12 +26,16 @@ half PBR_G(half ndotl, half ndotv, half roughness)
 
 half PBR_SchlickFresnel(half x)
 {
-    half xx = x*x;
-    return xx*xx*x;
+    half i = 1.0 - x;
+    half ii = i*i;
+    return ii*ii*i;
 }
 half PBR_SchlickFresnelFunction(half ldoth)
 {
     return 0.04 + (1.0 - 0.04) * PBR_SchlickFresnel(ldoth);
+}
+half3 PBR_SchlickFresnelFunction(half3 SpecularColor, half LdotH){
+    return SpecularColor + (1 - SpecularColor)* PBR_SchlickFresnel(LdotH);
 }
 half PBR_F0(half ndotl, half ndotv, half ldoth, half roughness)
 {
