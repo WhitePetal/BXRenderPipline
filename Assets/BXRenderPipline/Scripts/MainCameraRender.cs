@@ -189,7 +189,8 @@ public partial class MainCameraRender
 		}
 		else
 		{
-			ShadingInPlayerMode();
+			if(camera.cameraType == CameraType.Game)
+				ShadingInPlayerMode();
 		}
 #else
 	ShadingInPlayerMode();
