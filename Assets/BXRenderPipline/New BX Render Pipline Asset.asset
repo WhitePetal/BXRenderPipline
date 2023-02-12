@@ -1,0 +1,47 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 513ca69b0a374b34f9de89dc6c22e014, type: 3}
+  m_Name: New BX Render Pipline Asset
+  m_EditorClassIdentifier: 
+  editorMode: 1
+  useDynamicBatching: 1
+  useGPUInstancing: 1
+  useSRPBatching: 1
+  useLightsPerObject: 1
+  frameRate: 60
+  defferedShadingSettings:
+    defferedCombineShader: {fileID: 4800000, guid: 941cf75100df01b43b256c07f1fa47c3,
+      type: 3}
+    defferedCombineShaderEditor: {fileID: 4800000, guid: 2aa6742d75c943f42b05f67228425ccb,
+      type: 3}
+    defferedShadingShader: {fileID: 4800000, guid: 17259b7e4effe0a4cb0cc92da2b26c26,
+      type: 3}
+    defferedShadingShaderEditor: {fileID: 4800000, guid: 826416225c24bd94cabdf74895074c3d,
+      type: 3}
+  processSettings:
+    tonemappingShader: {fileID: 4800000, guid: 1b2ac288a9d63c44180f84199e0f52e9, type: 3}
+    tonemappingShaderEditor: {fileID: 4800000, guid: 519a99c47de08774891234bdf8eeba8b,
+      type: 3}
+    toneMappingType: 2
+  shadowSettings:
+    maxShadowDistance: 50
+    distanceFade: 0.1
+    shadowsColor: {r: 0.45074758, g: 0.6403806, b: 0.6509434, a: 1}
+    shadowMapBits: 16
+    shadowMapSize: 2048
+    shadowFilter: 1
+    cascadeBlendMode: 2
+    cascadeCount: 4
+    cascadeRatio1: 0.1
+    cascadeRatio2: 0.25
+    cascadeRatio3: 0.5
+    cascadeFade: 0.1

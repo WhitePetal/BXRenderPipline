@@ -1,0 +1,16 @@
+// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel CSMain
+
+// Create a RenderTexture with enableRandomWrite flag and set it
+// with cs.SetTexture
+#include "Assets/BXRenderPipline/Shaders/Libiary/Common.hlsl"
+FRAMEBUFFER_INPUT_FLOAT_MS(0)
+RWTexture2D<float4> Result;
+
+[numthreads(8,8,1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+    // TODO: insert actual code here!
+
+    Result[id.xy] = LOAD_FRAMEBUFFER_INPUT_MS(0, 0, id.xy);
+}
