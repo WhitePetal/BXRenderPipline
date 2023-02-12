@@ -27,7 +27,6 @@ Shader "BXDefferedShadingsEditor/Shading"
                 float4 vray : TEXCOORD1;
             };
 
-
             TEXTURE2D(_MaterialDataBuffer);
             TEXTURE2D(_BXDepthNormalBuffer);
             SAMPLER(sampler_bilinear_clamp);
@@ -87,20 +86,22 @@ Shader "BXDefferedShadingsEditor/Shading"
                 half ldoth = max(0.0, dot(l, h));
                 half atten = 1.0 / dot(lenV, lenV);
                 lightCol *= atten;
-                half lightIntensity = RGB2Grayscale(lightCol) * atten;
+                half lightIntensity = RGB2Grayscale(lightCol);
 
                 half f0 = PBR_F0(ndotl, ndotv, ldoth, materialData.g);
                 half fgd = PBR_SchlickFresnelFunction(ldoth) * PBR_G(ndotl, ndotv, materialData.g) * PBR_D(materialData.g, ndoth);
+                
                 half oneMinusMetallic = (1.0 - materialData.r);
-                half3 diffuseColor = lightCol * f0 * ndotl;
                 half ndotv_inv = 0.25 / ndotv;
+                
+                half3 diffuseColor = lightCol * f0 * ndotl;
                 half specularColor = lightIntensity * fgd;
 
                 for(int lightIndex = 1; lightIndex < _DirectionalLightCount; ++lightIndex)
                 {
                     l = _DirectionalLightDirections[lightIndex].xyz;
                     lightCol = _DirectionalLightColors[lightIndex].xyz;
-                    h = normalize(l + h);
+                    h = normalize(l + v);
                     ndotl = max(0.0, dot(n, l));
                     ndoth = max(0.0, dot(n, h));
                     ldoth = max(0.0, dot(l, h));
@@ -113,11 +114,11 @@ Shader "BXDefferedShadingsEditor/Shading"
                         shadowAtten = GetDirectionalShadow(lightIndex, i.uv_screen, pos_world.xyz, n, depth01 * _ProjectionParams.z);
                         shadowCol = lerp(_BXShadowsColor.xyz, 1.0, shadowAtten);
                     }
-                    diffuseColor += shadowAtten * lightCol * f0 * ndotl;
+                    diffuseColor += shadowCol * lightCol * f0 * ndotl;
                     specularColor += shadowAtten * RGB2Grayscale(lightCol) * fgd;
                 }
 
-                return half4(diffuseColor, specularColor);
+                return half4(diffuseColor * oneMinusMetallic, specularColor * ndotv_inv);
             }
             ENDHLSL
         }

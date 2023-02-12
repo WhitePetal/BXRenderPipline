@@ -16,6 +16,7 @@ Shader "BXDefferedShadings/Shading"
 
             #pragma vertex vert
             #pragma fragment frag
+
             #include "Assets/BXRenderPipline/Shaders/Libiary/Common.hlsl"
             #include "Assets/BXRenderPipline/Shaders/Libiary/PBRLibiary.hlsl"
 
@@ -26,9 +27,10 @@ Shader "BXDefferedShadings/Shading"
                 float4 vray : TEXCOORD1;
             };
 
-
             FRAMEBUFFER_INPUT_HALF_MS(0)
             FRAMEBUFFER_INPUT_HALF_MS(1)
+            // TEXTURE2D(_BXDepthNormalBuffer);
+            // SAMPLER(sampler_bilinear_clamp);
 
             Varyings vert(uint vertexID : SV_VertexID)
             {
@@ -58,7 +60,7 @@ Shader "BXDefferedShadings/Shading"
 
             half4 frag(Varyings i) : SV_TARGET0
             {
-                half4 materialData = LOAD_FRAMEBUFFER_INPUT_MS(0, 0, i.uv_screen);
+                half4 materialData = LOAD_FRAMEBUFFER_INPUT_MS(0, 0, _MaterilaDataBuffer);
                 int materialFlag = materialData.w * 255;
                 int needShading = materialFlag >> 1;
                 if(needShading == 0) return 0.0;
@@ -67,7 +69,7 @@ Shader "BXDefferedShadings/Shading"
 
                 half3 point_light_pos = half3(1, 1, 0);
                 half3 lightCol = half3(2, 0, 0);
-                half4 depthNormalData = LOAD_FRAMEBUFFER_INPUT_MS(1, 0, i.uv_screen);
+                half4 depthNormalData = LOAD_FRAMEBUFFER_INPUT_MS(1, 0, _BXDepthNormalBuffer);
                 half3 n;
                 float depth01;
                 DecodeDepthNormal(depthNormalData, depth01, n);
@@ -84,20 +86,22 @@ Shader "BXDefferedShadings/Shading"
                 half ldoth = max(0.0, dot(l, h));
                 half atten = 1.0 / dot(lenV, lenV);
                 lightCol *= atten;
-                half lightIntensity = RGB2Grayscale(lightCol) * atten;
+                half lightIntensity = RGB2Grayscale(lightCol);
 
                 half f0 = PBR_F0(ndotl, ndotv, ldoth, materialData.g);
                 half fgd = PBR_SchlickFresnelFunction(ldoth) * PBR_G(ndotl, ndotv, materialData.g) * PBR_D(materialData.g, ndoth);
+                
                 half oneMinusMetallic = (1.0 - materialData.r);
-                half3 diffuseColor = lightCol * f0 * ndotl;
                 half ndotv_inv = 0.25 / ndotv;
+                
+                half3 diffuseColor = lightCol * f0 * ndotl;
                 half specularColor = lightIntensity * fgd;
 
                 for(int lightIndex = 1; lightIndex < _DirectionalLightCount; ++lightIndex)
                 {
                     l = _DirectionalLightDirections[lightIndex].xyz;
                     lightCol = _DirectionalLightColors[lightIndex].xyz;
-                    h = normalize(l + h);
+                    h = normalize(l + v);
                     ndotl = max(0.0, dot(n, l));
                     ndoth = max(0.0, dot(n, h));
                     ldoth = max(0.0, dot(l, h));
@@ -110,7 +114,7 @@ Shader "BXDefferedShadings/Shading"
                         shadowAtten = GetDirectionalShadow(lightIndex, i.uv_screen, pos_world.xyz, n, depth01 * _ProjectionParams.z);
                         shadowCol = lerp(_BXShadowsColor.xyz, 1.0, shadowAtten);
                     }
-                    diffuseColor += shadowAtten * lightCol * f0 * ndotl;
+                    diffuseColor += shadowCol * lightCol * f0 * ndotl;
                     specularColor += shadowAtten * RGB2Grayscale(lightCol) * fgd;
                 }
 

@@ -17,6 +17,8 @@ public partial class MainCameraRender
 		name = commandBufferName
 	};
 
+	private const int depthBufferIndex = 0, cameraTargetIndex = 1, lightingBufferIndex = 2, baseColorBufferIndex = 3, materialDataBufferIndex = 4, depthNormalBufferIndex = 5;
+
 	private static int depthBufferId = Shader.PropertyToID("_DepthBuffer");
 	private static int lightingBufferId = Shader.PropertyToID("_LightingBuffer");
 	private static int baseColorBufferId = Shader.PropertyToID("_BaseColorBuffer");
@@ -190,18 +192,20 @@ public partial class MainCameraRender
 			ShadingInPlayerMode();
 		}
 #else
-	ShadingInPlayerMode(useDynamicBatching, useGPUInstancing, useLightsPerObject);
+	ShadingInPlayerMode();
 #endif
 	}
 
 	private void ShadingInPlayerMode()
 	{
+		GenerateBuffers();
 		DrawGeometryGBuffer(useDynamicBatching, useGPUInstancing, useLightsPerObject);
 		DrawDefferedShading();
 		DrawDefferedCombine();
 		DrawSkyBoxAndTransparent();
 		DrawPostProcess();
 		RenderToCameraTargetAndTonemapping();
+		CleanUp();
 		Submit();
 	}
 
@@ -228,7 +232,12 @@ public partial class MainCameraRender
 		commandBuffer.BeginSample(SampleName);
 	}
 
-	private const int depthBufferIndex = 0, cameraTargetIndex = 1, lightingBufferIndex = 2, baseColorBufferIndex = 3, materialDataBufferIndex = 4, depthNormalBufferIndex = 5;
+	private void GenerateBuffers()
+	{
+		int width = camera.pixelWidth;
+		int height = camera.pixelHeight;
+		commandBuffer.GetTemporaryRT(depthNormalBufferId, width, height, 0, FilterMode.Point, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear, 1, false, RenderTextureMemoryless.None);
+	}
 
 	private void DrawGeometryGBuffer(bool useDynamicBatching, bool useGPUInstancing, bool useLightsPerObject)
 	{
@@ -247,6 +256,7 @@ public partial class MainCameraRender
 		depthBufferTarget.ConfigureClear(Color.clear, 1f, 0);
 
 		cameraTarget.ConfigureTarget(BuiltinRenderTextureType.CameraTarget, false, true);
+		depthNormalBufferTarget.ConfigureTarget(depthNormalBufferTargetId, false, false);
 
 		var attchments = new NativeArray<AttachmentDescriptor>(6, Allocator.Temp);
 		attchments[depthBufferIndex] = depthBufferTarget;
@@ -378,6 +388,11 @@ public partial class MainCameraRender
 		ExecuteBuffer();
 		context.EndSubPass();
 		context.EndRenderPass();
+	}
+
+	private void CleanUp()
+	{
+		commandBuffer.ReleaseTemporaryRT(depthNormalBufferId);
 	}
 
 	private void Submit()
