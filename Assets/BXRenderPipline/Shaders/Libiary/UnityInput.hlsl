@@ -10,8 +10,31 @@ CBUFFER_START(UnityPerFrame)
     float4x4 unity_WorldToCamera;
     float4x4 unity_CameraToWorld;
     float3 _WorldSpaceCameraPos;
+
+    // x = 1 or -1 (-1 if projection is flipped)
+    // y = near plane
+    // z = far plane
+    // w = 1/far plane
     float4 _ProjectionParams;
+
+    // Values used to linearize the Z buffer (http://www.humus.name/temp/Linearize%20depth.txt)
+    // x = 1-far/near
+    // y = far/near
+    // z = x/far
+    // w = y/far
+    // or in case of a reversed depth buffer (UNITY_REVERSED_Z is 1)
+    // x = -1+far/near
+    // y = 1
+    // z = x/far
+    // w = 1/far
     float4 _ZBufferParams;
+    
+    // x = width
+    // y = height
+    // z = 1 + 1.0/width
+    // w = 1 + 1.0/height
+    float4 _ScreenParams;
+
     float4 _Time;
     half _GlobalBloomThreshold;
 

@@ -53,4 +53,11 @@ public class BXRenderPipline : RenderPipeline
 			mainCameraRenderer.Render(context, cameras[i], editorMode, useDynamicBatching, useGPUInstancing, useLightsPerObject, defferedShadingSettings, postprocessSettings, shadowSettings);
 		}
 	}
+
+	protected override void Dispose(bool disposing)
+	{
+		base.Dispose(disposing);
+		if (Lights.tileLightingIndicesBuffer != null) Lights.tileLightingIndicesBuffer.Release();
+		if (Lights.tileLightingDatasBuffer != null) Lights.tileLightingDatasBuffer.Release();
+	}
 }

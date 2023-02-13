@@ -71,44 +71,32 @@ Shader "BXDefferedShadingsEditor/Shading"
 
                 int needShadowed = (materialFlag & 1);
 
-                half3 point_light_pos = half3(1, 1, 0);
-                half3 lightCol = half3(2, 0, 0);
                 half3 n;
                 float depth01;
-                DecodeDepthNormalWorld(depthNormalData, depth01, n);
+                DecodeDepthNormal(depthNormalData, depth01, n);
+                n = mul((float3x3)UNITY_MATRIX_I_V, n);
                 float3 pos_world = _WorldSpaceCameraPos.xyz + i.vray.xyz * depth01;
                 half3 v = normalize(_WorldSpaceCameraPos.xyz - pos_world);
-                float3 lenV = point_light_pos - pos_world;
-                half3 l = normalize(lenV);
-                half3 h = normalize(l + v);
-
                 half ndotv = max(0.0001, dot(n, v));
-                half ndotl = max(0.0, dot(n, l));
-                half ndoth = max(0.0, dot(n, h));
-                half ldoth = max(0.0, dot(l, h));
-                half atten = 1.0 / dot(lenV, lenV);
-                lightCol *= atten;
 
                 half3 specCol = lerp(0.04, baseColor.rgb, materialData.r * 0.5);
-                half f0 = PBR_F0(ndotl, ndotv, ldoth, materialData.g);
-                half3 fgd = PBR_SchlickFresnelFunction(specCol, ldoth) * PBR_G(ndotl, ndotv, materialData.g) * PBR_D(materialData.g, ndoth);
-                
+
                 half oneMinusMetallic = (1.0 - materialData.r);
                 half ndotv_inv = 0.25 / ndotv;
                 
-                half3 diffuseColor = lightCol * f0 * ndotl;
-                half3 specularColor = lightCol * fgd;
+                half3 diffuseColor = 0.0;
+                half3 specularColor = 0.0;
 
-                for(int lightIndex = 1; lightIndex < _DirectionalLightCount; ++lightIndex)
+                for(uint lightIndex = 1; lightIndex < _DirectionalLightCount; ++lightIndex)
                 {
-                    l = _DirectionalLightDirections[lightIndex].xyz;
-                    lightCol = _DirectionalLightColors[lightIndex].xyz;
-                    h = normalize(l + v);
-                    ndotl = max(0.0, dot(n, l));
-                    ndoth = max(0.0, dot(n, h));
-                    ldoth = max(0.0, dot(l, h));
-                    f0 = PBR_F0(ndotl, ndotv, ldoth, materialData.g);
-                    fgd = PBR_SchlickFresnelFunction(specCol, ldoth) * PBR_G(ndotl, ndotv, materialData.g) * PBR_D(materialData.g, ndoth);
+                    half3 l = _DirectionalLightDirections[lightIndex].xyz;
+                    half3 lightCol = _DirectionalLightColors[lightIndex].xyz;
+                    half3 h = normalize(l + v);
+                    half ndotl = max(0.0, dot(n, l));
+                    half ndoth = max(0.0, dot(n, h));
+                    half ldoth = max(0.0, dot(l, h));
+                    half f0 = PBR_F0(ndotl, ndotv, ldoth, materialData.g);
+                    half3 fgd = PBR_SchlickFresnelFunction(specCol, ldoth) * PBR_G(ndotl, ndotv, materialData.g) * PBR_D(materialData.g, ndoth);
                     half3 shadowCol = 1.0;
                     if(needShadowed == 1)
                     {

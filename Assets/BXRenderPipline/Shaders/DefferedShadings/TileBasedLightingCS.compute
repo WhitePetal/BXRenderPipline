@@ -1,0 +1,53 @@
+#pragma kernel CSMain
+
+#include "Assets/BXRenderPipline/Shaders/Libiary/AllCommon.hlsl"
+
+// outpus
+RWStructuredBuffer<uint> _TileLightingIndices;
+RWStructuredBuffer<uint> _TileLightingDatas;
+
+// inputs
+#define MAX_POINT_LIGHT_COUNT 256
+float4 _PointLightSpheres[MAX_POINT_LIGHT_COUNT];
+Texture2D _BXDepthNormalBuffer;
+SamplerState sampler_point_clamp;
+float4 _ScreenParams;
+float4 _ProjectionParams;
+
+// temps
+groupshared uint tileMinDepth = 0xFFFFFFFF;
+groupshared uint tileMaxDepth = 0;
+groupshared uint tileVisibleLightCount = 0;
+
+[numthreads(16,16,1)]
+void CSMain (uint3 id : SV_DispatchThreadID, uint groupIndex : SV_GROUPINDEX, uint3 groupId : SV_GROUPID)
+{
+    if(groupIndex == 0)
+    {
+        tileMinDepth = 0xFFFFFFFF;
+        tileMaxDepth = 0;
+        tileVisibleLightCount = 0;
+    }
+    GroupMemoryBarrierWithGroupSync();
+
+    float4 depthNormalData = _BXDepthNormalBuffer.SampleLevel(sampler_point_clamp, (float2)id.xy / _ScreenParams.xy, 0);
+    float3 n;
+    float depth01;
+    DecodeDepthNormal(depthNormalData, depth01, n);
+    float depth = depth01 * _ProjectionParams.z;
+    InterlockedMin(tileMinDepth,asuint(depth));
+    InterlockedMax(tileMaxDepth,asuint(depth));
+    GroupMemoryBarrierWithGroupSync();
+
+    float4 lightSphere = _PointLightSpheres[groupIndex];
+    uint offset;
+    InterlockedAdd(tileVisibleLightCount, 1, offset);
+    uint tileIndex = groupId.y * _ScreenParams.x / 16 + groupId.x;
+    GroupMemoryBarrierWithGroupSync();
+    _TileLightingIndices[tileIndex * 256 + groupIndex] = groupIndex;
+    if(groupIndex == 0)
+    {
+        _TileLightingDatas[tileIndex] = tileVisibleLightCount;
+    }
+    GroupMemoryBarrierWithGroupSync();
+}

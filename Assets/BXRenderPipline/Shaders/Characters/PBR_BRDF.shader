@@ -45,6 +45,7 @@ Shader "BXCharacters/PBR_BRDF"
                 half3 normal_world : TEXCOORD2;
                 half3 tangent_world : TEXCOORD3;
                 half3 binormal_world : TEXCOORD4;
+                float3 normal_view : TEXCOORD5;
                 UNITY_VERTEX_INPUT_INSTANCE_ID
             };
 
@@ -71,6 +72,7 @@ Shader "BXCharacters/PBR_BRDF"
                 o.normal_world = TransformObjectToWorldNormal(v.normal);
                 o.tangent_world = TransformObjectToWorldDir(v.tangent.xyz);
                 o.binormal_world = cross(o.normal_world, o.tangent_world) * v.tangent.w * unity_WorldTransformParams.w;
+                o.normal_view = mul((float3x3)UNITY_MATRIX_V, o.normal_world).xyz;
 
                 return o;
             }
@@ -123,7 +125,7 @@ Shader "BXCharacters/PBR_BRDF"
                     materialFlag += 1;
                 #endif
                 output.materialDataBuffer = half4(metallic, roughness, ao, materialFlag / 255.0);
-                output.depthNormalBuffer = (i.pos_world.w < (1.0-1.0/65025.0)) ? EncodeDepthNormalWorld(i.pos_world.w, n) : float4(0.5,0.5,1.0,1.0);
+                output.depthNormalBuffer = (i.pos_world.w < (1.0-1.0/65025.0)) ? EncodeDepthNormal(i.pos_world.w, normalize(i.normal_view)) : float4(0.5,0.5,1.0,1.0);
                 return output;
             }
             ENDHLSL

@@ -17,7 +17,7 @@ public partial class MainCameraRender
 		name = commandBufferName
 	};
 
-	private const int depthBufferIndex = 0, cameraTargetIndex = 1, lightingBufferIndex = 2, baseColorBufferIndex = 3, materialDataBufferIndex = 4, depthNormalBufferIndex = 5;
+	private const int depthBufferIndex = 0, lightingBufferIndex = 1, baseColorBufferIndex = 2, materialDataBufferIndex = 3, depthNormalBufferIndex = 4, cameraTargetIndex = 5;
 
 	private static int depthBufferId = Shader.PropertyToID("_DepthBuffer");
 	private static int lightingBufferId = Shader.PropertyToID("_LightingBuffer");
@@ -180,6 +180,7 @@ public partial class MainCameraRender
 		commandBuffer.BeginSample(SampleName);
 		ExecuteBuffer();
 		lights.Setup(context, cullingResults, shadowSettings);
+		context.Submit();
 		commandBuffer.EndSample(SampleName);
 		SetupForRender();
 #if UNITY_EDITOR
@@ -201,8 +202,8 @@ public partial class MainCameraRender
 	{
 		GenerateBuffers();
 		DrawGeometryGBuffer(useDynamicBatching, useGPUInstancing, useLightsPerObject);
+		GenerateTileLightingData();
 		DrawDefferedShading();
-		//DrawDefferedCombine();
 		DrawSkyBoxAndTransparent();
 		DrawPostProcess();
 		RenderToCameraTargetAndTonemapping();
@@ -237,7 +238,11 @@ public partial class MainCameraRender
 	{
 		int width = camera.pixelWidth;
 		int height = camera.pixelHeight;
+		commandBuffer.GetTemporaryRT(lightingBufferId, width, height, 0, FilterMode.Point, RenderTextureFormat.ARGBHalf, RenderTextureReadWrite.Linear, 1, false, RenderTextureMemoryless.None);
+		commandBuffer.GetTemporaryRT(baseColorBufferId, width, height, 0, FilterMode.Point, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear, 1, false, RenderTextureMemoryless.None);
+		commandBuffer.GetTemporaryRT(materialDataBufferId, width, height, 0, FilterMode.Point, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear, 1, false, RenderTextureMemoryless.None);
 		commandBuffer.GetTemporaryRT(depthNormalBufferId, width, height, 0, FilterMode.Point, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear, 1, false, RenderTextureMemoryless.None);
+		commandBuffer.GetTemporaryRT(depthBufferId, width, height, 24, FilterMode.Point, RenderTextureFormat.Depth, RenderTextureReadWrite.Linear, 1, false, RenderTextureMemoryless.Depth);
 	}
 
 	private void DrawGeometryGBuffer(bool useDynamicBatching, bool useGPUInstancing, bool useLightsPerObject)
@@ -257,15 +262,18 @@ public partial class MainCameraRender
 		depthBufferTarget.ConfigureClear(Color.clear, 1f, 0);
 
 		cameraTarget.ConfigureTarget(BuiltinRenderTextureType.CameraTarget, false, true);
-		depthNormalBufferTarget.ConfigureTarget(depthNormalBufferTargetId, false, false);
+		lightingBufferTarget.ConfigureTarget(lightingBufferTargetId, false, false);
+		baseColorBufferTarget.ConfigureTarget(baseColorBufferTargetId, false, false);
+		materialDataBufferTarget.ConfigureTarget(materialDataBufferTargetId, false, false);
+		depthNormalBufferTarget.ConfigureTarget(depthNormalBufferTargetId, false, true);
 
 		var attchments = new NativeArray<AttachmentDescriptor>(6, Allocator.Temp);
 		attchments[depthBufferIndex] = depthBufferTarget;
-		attchments[cameraTargetIndex] = cameraTarget;
 		attchments[lightingBufferIndex] = lightingBufferTarget;
 		attchments[baseColorBufferIndex] = baseColorBufferTarget;
 		attchments[materialDataBufferIndex] = materialDataBufferTarget;
 		attchments[depthNormalBufferIndex] = depthNormalBufferTarget;
+		attchments[cameraTargetIndex] = cameraTarget;
 
 		context.BeginRenderPass(camera.pixelWidth, camera.pixelHeight, 1, attchments, depthBufferIndex);
 		attchments.Dispose();
@@ -304,6 +312,19 @@ public partial class MainCameraRender
 
 		context.DrawRenderers(cullingResults, ref drawingSettings, ref filteringSettings);
 		context.EndSubPass();
+		context.EndRenderPass();
+	}
+
+	private void GenerateTileLightingData()
+	{
+		if (lights.pointLightCount <= 0) return;
+		commandBuffer.EndSample(SampleName);
+		//commandBuffer.BeginSample("TileLightingComputeShader");
+		commandBuffer.SetComputeTextureParam(defferedShadingSettings.tileLightingCS, 0, depthNormalBufferId, depthNormalBufferTargetId);
+		commandBuffer.DispatchCompute(defferedShadingSettings.tileLightingCS, 0, Mathf.CeilToInt(Screen.width / 16f), Mathf.CeilToInt(Screen.height / 16f), 1);
+		//commandBuffer.EndSample("TileLightingComputeShader");
+		commandBuffer.BeginSample(SampleName);
+		ExecuteBuffer();
 	}
 
 	private void DrawDefferedShading()
@@ -327,12 +348,36 @@ public partial class MainCameraRender
 		viewPortRays.SetRow(2, rb);
 		viewPortRays.SetRow(3, ru);
 
+		var cameraTarget = new AttachmentDescriptor(RenderTextureFormat.ARGB32);
+		var lightingBufferTarget = new AttachmentDescriptor(RenderTextureFormat.ARGBHalf);
+		var baseColorBufferTarget = new AttachmentDescriptor(RenderTextureFormat.ARGB32);
+		var materialDataBufferTarget = new AttachmentDescriptor(RenderTextureFormat.ARGB32);
+		var depthNormalBufferTarget = new AttachmentDescriptor(RenderTextureFormat.ARGB32);
+		var depthBufferTarget = new AttachmentDescriptor(RenderTextureFormat.Depth);
+
+		cameraTarget.ConfigureTarget(BuiltinRenderTextureType.CameraTarget, false, true);
+		lightingBufferTarget.ConfigureTarget(lightingBufferTargetId, false, false);
+		baseColorBufferTarget.ConfigureTarget(baseColorBufferTargetId, false, false);
+		materialDataBufferTarget.ConfigureTarget(materialDataBufferTargetId, false, false);
+		depthNormalBufferTarget.ConfigureTarget(depthNormalBufferTargetId, false, false);
+
+		var attchments = new NativeArray<AttachmentDescriptor>(6, Allocator.Temp);
+		attchments[depthBufferIndex] = depthBufferTarget;
+		attchments[lightingBufferIndex] = lightingBufferTarget;
+		attchments[baseColorBufferIndex] = baseColorBufferTarget;
+		attchments[materialDataBufferIndex] = materialDataBufferTarget;
+		attchments[depthNormalBufferIndex] = depthNormalBufferTarget;
+		attchments[cameraTargetIndex] = cameraTarget;
+
+		context.BeginRenderPass(camera.pixelWidth, camera.pixelHeight, 1, attchments, depthBufferIndex);
+		attchments.Dispose();
+
 		var shadingOutputs = new NativeArray<int>(1, Allocator.Temp);
 		shadingOutputs[0] = lightingBufferIndex;
 		var shadingInputs = new NativeArray<int>(3, Allocator.Temp);
-		shadingInputs[0] = materialDataBufferIndex;
-		shadingInputs[1] = depthNormalBufferIndex;
-		shadingInputs[2] = baseColorBufferIndex;
+		shadingInputs[0] = baseColorBufferIndex;
+		shadingInputs[1] = materialDataBufferIndex;
+		shadingInputs[2] = depthNormalBufferIndex;
 		context.BeginSubPass(shadingOutputs, shadingInputs, true);
 		shadingOutputs.Dispose();
 		shadingInputs.Dispose();

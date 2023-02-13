@@ -13,4 +13,6 @@ public class DefferedShadingSettings
 	public Shader defferedShadingShader;
 	[SerializeField]
 	public Shader defferedShadingShaderEditor;
+	[SerializeField]
+	public ComputeShader tileLightingCS;
 }
