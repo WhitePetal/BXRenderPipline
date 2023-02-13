@@ -21,7 +21,7 @@ Shader "BXDefferedShadings/Combine"
                 float2 uv_screen : TEXCOORD0;
             };
 
-            FRAMEBUFFER_INPUT_HALF_MS(0)
+            FRAMEBUFFER_INPUT_HALF(0);
 
             Varyings vert(uint vertexID : SV_VertexID)
             {
@@ -41,7 +41,7 @@ Shader "BXDefferedShadings/Combine"
 
             half4 frag(Varyings i) : SV_TARGET
             {
-                half4 baseColor = LOAD_FRAMEBUFFER_INPUT_MS(0, 0, i.uv_screen);
+                half4 baseColor = LOAD_FRAMEBUFFER_INPUT(0, i.uv_screen);
                 return half4(baseColor.rgb, 1.0);
             }
             ENDHLSL

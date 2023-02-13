@@ -54,7 +54,11 @@ public partial class MainCameraRender
 		commandBuffer.GetTemporaryRT(baseColorBufferId, width, height, 0, FilterMode.Point, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear, 1, false, RenderTextureMemoryless.None);
 		commandBuffer.GetTemporaryRT(materialDataBufferId, width, height, 0, FilterMode.Point, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear, 1, false, RenderTextureMemoryless.None);
 		commandBuffer.GetTemporaryRT(depthNormalBufferId, width, height, 0, FilterMode.Point, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear, 1, false, RenderTextureMemoryless.None);
+#if UNITY_EDITOR_OSX
+		commandBuffer.GetTemporaryRT(depthBufferId, width, height, 24, FilterMode.Point, RenderTextureFormat.Depth, RenderTextureReadWrite.Linear, 1, false, RenderTextureMemoryless.None);
+#else
 		commandBuffer.GetTemporaryRT(depthBufferId, width, height, 24, FilterMode.Point, RenderTextureFormat.Depth, RenderTextureReadWrite.Linear, 1, false, RenderTextureMemoryless.Depth);
+#endif
 	}
 
 	private void DrawGeometryGBuffer_Editor(bool useDynamicBatching, bool useGPUInstancing, bool useLightsPerObject)
@@ -111,6 +115,12 @@ public partial class MainCameraRender
 		viewPortRays.SetRow(2, rb);
 		viewPortRays.SetRow(3, ru);
 
+#if UNITY_EDITOR_OSX
+		commandBuffer.SetRenderTarget(lightingBufferTargetId, RenderBufferLoadAction.DontCare, RenderBufferStoreAction.Store, depthBufferTargetId, RenderBufferLoadAction.DontCare, RenderBufferStoreAction.Store);
+		commandBuffer.SetGlobalTexture(baseColorBufferId, baseColorBufferTargetId);
+		commandBuffer.SetGlobalTexture(materialDataBufferId, materialDataBufferTargetId);
+		commandBuffer.SetGlobalTexture(depthNormalBufferId, depthNormalBufferTargetId);
+#endif
 		commandBuffer.SetGlobalMatrix(viewPortRaysId, viewPortRays);
 		commandBuffer.DrawProcedural(Matrix4x4.identity, DefferedShadingMaterial, 0, MeshTopology.Triangles, 6);
 	}

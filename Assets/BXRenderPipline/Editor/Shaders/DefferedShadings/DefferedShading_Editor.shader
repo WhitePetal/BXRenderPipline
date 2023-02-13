@@ -90,7 +90,7 @@ Shader "BXDefferedShadingsEditor/Shading"
                 half atten = 1.0 / dot(lenV, lenV);
                 lightCol *= atten;
 
-                half3 specCol = lerp(0.04, baseColor, materialData.r * 0.5);
+                half3 specCol = lerp(0.04, baseColor.rgb, materialData.r * 0.5);
                 half f0 = PBR_F0(ndotl, ndotv, ldoth, materialData.g);
                 half3 fgd = PBR_SchlickFresnelFunction(specCol, ldoth) * PBR_G(ndotl, ndotv, materialData.g) * PBR_D(materialData.g, ndoth);
                 
@@ -121,7 +121,7 @@ Shader "BXDefferedShadingsEditor/Shading"
                     specularColor += lightCol * fgd;
                 }
 
-                return half4(diffuseColor * oneMinusMetallic * baseColor + specularColor * ndotv_inv, 1.0);
+                return half4(diffuseColor * oneMinusMetallic * baseColor.rgb + specularColor * ndotv_inv, 1.0);
             }
             ENDHLSL
         }

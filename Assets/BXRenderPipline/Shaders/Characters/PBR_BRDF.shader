@@ -107,17 +107,18 @@ Shader "BXCharacters/PBR_BRDF"
                 half ao = saturate(mra.b + GET_PROP(_Metallic_Roughness_AOOffset).z);
 
                 baseColor *= GET_PROP(_BaseColor);
-                half3 specCol = lerp(0.04, baseColor, metallic * 0.5);
+                half3 specCol = lerp(0.04, baseColor.rgb, metallic * 0.5);
                 half f0 = PBR_F0(ndotl, ndotv, ldoth, roughness);
                 half3 fgd = PBR_SchlickFresnelFunction(specCol, ldoth) * PBR_G(ndotl, ndotv, roughness) * PBR_D(roughness, ndoth);
 
                 half shadowAtten = GetDirectionalShadow(0, i.vertex.xy, i.pos_world.xyz, n, i.pos_world.w * _ProjectionParams.z);
                 half3 shadowCol = lerp(_BXShadowsColor.xyz, 1.0, shadowAtten);
 
-                half3 diffuseColor = baseColor * (1.0 - metallic) * (f0 * ndotl + 0.2 * ao);
+                half3 diffuseColor = baseColor.rgb * (1.0 - metallic) * f0 * ndotl;
+                half3 indirectDiffuse = 0.2 * ao * baseColor.rgb;
                 half3 specularColor = fgd * 0.25 / ndotv;
 
-                output.lightingBuffer = half4((diffuseColor + specularColor) * shadowCol * lightColor, 1.0);
+                output.lightingBuffer = half4((diffuseColor + specularColor) * shadowCol * lightColor + indirectDiffuse, 1.0);
                 output.baseColorBuffer = baseColor;
                 int materialFlag = 2; // 1 << 1
                 #ifndef _RECEIVE_SHADOWS_OFF

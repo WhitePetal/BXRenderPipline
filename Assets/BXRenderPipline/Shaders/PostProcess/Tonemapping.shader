@@ -21,7 +21,7 @@ Shader "BXPostProcess/Tonemapping"
                 float2 uv_screen : TEXCOORD0;
             };
 
-            FRAMEBUFFER_INPUT_HALF_MS(0)
+            FRAMEBUFFER_INPUT_HALF(0);
 
             Varyings vert(uint vertexID : SV_VertexID)
             {
@@ -41,7 +41,7 @@ Shader "BXPostProcess/Tonemapping"
 
             half4 frag(Varyings i) : SV_TARGET0
             {
-                half4 col = LOAD_FRAMEBUFFER_INPUT_MS(0, 0, i.uv_screen);
+                half4 col = LOAD_FRAMEBUFFER_INPUT(0, i.uv_screen);
                 col = min(col, 60);
                 col /= col + 1.0;
                 return half4(col.rgb, 1.0);
@@ -69,7 +69,7 @@ Shader "BXPostProcess/Tonemapping"
                 float2 uv_screen : TEXCOORD0;
             };
 
-            FRAMEBUFFER_INPUT_HALF_MS(0)
+            FRAMEBUFFER_INPUT_HALF(0);
 
             Varyings vert(uint vertexID : SV_VertexID)
             {
@@ -89,7 +89,7 @@ Shader "BXPostProcess/Tonemapping"
 
             half4 frag(Varyings i) : SV_TARGET
             {
-                half4 col = LOAD_FRAMEBUFFER_INPUT_MS(0, 0, i.uv_screen);
+                half4 col = LOAD_FRAMEBUFFER_INPUT(0, i.uv_screen);
                 col.rgb = min(col.rgb, 60.0);
 	            col.rgb = NeutralTonemap(col.rgb);
                 return half4(col.rgb, 1.0);
@@ -117,7 +117,7 @@ Shader "BXPostProcess/Tonemapping"
                 float2 uv_screen : TEXCOORD0;
             };
 
-            FRAMEBUFFER_INPUT_HALF_MS(0)
+            FRAMEBUFFER_INPUT_HALF(0);
 
             Varyings vert(uint vertexID : SV_VertexID)
             {
@@ -137,7 +137,7 @@ Shader "BXPostProcess/Tonemapping"
 
             half4 frag(Varyings i) : SV_TARGET
             {
-                half4 col = LOAD_FRAMEBUFFER_INPUT_MS(0, 0, i.uv_screen);
+                half4 col = LOAD_FRAMEBUFFER_INPUT(0, i.uv_screen);
                 col.rgb = min(col.rgb, 60.0);
                 return half4(AcesTonemap(unity_to_ACES(col.rgb)), 1.0);
             }

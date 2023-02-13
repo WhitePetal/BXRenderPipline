@@ -27,9 +27,9 @@ Shader "BXDefferedShadings/Shading"
                 float4 vray : TEXCOORD1;
             };
 
-            FRAMEBUFFER_INPUT_HALF_MS(0)
-            FRAMEBUFFER_INPUT_HALF_MS(1)
-            FRAMEBUFFER_INPUT_HALF_MS(2)
+            FRAMEBUFFER_INPUT_HALF(0);
+            FRAMEBUFFER_INPUT_HALF(1);
+            FRAMEBUFFER_INPUT_HALF(2);
             // TEXTURE2D(_BXDepthNormalBuffer);
             // SAMPLER(sampler_bilinear_clamp);
 
@@ -61,13 +61,13 @@ Shader "BXDefferedShadings/Shading"
 
             half4 frag(Varyings i) : SV_TARGET0
             {
-                half4 materialData = LOAD_FRAMEBUFFER_INPUT_MS(0, 0, _MaterilaDataBuffer);
+                half4 materialData = LOAD_FRAMEBUFFER_INPUT(0, i.uv_screen);
                 int materialFlag = materialData.w * 255;
                 int needShading = materialFlag >> 1;
                 if(needShading == 0) return 0.0;
 
-                half4 depthNormalData = LOAD_FRAMEBUFFER_INPUT_MS(1, 0, _BXDepthNormalBuffer);
-                half4 baseColor = LOAD_FRAMEBUFFER_INPUT_MS(2, 0, _BaseColorBuffer);
+                half4 depthNormalData = LOAD_FRAMEBUFFER_INPUT(1, i.uv_screen);
+                half4 baseColor = LOAD_FRAMEBUFFER_INPUT(2, i.uv_screen);
 
                 int needShadowed = (materialFlag & 1);
 
@@ -90,7 +90,7 @@ Shader "BXDefferedShadings/Shading"
                 half atten = 1.0 / dot(lenV, lenV);
                 lightCol *= atten;
 
-                half3 specCol = lerp(0.04, baseColor, materialData.r * 0.5);
+                half3 specCol = lerp(0.04, baseColor.rgb, materialData.r * 0.5);
                 half f0 = PBR_F0(ndotl, ndotv, ldoth, materialData.g);
                 half3 fgd = PBR_SchlickFresnelFunction(specCol, ldoth) * PBR_G(ndotl, ndotv, materialData.g) * PBR_D(materialData.g, ndoth);
                 
@@ -121,7 +121,8 @@ Shader "BXDefferedShadings/Shading"
                     specularColor += lightCol * fgd;
                 }
 
-                return half4(diffuseColor * oneMinusMetallic * baseColor + specularColor * ndotv_inv, 1.0);
+
+                return half4(diffuseColor * oneMinusMetallic * baseColor.rgb + specularColor * ndotv_inv, 1.0);
             }
             ENDHLSL
         }
