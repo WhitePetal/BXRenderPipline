@@ -97,13 +97,41 @@ inline float4 EncodeDepthNormal( float depth, float3 normal )
 {
     float4 enc;
     enc.xy = EncodeViewNormalStereo (normal);
-    enc.zw = EncodeFloatRG (depth);
+    enc.zw = EncodeFloatRG(depth);
     return enc;
 }
 inline void DecodeDepthNormal( float4 enc, out float depth, out float3 normal )
 {
-    depth = DecodeFloatRG (enc.zw);
-    normal = DecodeViewNormalStereo (enc);
+    depth = DecodeFloatRG(enc.zw);
+    normal = DecodeViewNormalStereo(enc);
+}
+
+inline half2 SignNotZero(half2 xy){
+    return xy >= 0 ? 1:-1;
+}
+
+inline half2 EncodeNormalOct(half3 normal_world){
+    half l = dot(abs(normal_world),1);
+    half3 normalOct = normal_world * rcp(l); 
+    return normal_world.z > 0 ? normalOct.xy : (1-abs(normalOct.yx)*SignNotZero(normalOct.xy));
+}
+inline half3 DecodeNormalOct(half2 data){
+    half3 v = half3(data.xy,1 - abs(data.x) - abs(data.y));
+    v.xy = v.z <= 0 ? (SignNotZero(v.xy) * (1 - abs(v.yx))) : v.xy;
+    return normalize(v);
+}
+
+inline half4 EncodeDepthNormalWorld(float depth01, float3 normal_world)
+{
+    half4 enc;
+    enc.xy = EncodeNormalOct(normal_world);
+    enc.zw = EncodeFloatRG(depth01);
+    return enc;
+}
+inline void DecodeDepthNormalWorld(half4 data, out float depth, out half3 normal)
+{
+    depth = DecodeFloatRG(data.zw);
+    normal = DecodeNormalOct(data.xy);
 }
 
 #endif

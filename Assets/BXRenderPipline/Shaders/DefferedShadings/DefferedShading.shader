@@ -75,8 +75,7 @@ Shader "BXDefferedShadings/Shading"
                 half3 lightCol = half3(2, 0, 0);
                 half3 n;
                 float depth01;
-                DecodeDepthNormal(depthNormalData, depth01, n);
-                n = mul((float3x3)UNITY_MATRIX_I_V, n);
+                DecodeDepthNormalWorld(depthNormalData, depth01, n);
                 float3 pos_world = _WorldSpaceCameraPos.xyz + i.vray.xyz * depth01;
                 half3 v = normalize(_WorldSpaceCameraPos.xyz - pos_world);
                 float3 lenV = point_light_pos - pos_world;
