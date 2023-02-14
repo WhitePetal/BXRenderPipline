@@ -13,11 +13,47 @@ Texture2D _BXDepthNormalBuffer;
 SamplerState sampler_point_clamp;
 float4 _ScreenParams;
 float4 _ProjectionParams;
+float3 _WorldSpaceCameraPos;
+float4x4 _ViewPortRays;
 
 // temps
 groupshared uint tileMinDepth = 0xFFFFFFFF;
 groupshared uint tileMaxDepth = 0;
 groupshared uint tileVisibleLightCount = 0;
+
+bool IntersectTileAndPointLight(float zMin, float zMax, uint3 groupId, float4 lightSphere)
+{
+    float2 tileScreenUVLB = float2(groupId.x * 16 / _ScreenParams.x, groupId.y * 16 / _ScreenParams.y);
+    float2 tileScreenUVRU = float2((groupId.x + 1) * 16 / _ScreenParams.x, (groupId.y + 1) * 16 / _ScreenParams.y);
+
+    float3 lb = normalize(_ViewPortRays[2].xyz);
+    float3 rb = normalize(_ViewPortRays[3].xyz);
+    float3 lu = normalize(_ViewPortRays[0].xyz);
+    float3 ru = normalize(_ViewPortRays[1].xyz);
+
+    float3 LU = lerp(lu, ru, tileScreenUVLB.x);
+    float3 LB = lerp(lb, lu, tileScreenUVLB.x);
+    float3 bMin = _WorldSpaceCameraPos.xyz + lerp(LB, LU, tileScreenUVLB.y) * zMin;
+
+    float3 RU = lerp(lu, ru, tileScreenUVRU.x);
+    float3 RB = lerp(lb, lu, tileScreenUVRU.x);
+    float3 bMax = _WorldSpaceCameraPos.xyz + lerp(RB, RU, tileScreenUVRU.y) * zMax;
+
+    bMax = max(bMax, bMin);
+    bMin = min(bMax, bMin);
+
+    float ww = lightSphere.w * lightSphere.w;
+
+    half dmin = 0;
+    [unroll]
+    for(int i = 0; i < 3; ++i)
+    {
+        dmin += lightSphere[i] < bMin[i] ? (lightSphere[i] - bMin[i]) * (lightSphere[i] - bMin[i]) : 0;
+        dmin += lightSphere[i] > bMax[i] ? (lightSphere[i] - bMax[i]) * (lightSphere[i] - bMax[i]) : 0;
+    }
+
+    return dmin <= ww;
+}
 
 [numthreads(16,16,1)]
 void CSMain (uint3 id : SV_DispatchThreadID, uint groupIndex : SV_GROUPINDEX, uint3 groupId : SV_GROUPID)
@@ -40,11 +76,14 @@ void CSMain (uint3 id : SV_DispatchThreadID, uint groupIndex : SV_GROUPINDEX, ui
     GroupMemoryBarrierWithGroupSync();
 
     float4 lightSphere = _PointLightSpheres[groupIndex];
-    uint offset;
-    InterlockedAdd(tileVisibleLightCount, 1, offset);
     uint tileIndex = groupId.y * _ScreenParams.x / 16 + groupId.x;
+    if (IntersectTileAndPointLight(asfloat(tileMinDepth), asfloat(tileMaxDepth), groupId, lightSphere))
+    {
+        uint offset;
+        InterlockedAdd(tileVisibleLightCount, 1, offset);
+        _TileLightingIndices[tileIndex * 256 + offset] = groupIndex;
+    }
     GroupMemoryBarrierWithGroupSync();
-    _TileLightingIndices[tileIndex * 256 + groupIndex] = groupIndex;
     if(groupIndex == 0)
     {
         _TileLightingDatas[tileIndex] = tileVisibleLightCount;

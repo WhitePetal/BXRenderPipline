@@ -57,7 +57,8 @@ public class BXRenderPipline : RenderPipeline
 	protected override void Dispose(bool disposing)
 	{
 		base.Dispose(disposing);
-		if (Lights.tileLightingIndicesBuffer != null) Lights.tileLightingIndicesBuffer.Release();
-		if (Lights.tileLightingDatasBuffer != null) Lights.tileLightingDatasBuffer.Release();
+		if (mainCameraRenderer.lights.tileLightingIndicesBuffer != null) mainCameraRenderer.lights.tileLightingIndicesBuffer.Release();
+		if (mainCameraRenderer.lights.tileLightingDatasBuffer != null) mainCameraRenderer.lights.tileLightingDatasBuffer.Release();
+		if (mainCameraRenderer.bxdepthNormalBuffer != null) mainCameraRenderer.bxdepthNormalBuffer.Release();
 	}
 }

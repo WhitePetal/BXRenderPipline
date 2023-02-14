@@ -32,6 +32,7 @@ public partial class MainCameraRender
 
 	private void ShadingInEditorMode()
 	{
+		GenerateTileLightingData();
 		GenerateBuffers_Editor();
 		DrawGeometryGBuffer_Editor(useDynamicBatching, useGPUInstancing, useLightsPerObject);
 		DrawDefferedShading_Editor();
@@ -53,15 +54,15 @@ public partial class MainCameraRender
 		commandBuffer.GetTemporaryRT(lightingBufferId, width, height, 0, FilterMode.Point, RenderTextureFormat.ARGBHalf, RenderTextureReadWrite.Linear, 1, false, RenderTextureMemoryless.None);
 		commandBuffer.GetTemporaryRT(baseColorBufferId, width, height, 0, FilterMode.Point, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear, 1, false, RenderTextureMemoryless.None);
 		commandBuffer.GetTemporaryRT(materialDataBufferId, width, height, 0, FilterMode.Point, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear, 1, false, RenderTextureMemoryless.None);
-		commandBuffer.GetTemporaryRT(depthNormalBufferId, width, height, 0, FilterMode.Point, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear, 1, false, RenderTextureMemoryless.None);
+		//commandBuffer.GetTemporaryRT(depthNormalBufferId, width, height, 0, FilterMode.Point, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear, 1, false, RenderTextureMemoryless.None);
 #if UNITY_EDITOR_OSX
 		commandBuffer.GetTemporaryRT(depthBufferId, width, height, 24, FilterMode.Point, RenderTextureFormat.Depth, RenderTextureReadWrite.Linear, 1, false, RenderTextureMemoryless.None);
 #else
 		commandBuffer.GetTemporaryRT(depthBufferId, width, height, 24, FilterMode.Point, RenderTextureFormat.Depth, RenderTextureReadWrite.Linear, 1, false, RenderTextureMemoryless.Depth);
 #endif
-	}
+    }
 
-	private void DrawGeometryGBuffer_Editor(bool useDynamicBatching, bool useGPUInstancing, bool useLightsPerObject)
+    private void DrawGeometryGBuffer_Editor(bool useDynamicBatching, bool useGPUInstancing, bool useLightsPerObject)
 	{
 		commandBuffer.SetRenderTarget(defferedShadingBinding);
 		commandBuffer.ClearRenderTarget(camera.clearFlags < CameraClearFlags.Depth, true, Color.clear);
@@ -96,25 +97,6 @@ public partial class MainCameraRender
 
 	private void DrawDefferedShading_Editor()
 	{
-		float far = camera.farClipPlane;
-		float fov = camera.fieldOfView;
-		float aspec = camera.aspect;
-		float h_half = Mathf.Tan(0.5f * fov * Mathf.Deg2Rad) * far;
-		float w_half = h_half * aspec;
-		Vector4 forward = camera.transform.forward * far;
-		Vector4 up = camera.transform.up * h_half;
-		Vector4 right = camera.transform.right * w_half;
-
-		Vector4 lu = forward - right + up;
-		Vector4 ru = forward + right + up;
-		Vector4 lb = forward - right - up;
-		Vector4 rb = forward + right - up;
-		Matrix4x4 viewPortRays = new Matrix4x4();
-		viewPortRays.SetRow(0, lb);
-		viewPortRays.SetRow(1, lu);
-		viewPortRays.SetRow(2, rb);
-		viewPortRays.SetRow(3, ru);
-
 #if UNITY_EDITOR_OSX
 		commandBuffer.SetRenderTarget(lightingBufferTargetId, RenderBufferLoadAction.DontCare, RenderBufferStoreAction.Store, depthBufferTargetId, RenderBufferLoadAction.DontCare, RenderBufferStoreAction.Store);
 		commandBuffer.SetGlobalTexture(baseColorBufferId, baseColorBufferTargetId);
@@ -159,7 +141,7 @@ public partial class MainCameraRender
 		commandBuffer.ReleaseTemporaryRT(lightingBufferId);
 		commandBuffer.ReleaseTemporaryRT(baseColorBufferId);
 		commandBuffer.ReleaseTemporaryRT(materialDataBufferId);
-		commandBuffer.ReleaseTemporaryRT(depthNormalBufferId);
+		//commandBuffer.ReleaseTemporaryRT(depthNormalBufferId);
 		commandBuffer.ReleaseTemporaryRT(depthBufferId);
 	}
 

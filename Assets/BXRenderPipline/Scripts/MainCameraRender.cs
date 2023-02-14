@@ -36,6 +36,7 @@ public partial class MainCameraRender
 		materialDataBufferTargetId,
 		depthNormalBufferTargetId
 	};
+	public RenderTexture bxdepthNormalBuffer;
 	private static RenderBufferLoadAction[] defferedShadingTargetLoads = new RenderBufferLoadAction[4]
 	{
 		RenderBufferLoadAction.DontCare, RenderBufferLoadAction.DontCare, RenderBufferLoadAction.DontCare, RenderBufferLoadAction.DontCare
@@ -49,6 +50,7 @@ public partial class MainCameraRender
 	private bool editorMode, useDynamicBatching, useGPUInstancing, useLightsPerObject;
 
 	private int viewPortRaysId = Shader.PropertyToID("_ViewPortRays");
+	private Matrix4x4 viewPortRays = Matrix4x4.identity;
 
 	private DefferedShadingSettings defferedShadingSettings;
 	private Material defferedCombineMaterial;
@@ -156,7 +158,7 @@ public partial class MainCameraRender
 		}
 	}
 
-	private Lights lights = new Lights();
+	public Lights lights = new Lights();
 
 	public void Render(ScriptableRenderContext context, Camera camera, bool editorMode, bool useDynamicBatching, bool useGPUInstancing, bool useLightsPerObject, 
 		DefferedShadingSettings defferedShadingSettings, PostProcessSettings postprocessSettings, ShadowSettings shadowSettings)
@@ -200,9 +202,9 @@ public partial class MainCameraRender
 
 	private void ShadingInPlayerMode()
 	{
+		GenerateTileLightingData();
 		GenerateBuffers();
 		DrawGeometryGBuffer(useDynamicBatching, useGPUInstancing, useLightsPerObject);
-		GenerateTileLightingData();
 		DrawDefferedShading();
 		DrawSkyBoxAndTransparent();
 		DrawPostProcess();
@@ -230,6 +232,33 @@ public partial class MainCameraRender
 
 	private void SetupForRender()
 	{
+		float far = camera.farClipPlane;
+		float fov = camera.fieldOfView;
+		float aspec = camera.aspect;
+		float h_half = Mathf.Tan(0.5f * fov * Mathf.Deg2Rad) * far;
+		float w_half = h_half * aspec;
+		Vector4 forward = camera.transform.forward * far;
+		Vector4 up = camera.transform.up * h_half;
+		Vector4 right = camera.transform.right * w_half;
+
+		Vector4 lu = forward - right + up;
+		Vector4 ru = forward + right + up;
+		Vector4 lb = forward - right - up;
+		Vector4 rb = forward + right - up;
+		viewPortRays.SetRow(0, lb);
+		viewPortRays.SetRow(1, lu);
+		viewPortRays.SetRow(2, rb);
+		viewPortRays.SetRow(3, ru);
+
+		if (bxdepthNormalBuffer == null || bxdepthNormalBuffer.width != camera.pixelWidth || bxdepthNormalBuffer.height != camera.pixelHeight)
+        {
+			if (bxdepthNormalBuffer != null) bxdepthNormalBuffer.Release();
+			bxdepthNormalBuffer = RenderTexture.GetTemporary(camera.pixelWidth, camera.pixelHeight, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear, 1, RenderTextureMemoryless.None);
+			bxdepthNormalBuffer.name = "_BXDepthNormalBuffer";
+			depthNormalBufferTargetId = new RenderTargetIdentifier(bxdepthNormalBuffer);
+			defferedShadingTargestsId[3] = depthNormalBufferTargetId;
+
+		}
 		context.SetupCameraProperties(camera);
 		commandBuffer.BeginSample(SampleName);
 	}
@@ -329,25 +358,6 @@ public partial class MainCameraRender
 
 	private void DrawDefferedShading()
 	{
-		float far = camera.farClipPlane;
-		float fov = camera.fieldOfView;
-		float aspec = camera.aspect;
-		float h_half = Mathf.Tan(0.5f * fov * Mathf.Deg2Rad) * far;
-		float w_half = h_half * aspec;
-		Vector4 forward = camera.transform.forward * far;
-		Vector4 up = camera.transform.up * h_half;
-		Vector4 right = camera.transform.right * w_half;
-
-		Vector4 lu = forward - right + up;
-		Vector4 ru = forward + right + up;
-		Vector4 lb = forward - right - up;
-		Vector4 rb = forward + right - up;
-		Matrix4x4 viewPortRays = new Matrix4x4();
-		viewPortRays.SetRow(0, lb);
-		viewPortRays.SetRow(1, lu);
-		viewPortRays.SetRow(2, rb);
-		viewPortRays.SetRow(3, ru);
-
 		var cameraTarget = new AttachmentDescriptor(RenderTextureFormat.ARGB32);
 		var lightingBufferTarget = new AttachmentDescriptor(RenderTextureFormat.ARGBHalf);
 		var baseColorBufferTarget = new AttachmentDescriptor(RenderTextureFormat.ARGB32);
@@ -371,7 +381,6 @@ public partial class MainCameraRender
 
 		context.BeginRenderPass(camera.pixelWidth, camera.pixelHeight, 1, attchments, depthBufferIndex);
 		attchments.Dispose();
-
 		var shadingOutputs = new NativeArray<int>(1, Allocator.Temp);
 		shadingOutputs[0] = lightingBufferIndex;
 		var shadingInputs = new NativeArray<int>(3, Allocator.Temp);

@@ -33,8 +33,8 @@ public class Lights
 		pointLightColors = new Vector4[maxPointLightCount];
 
 	private static int tileLightDataCount = 0;
-	public static ComputeBuffer tileLightingIndicesBuffer;
-	public static ComputeBuffer tileLightingDatasBuffer;
+	public ComputeBuffer tileLightingIndicesBuffer;
+	public ComputeBuffer tileLightingDatasBuffer;
 
 	public int pointLightCount;
 
@@ -107,10 +107,10 @@ public class Lights
 		commandBuffer.SetGlobalInt(pointLightCountId, pointLightCount);
 		if(pointLightCount > 0)
 		{
+			commandBuffer.SetGlobalBuffer(tileLightingDatasId, tileLightingDatasBuffer);
+			commandBuffer.SetGlobalBuffer(tileLightingIndicesId, tileLightingIndicesBuffer);
 			commandBuffer.SetGlobalVectorArray(pointLightSpheresId, pointLightSpheres);
 			commandBuffer.SetGlobalVectorArray(pointLightColorsId, pointLightColors);
-			commandBuffer.SetGlobalBuffer(tileLightingIndicesId, tileLightingIndicesBuffer);
-			commandBuffer.SetGlobalBuffer(tileLightingDatasId, tileLightingDatasBuffer);
 		}
 		this.pointLightCount = pointLightCount;
 	}

@@ -66,8 +66,8 @@ Shader "BXDefferedShadingsEditor/Shading"
                 int needShading = materialFlag >> 1;
                 if(needShading == 0) return 0.0;
 
-                half4 depthNormalData = SAMPLE_TEXTURE2D_LOD(_BXDepthNormalBuffer, sampler_bilinear_clamp, i.uv_screen, 0);
                 half4 baseColor = SAMPLE_TEXTURE2D_LOD(_BaseColorBuffer, sampler_bilinear_clamp, i.uv_screen, 0);
+                half4 depthNormalData = SAMPLE_TEXTURE2D_LOD(_BXDepthNormalBuffer, sampler_bilinear_clamp, i.uv_screen, 0);
 
                 int needShadowed = (materialFlag & 1);
 
@@ -86,6 +86,33 @@ Shader "BXDefferedShadingsEditor/Shading"
                 
                 half3 diffuseColor = 0.0;
                 half3 specularColor = 0.0;
+
+                uint2 screenXY = i.uv_screen * _ScreenParams.xy;
+                uint tileIndex = (screenXY.y / 16) * (_ScreenParams.x / 16) + (screenXY.x % 16);
+                uint tileData = _TileLightingDatas[tileIndex];
+                for(uint tileLightOffset = 0; tileLightOffset < tileData; ++tileLightOffset)
+                {
+                    uint tileLightIndex = tileLightOffset;
+                    uint pointLightIndex = _TileLightingIndices[tileLightIndex];
+                    float4 lightSphere = _PointLightSpheres[tileLightOffset];
+                    half3 lightCol = _PointLightColors[tileLightOffset].xyz;
+
+                    float3 lenV = lightSphere.xyz - pos_world;
+                    half3 l = normalize(lenV);
+                    half3 h = normalize(l + v);
+
+                    half ndotl = max(0.0, dot(n, l));
+                    half ndoth = max(0.0, dot(n, h));
+                    half ldoth = max(0.0, dot(l, h));
+                    half atten = 1.0 / dot(lenV, lenV);
+
+                    lightCol *= atten;
+                    half f0 = PBR_F0(ndotl, ndotv, ldoth, materialData.g);
+                    half3 fgd = PBR_SchlickFresnelFunction(specCol, ldoth) * PBR_G(ndotl, ndotv, materialData.g) * PBR_D(materialData.g, ndoth);
+
+                    diffuseColor += lightCol * f0 * ndotl;
+                    specularColor += lightCol * fgd;
+                }
 
                 for(uint lightIndex = 1; lightIndex < _DirectionalLightCount; ++lightIndex)
                 {
@@ -107,6 +134,7 @@ Shader "BXDefferedShadingsEditor/Shading"
                     diffuseColor += lightCol * f0 * ndotl;
                     specularColor += lightCol * fgd;
                 }
+
 
                 return half4(diffuseColor * oneMinusMetallic * baseColor.rgb + specularColor * ndotv_inv, 1.0);
             }

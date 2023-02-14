@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 513ca69b0a374b34f9de89dc6c22e014, type: 3}
   m_Name: New BX Render Pipline Asset
   m_EditorClassIdentifier: 
-  editorMode: 0
+  editorMode: 1
   useDynamicBatching: 1
   useGPUInstancing: 1
   useSRPBatching: 1

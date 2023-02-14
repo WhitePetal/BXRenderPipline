@@ -38,6 +38,10 @@ CBUFFER_START(UnityPerFrame)
     float4 _Time;
     half _GlobalBloomThreshold;
 
+    // Vector4 lu = forward - right + up;
+    // Vector4 ru = forward + right + up;
+    // Vector4 lb = forward - right - up;
+    // Vector4 rb = forward + right - up;
     float4x4 _ViewPortRays;
 CBUFFER_END
 
