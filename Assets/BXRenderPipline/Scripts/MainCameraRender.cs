@@ -36,7 +36,6 @@ public partial class MainCameraRender
 		materialDataBufferTargetId,
 		depthNormalBufferTargetId
 	};
-	public RenderTexture bxdepthNormalBuffer;
 	private static RenderBufferLoadAction[] defferedShadingTargetLoads = new RenderBufferLoadAction[4]
 	{
 		RenderBufferLoadAction.DontCare, RenderBufferLoadAction.DontCare, RenderBufferLoadAction.DontCare, RenderBufferLoadAction.DontCare
@@ -250,15 +249,6 @@ public partial class MainCameraRender
 		viewPortRays.SetRow(2, rb);
 		viewPortRays.SetRow(3, ru);
 
-		if (bxdepthNormalBuffer == null || bxdepthNormalBuffer.width != camera.pixelWidth || bxdepthNormalBuffer.height != camera.pixelHeight)
-        {
-			if (bxdepthNormalBuffer != null) bxdepthNormalBuffer.Release();
-			bxdepthNormalBuffer = RenderTexture.GetTemporary(camera.pixelWidth, camera.pixelHeight, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear, 1, RenderTextureMemoryless.None);
-			bxdepthNormalBuffer.name = "_BXDepthNormalBuffer";
-			depthNormalBufferTargetId = new RenderTargetIdentifier(bxdepthNormalBuffer);
-			defferedShadingTargestsId[3] = depthNormalBufferTargetId;
-
-		}
 		context.SetupCameraProperties(camera);
 		commandBuffer.BeginSample(SampleName);
 	}

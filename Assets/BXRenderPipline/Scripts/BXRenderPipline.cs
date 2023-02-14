@@ -59,6 +59,5 @@ public class BXRenderPipline : RenderPipeline
 		base.Dispose(disposing);
 		if (mainCameraRenderer.lights.tileLightingIndicesBuffer != null) mainCameraRenderer.lights.tileLightingIndicesBuffer.Release();
 		if (mainCameraRenderer.lights.tileLightingDatasBuffer != null) mainCameraRenderer.lights.tileLightingDatasBuffer.Release();
-		if (mainCameraRenderer.bxdepthNormalBuffer != null) mainCameraRenderer.bxdepthNormalBuffer.Release();
 	}
 }

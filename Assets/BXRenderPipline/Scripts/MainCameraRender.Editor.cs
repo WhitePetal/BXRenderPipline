@@ -32,7 +32,6 @@ public partial class MainCameraRender
 
 	private void ShadingInEditorMode()
 	{
-		GenerateTileLightingData();
 		GenerateBuffers_Editor();
 		DrawGeometryGBuffer_Editor(useDynamicBatching, useGPUInstancing, useLightsPerObject);
 		DrawDefferedShading_Editor();
@@ -43,6 +42,7 @@ public partial class MainCameraRender
 		DrawPostProcess_Editor();
 		DrawGizmosAfterPostProcess();
 		RenderToCameraTargetAndTonemapping_Editor();
+		GenerateTileLightingData();
 		CleanUp_Editor();
 		Submit();
 	}
@@ -54,7 +54,7 @@ public partial class MainCameraRender
 		commandBuffer.GetTemporaryRT(lightingBufferId, width, height, 0, FilterMode.Point, RenderTextureFormat.ARGBHalf, RenderTextureReadWrite.Linear, 1, false, RenderTextureMemoryless.None);
 		commandBuffer.GetTemporaryRT(baseColorBufferId, width, height, 0, FilterMode.Point, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear, 1, false, RenderTextureMemoryless.None);
 		commandBuffer.GetTemporaryRT(materialDataBufferId, width, height, 0, FilterMode.Point, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear, 1, false, RenderTextureMemoryless.None);
-		//commandBuffer.GetTemporaryRT(depthNormalBufferId, width, height, 0, FilterMode.Point, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear, 1, false, RenderTextureMemoryless.None);
+		commandBuffer.GetTemporaryRT(depthNormalBufferId, width, height, 0, FilterMode.Point, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear, 1, false, RenderTextureMemoryless.None);
 #if UNITY_EDITOR_OSX
 		commandBuffer.GetTemporaryRT(depthBufferId, width, height, 24, FilterMode.Point, RenderTextureFormat.Depth, RenderTextureReadWrite.Linear, 1, false, RenderTextureMemoryless.None);
 #else
