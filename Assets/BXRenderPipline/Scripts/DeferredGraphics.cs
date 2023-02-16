@@ -90,10 +90,14 @@ public class DeferredGraphics
 		DrawGeometryGBuffer(useDynamicBatching, useGPUInstancing, useLightsPerObject);
 		DrawDefferedShading();
 		DrawSkyBoxAndTransparent();
+#if UNITY_EDITOR
 		DrawUnsupportShader();
 		DrawGizmosBeforePostProcess();
+#endif
 		DrawPostProcess();
+#if UNITY_EDITOR
 		DrawGizmosAfterPostProcess();
+#endif
 		RenderToCameraTargetAndTonemapping(out graphicsPiplineCompeletFence);
 		context.EndRenderPass();
 	}

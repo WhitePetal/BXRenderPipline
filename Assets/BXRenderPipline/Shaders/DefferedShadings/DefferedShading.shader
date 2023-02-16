@@ -71,7 +71,7 @@ Shader "BXDefferedShadings/Shading"
                 half3 n;
                 float depth;
                 DecodeDepthNormal(depthNormalData, depth, n);
-                float depthEye = LinearEyeDepth(depth);
+                float depthEye = depth * _ProjectionParams.z;
                 n = mul((float3x3)UNITY_MATRIX_I_V, n);
                 float3 pos_world = _WorldSpaceCameraPos.xyz + i.vray.xyz * depthEye;
                 half3 v = normalize(_WorldSpaceCameraPos.xyz - pos_world);

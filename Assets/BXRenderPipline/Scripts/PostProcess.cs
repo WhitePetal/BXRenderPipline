@@ -36,7 +36,7 @@ public class PostProcess
 #else
 			if (colorGradeMaterial == null && settings.colorGradeShader != null)
 			{
-				colorGradeMaterial = new Material(postprocessSettings.colorGradeShader);
+				colorGradeMaterial = new Material(settings.colorGradeShader);
 				colorGradeMaterial.hideFlags = HideFlags.HideAndDontSave;
 			}
 			return colorGradeMaterial;

@@ -66,7 +66,7 @@ Shader "BXCharacters/PBR_BRDF"
                 UNITY_TRANSFER_INSTANCE_ID(v, o);
                 o.pos_world.xyz = TransformObjectToWorld(v.vertex.xyz);
                 o.vertex = TransformWorldToHClip(o.pos_world.xyz);
-                o.pos_world.w = o.vertex.z / o.vertex.w;
+                o.pos_world.w = Linear01Depth(o.vertex.z / o.vertex.w);
                 o.uv = v.uv * GET_PROP(_MainTex_ST).xy + GET_PROP(_MainTex_ST).zw;
                 o.normal_world = TransformObjectToWorldNormal(v.normal);
                 o.tangent_world = TransformObjectToWorldDir(v.tangent.xyz);

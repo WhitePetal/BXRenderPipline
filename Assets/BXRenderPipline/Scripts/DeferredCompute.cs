@@ -5,6 +5,7 @@ using UnityEngine.Rendering;
 
 public class DeferredCompute
 {
+	private Camera camera;
 	private CommandBuffer commandBuffer;
 	private ScriptableRenderContext context;
 	private DeferredComputeSettings deferredComputeSettings;
@@ -17,10 +18,11 @@ public class DeferredCompute
 	public ComputeBuffer tileLightingDatasBuffer = new ComputeBuffer(2048 * 2048 / 256, sizeof(uint));
 
 
-	public void Setup(ScriptableRenderContext context, CommandBuffer commandBuffer, DeferredComputeSettings deferredComputeSettings,
+	public void Setup(ScriptableRenderContext context, CommandBuffer commandBuffer, Camera camera, DeferredComputeSettings deferredComputeSettings,
 		int width, int height, int pointLightCount, Vector4[] pointLightSpheres)
 	{
 		this.context = context;
+		this.camera = camera;
 		this.commandBuffer = commandBuffer;
 		this.deferredComputeSettings = deferredComputeSettings;
 		this.pointLightCount = pointLightCount;
@@ -57,6 +59,7 @@ public class DeferredCompute
 		commandBuffer.SetGlobalBuffer(Constants.tileLightingDatasId, tileLightingDatasBuffer);
 		commandBuffer.SetGlobalBuffer(Constants.tileLightingIndicesId, tileLightingIndicesBuffer);
 		commandBuffer.SetComputeTextureParam(deferredComputeSettings.tileLightingCS, 0, Constants.depthNormalBufferId, Constants.depthNormalBufferTargetId);
+		commandBuffer.SetComputeMatrixParam(deferredComputeSettings.tileLightingCS, "unity_MatrixV", camera.worldToCameraMatrix);
 		commandBuffer.DispatchCompute(deferredComputeSettings.tileLightingCS, 0, Mathf.CeilToInt(width / 16f), Mathf.CeilToInt(height / 16f), 1);
 		commandBuffer.EndSample("TileLightingData");
 		ExecuteBuffer();

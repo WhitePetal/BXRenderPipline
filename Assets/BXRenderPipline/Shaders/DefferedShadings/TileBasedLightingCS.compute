@@ -1,6 +1,6 @@
 #pragma kernel CSMain
 
-#include "Assets/BXRenderPipline/Shaders/Libiary/AllCommon.hlsl"
+#include "Assets/BXRenderPipline/Shaders/Libiary/Common.hlsl"
 
 // outpus
 RWStructuredBuffer<uint> _TileLightingIndices;
@@ -12,16 +12,10 @@ uint _PointLightCount;
 float4 _PointLightSpheres[MAX_POINT_LIGHT_COUNT];
 Texture2D _BXDepthNormalBuffer;
 SamplerState sampler_bilinear_clamp;
-float4 _ScreenParams;
-float4 _ProjectionParams;
-float4 _ZBufferParams;
-float4 _WorldSpaceCameraPos;
-float4x4 _ViewPortRays;
 float4 _ViewPortLB;
 float4 _CameraForward;
 float4 _TileRVec;
 float4 _TileUVec;
-float4x4 unity_MatrixInvV;
 
 // temps
 groupshared uint tileMinDepth = 0xFFFFFFFF;
@@ -37,13 +31,12 @@ bool IntersectSide(float3 p1,float3 p2,float4 lightSphere){
 
 bool IntersectTileAndPointLight(float zMin, float zMax, uint3 groupId, float4 lightSphere)
 {
+    lightSphere.xyz = mul(unity_MatrixV, float4(lightSphere.xyz, 1.0)).xyz;
     float ww = lightSphere.w * lightSphere.w;
-    float3 dir = normalize(lightSphere.xyz - _WorldSpaceCameraPos.xyz);
-    float dst = sqrt(dot(lightSphere.xyz - _WorldSpaceCameraPos.xyz, lightSphere.xyz - _WorldSpaceCameraPos.xyz));
-    float lightDepthMin = dst - lightSphere.w;
-    float lightDepthMax = dst + lightSphere.w;
+    float lightDepthMin = -lightSphere.z - lightSphere.w;
+    float lightDepthMax = -lightSphere.z + lightSphere.w;
 
-    if(lightDepthMin >= zMax || lightDepthMax <= zMin)
+    if(lightDepthMin > zMax || lightDepthMax < zMin)
     {
         return false;
     }
@@ -73,28 +66,23 @@ bool IntersectTileAndPointLight(float zMin, float zMax, uint3 groupId, float4 li
     return true;
 }
 
-inline float LinearEyeDepth( float z )
-{
-    return 1.0 / (_ZBufferParams.z * z + _ZBufferParams.w);
-}
-
 [numthreads(16,16,1)]
 void CSMain (uint3 id : SV_DispatchThreadID, uint groupIndex : SV_GROUPINDEX, uint3 groupId : SV_GROUPID)
 {   
     if(groupIndex == 0)
     {
-        tileMinDepth = _ProjectionParams.z * 100;
+        tileMinDepth = _ProjectionParams.z;
         tileMaxDepth = 0;
         tileVisibleLightCount = 0;
         tileNormal = float4(0.0, 0.0, 0.0, 0.0);
     }
     GroupMemoryBarrierWithGroupSync();
 
-    float4 depthNormalData = _BXDepthNormalBuffer.SampleLevel(sampler_bilinear_clamp, (id.xy + 0.5) / _ScreenParams.xy, 0);
+    float4 depthNormalData = _BXDepthNormalBuffer.SampleLevel(sampler_bilinear_clamp, id.xy / _ScreenParams.xy, 0);
     float3 n;
     float depth01;
     DecodeDepthNormal(depthNormalData, depth01, n);
-    float depth = LinearEyeDepth(depth01);
+    float depth = depth01 * _ProjectionParams.z;
     n = mul((float3x3)unity_MatrixInvV, n);
     InterlockedMin(tileMinDepth,asuint(depth));
     InterlockedMax(tileMaxDepth,asuint(depth));

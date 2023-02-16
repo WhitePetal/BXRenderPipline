@@ -26,7 +26,7 @@
 
 #define GET_PROP(name) UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, name)
 
-#define TRANSFORM_TEX(tex,name) (tex.xy * GET_PROP(name##_ST).xy + GET_PROP(name##_ST).zw)
+// #define TRANSFORM_TEX(tex,name) (tex.xy * GET_PROP(name##_ST).xy + GET_PROP(name##_ST).zw)
 
 #if defined(PLATFORM_SUPPORTS_NATIVE_RENDERPASS)
     #define BXFRAMEBUFFER_INPUT_FLOAT(idx, texName) FRAMEBUFFER_INPUT_FLOAT(idx)
@@ -49,7 +49,7 @@
         #define BXFRAMEBUFFER_INPUT_INT(idx, texName) TEXTURE2D_INT(_UnityFBInput##idx); SAMPLER(sampler_UnityFBInput##idx)
         #define BXFRAMEBUFFER_INPUT_UINT(idx, texName) TEXTURE2D_UINT(_UnityFBInput##idx); SAMPLER(sampler_UnityFBInput##idx)
 
-        #define BXLOAD_FRAMEBUFFER_INPUT(idx, texName, uv) UnityFBInput##idx.Sample(sampler_UnityFBInput##idx, float2(uv.x, 1.0 - uv.y))
+        #define BXLOAD_FRAMEBUFFER_INPUT(idx, texName, uv) _UnityFBInput##idx.Sample(sampler_UnityFBInput##idx, float2(uv.x, 1.0 - uv.y))
     #endif
 #endif
 

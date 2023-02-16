@@ -12,6 +12,9 @@ public partial class MainCameraRender
 	private CullingResults cullingResults;
 
 	private const string graphicsCommandBufferName = "Graphics Render";
+#if !UNITY_EDITOR
+	private string SampleName = graphicsCommandBufferName;
+#endif
 	private const string computesCommandBufferName = "Compute Caclute";
 	private CommandBuffer commandBufferGraphics = new CommandBuffer
 	{
@@ -74,7 +77,7 @@ public partial class MainCameraRender
 			width, height, aa, cameraTargetId,
 			editorMode, useDynamicBatching, useGPUInstancing, useLightsPerObject,
 			defferedShadingSettings, postprocessSettings);
-		computePipline.Setup(context, commandBufferCompute, deferredComputeSettings, 
+		computePipline.Setup(context, commandBufferCompute, camera, deferredComputeSettings, 
 			width, height, lights.pointLightCount, lights.pointLightSpheres);
 		SetupForRender();
 
