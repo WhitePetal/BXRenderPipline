@@ -101,6 +101,11 @@ public class DeferredGraphics
 	public void CleanUp()
 	{
 		commandBuffer.ReleaseTemporaryRT(Constants.depthNormalBufferId);
+#if UNITY_EDITOR_OSX
+		commandBuffer.ReleaseTemporaryRT(Constants.lightingBufferId);
+		commandBuffer.ReleaseTemporaryRT(Constants.baseColorBufferId);
+		commandBuffer.ReleaseTemporaryRT(Constants.materialDataBufferId);
+#endif
 	}
 
 	private void GenerateBuffers()
@@ -108,6 +113,12 @@ public class DeferredGraphics
 		int width = camera.pixelWidth;
 		int height = camera.pixelHeight;
 		commandBuffer.GetTemporaryRT(Constants.depthNormalBufferId, width, height, 0, FilterMode.Point, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear, 1, false, RenderTextureMemoryless.None);
+
+#if UNITY_EDITOR_OSX
+		commandBuffer.GetTemporaryRT(Constants.lightingBufferId, width, height, 0, FilterMode.Point, RenderTextureFormat.ARGBHalf, RenderTextureReadWrite.Linear, 1, false, RenderTextureMemoryless.None);
+		commandBuffer.GetTemporaryRT(Constants.baseColorBufferId, width, height, 0, FilterMode.Point, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear, 1, false, RenderTextureMemoryless.None);
+		commandBuffer.GetTemporaryRT(Constants.materialDataBufferId, width, height, 0, FilterMode.Point, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear, 1, false, RenderTextureMemoryless.None);
+#endif
 		ExecuteBuffer();
 	}
 
@@ -126,6 +137,11 @@ public class DeferredGraphics
 		depthNormalBufferTarget.ConfigureClear(Color.clear);
 		depthBufferTarget.ConfigureClear(Color.clear, 1f, 0);
 
+#if UNITY_EDITOR_OSX
+		lightingBufferTarget.ConfigureTarget(Constants.lightingBufferId, false, true);
+		baseColorBufferTarget.ConfigureTarget(Constants.baseColorBufferId, false, true);
+		materialDataBufferTarget.ConfigureTarget(Constants.materialDataBufferId, false, true);
+#endif
 		depthNormalBufferTarget.ConfigureTarget(Constants.depthNormalBufferTargetId, false, true);
 		cameraTarget.ConfigureTarget(cameraTargetId, false, true);
 

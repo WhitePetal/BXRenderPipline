@@ -27,12 +27,9 @@ Shader "BXDefferedShadings/Shading"
                 float4 vray : TEXCOORD1;
             };
 
-            FRAMEBUFFER_INPUT_HALF(0);
-            FRAMEBUFFER_INPUT_HALF(1);
-            FRAMEBUFFER_INPUT_HALF(2);
-            #ifndef PLATFORM_SUPPORTS_NATIVE_RENDERPASS
-                SamplerState sampler_point_clamp;
-            #endif
+            BXFRAMEBUFFER_INPUT_HALF(0, _BaseColorBuffer);
+            BXFRAMEBUFFER_INPUT_HALF(1, _MaterialDataBuffer);
+            BXFRAMEBUFFER_INPUT_HALF(2, _BXDepthNormalBuffer);
 
             Varyings vert(uint vertexID : SV_VertexID)
             {
@@ -62,15 +59,9 @@ Shader "BXDefferedShadings/Shading"
 
             half4 frag(Varyings i) : SV_TARGET0
             {
-                #ifdef PLATFORM_SUPPORTS_NATIVE_RENDERPASS
-                    half4 baseColor = LOAD_FRAMEBUFFER_INPUT(0, i.uv_screen);
-                    half4 materialData = LOAD_FRAMEBUFFER_INPUT(1, i.uv_screen);
-                    half4 depthNormalData = LOAD_FRAMEBUFFER_INPUT(2, i.uv_screen);
-                #else
-                    half4 baseColor = _UnityFBInput0.SampleLevel(sampler_point_clamp, float2(i.uv_screen.x, 1.0 - i.uv_screen.y), 0);
-                    half4 materialData = _UnityFBInput1.SampleLevel(sampler_point_clamp, float2(i.uv_screen.x, 1.0 - i.uv_screen.y), 0);
-                    half4 depthNormalData = _UnityFBInput2.SampleLevel(sampler_point_clamp, float2(i.uv_screen.x, 1.0 - i.uv_screen.y), 0);
-                #endif
+                half4 baseColor = BXLOAD_FRAMEBUFFER_INPUT(0,  _BaseColorBuffer, i.uv_screen);
+                half4 materialData = BXLOAD_FRAMEBUFFER_INPUT(1, _MaterialDataBuffer, i.uv_screen);
+                half4 depthNormalData = BXLOAD_FRAMEBUFFER_INPUT(2, _BXDepthNormalBuffer, i.uv_screen);
                 int materialFlag = materialData.w * 255;
                 int needShading = materialFlag >> 1;
                 if(needShading == 0) return 0.0;

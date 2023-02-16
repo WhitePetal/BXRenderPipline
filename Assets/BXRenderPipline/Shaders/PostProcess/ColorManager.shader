@@ -22,10 +22,7 @@ Shader "BXPostProcess/ColorManager"
                 float2 uv_screen : TEXCOORD0;
             };
 
-            FRAMEBUFFER_INPUT_HALF(0);
-            #ifndef PLATFORM_SUPPORTS_NATIVE_RENDERPASS
-                SamplerState sampler_point_clamp;
-            #endif
+            BXFRAMEBUFFER_INPUT_HALF(0, _LightingBuffer);
 
             Varyings vert(uint vertexID : SV_VertexID)
             {
@@ -45,11 +42,7 @@ Shader "BXPostProcess/ColorManager"
 
             half4 frag(Varyings i) : SV_TARGET0
             {
-                #ifdef PLATFORM_SUPPORTS_NATIVE_RENDERPASS
-                    half4 col = LOAD_FRAMEBUFFER_INPUT(0, i.uv_screen);
-                #else
-                    half4 col = _UnityFBInput0.SampleLevel(sampler_point_clamp, float2(i.uv_screen.x, 1.0 - i.uv_screen.y), 0);
-                #endif
+                half4 col = BXLOAD_FRAMEBUFFER_INPUT(0, _LightingBuffer, i.uv_screen);
                 return half4(ColorGrade(col.rgb), 1.0);
             }
             ENDHLSL

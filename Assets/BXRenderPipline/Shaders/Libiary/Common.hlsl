@@ -26,7 +26,32 @@
 
 #define GET_PROP(name) UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, name)
 
-// #define TRANSFORM_TEX(tex,name) (tex.xy * GET_PROP(name##_ST).xy + GET_PROP(name##_ST).zw)
+#define TRANSFORM_TEX(tex,name) (tex.xy * GET_PROP(name##_ST).xy + GET_PROP(name##_ST).zw)
+
+#if defined(PLATFORM_SUPPORTS_NATIVE_RENDERPASS)
+    #define BXFRAMEBUFFER_INPUT_FLOAT(idx, texName) FRAMEBUFFER_INPUT_FLOAT(idx)
+    #define BXFRAMEBUFFER_INPUT_HALF(idx, texName) FRAMEBUFFER_INPUT_HALF(idx)
+    #define BXFRAMEBUFFER_INPUT_INT(idx, texName) FRAMEBUFFER_INPUT_INT(idx)
+    #define BXFRAMEBUFFER_INPUT_UINT(idx, texName) FRAMEBUFFER_INPUT_UINT(idx)
+
+    #define BXLOAD_FRAMEBUFFER_INPUT(idx, texName, uv) LOAD_FRAMEBUFFER_INPUT(idx, uv)
+#else
+    #if defined(SHADER_API_METAL)
+        #define BXFRAMEBUFFER_INPUT_FLOAT(idx, texName) TEXTURE2D_FLOAT(texName); SAMPLER(sampler_##texName)
+        #define BXFRAMEBUFFER_INPUT_HALF(idx, texName) TEXTURE2D_HALF(texName); SAMPLER(sampler_##texName)
+        #define BXFRAMEBUFFER_INPUT_INT(idx, texName) TEXTURE2D_INT(texName); SAMPLER(sampler_##texName)
+        #define BXFRAMEBUFFER_INPUT_UINT(idx, texName) TEXTURE2D_UINT(texName); SAMPLER(sampler_##texName)
+
+        #define BXLOAD_FRAMEBUFFER_INPUT(idx, texName, uv) texName.Sample(sampler_##texName, float2(uv.x, 1.0 - uv.y))
+    #else
+        #define BXFRAMEBUFFER_INPUT_FLOAT(idx, texName) TEXTURE2D_FLOAT(_UnityFBInput##idx); SAMPLER(sampler_UnityFBInput##idx)
+        #define BXFRAMEBUFFER_INPUT_HALF(idx, texName) TEXTURE2D_HALF(_UnityFBInput##idx); SAMPLER(sampler_UnityFBInput##idx)
+        #define BXFRAMEBUFFER_INPUT_INT(idx, texName) TEXTURE2D_INT(_UnityFBInput##idx); SAMPLER(sampler_UnityFBInput##idx)
+        #define BXFRAMEBUFFER_INPUT_UINT(idx, texName) TEXTURE2D_UINT(_UnityFBInput##idx); SAMPLER(sampler_UnityFBInput##idx)
+
+        #define BXLOAD_FRAMEBUFFER_INPUT(idx, texName, uv) UnityFBInput##idx.Sample(sampler_UnityFBInput##idx, float2(uv.x, 1.0 - uv.y))
+    #endif
+#endif
 
 #include "Assets/BXRenderPipline/Shaders/Libiary/AllCommon.hlsl"
 
