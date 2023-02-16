@@ -72,10 +72,11 @@ Shader "BXDefferedShadingsEditor/Shading"
                 int needShadowed = (materialFlag & 1);
 
                 half3 n;
-                float depth01;
-                DecodeDepthNormal(depthNormalData, depth01, n);
+                float depth;
+                DecodeDepthNormal(depthNormalData, depth, n);
+                float depthEye = LinearEyeDepth(depth);
                 n = mul((float3x3)UNITY_MATRIX_I_V, n);
-                float3 pos_world = _WorldSpaceCameraPos.xyz + i.vray.xyz * depth01;
+                float3 pos_world = _WorldSpaceCameraPos.xyz + normalize(i.vray.xyz) * depthEye;
                 half3 v = normalize(_WorldSpaceCameraPos.xyz - pos_world);
                 half ndotv = max(0.0001, dot(n, v));
 
@@ -87,12 +88,12 @@ Shader "BXDefferedShadingsEditor/Shading"
                 half3 diffuseColor = 0.0;
                 half3 specularColor = 0.0;
 
-                uint2 screenXY = i.uv_screen * _ScreenParams.xy;
-                uint tileIndex = (screenXY.y / 16) * (_ScreenParams.x / 16) + (screenXY.x % 16);
+                uint2 screenXY = ceil(i.uv_screen * _ScreenParams.xy);
+                uint tileIndex = screenXY.y * _ScreenParams.x / 256 + (screenXY.x % 16);
                 uint tileData = _TileLightingDatas[tileIndex];
                 for(uint tileLightOffset = 0; tileLightOffset < tileData; ++tileLightOffset)
                 {
-                    uint tileLightIndex = tileLightOffset;
+                    uint tileLightIndex = tileIndex * 256 + tileLightOffset;
                     uint pointLightIndex = _TileLightingIndices[tileLightIndex];
                     float4 lightSphere = _PointLightSpheres[tileLightOffset];
                     half3 lightCol = _PointLightColors[tileLightOffset].xyz;
@@ -127,7 +128,7 @@ Shader "BXDefferedShadingsEditor/Shading"
                     half3 shadowCol = 1.0;
                     if(needShadowed == 1)
                     {
-                        half shadowAtten = GetDirectionalShadow(lightIndex, i.uv_screen, pos_world.xyz, n, depth01 * _ProjectionParams.z);
+                        half shadowAtten = GetDirectionalShadow(lightIndex, i.uv_screen, pos_world.xyz, n, depthEye);
                         shadowCol = lerp(_BXShadowsColor.xyz, 1.0, shadowAtten);
                     }
                     lightCol *= shadowCol;

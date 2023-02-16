@@ -27,9 +27,12 @@ Shader "BXDefferedShadings/Shading"
                 float4 vray : TEXCOORD1;
             };
 
-            FRAMEBUFFER_INPUT_HALF_MS(0);
-            FRAMEBUFFER_INPUT_HALF_MS(1);
-            FRAMEBUFFER_INPUT_HALF_MS(2);
+            FRAMEBUFFER_INPUT_HALF(0);
+            FRAMEBUFFER_INPUT_HALF(1);
+            FRAMEBUFFER_INPUT_HALF(2);
+            #ifndef PLATFORM_SUPPORTS_NATIVE_RENDERPASS
+                SamplerState sampler_point_clamp;
+            #endif
 
             Varyings vert(uint vertexID : SV_VertexID)
             {
@@ -52,28 +55,34 @@ Shader "BXDefferedShadings/Shading"
                 };
                 o.pos_clip = vertexs[vertexID];
                 o.uv_screen = uvs[vertexID];
-                if(_ProjectionParams.x < 0.0) o.uv_screen.y = 1.0 - o.uv_screen.y;
+                // if(_ProjectionParams.x < 0.0) o.uv_screen.y = 1.0 - o.uv_screen.y;
                 o.vray = _ViewPortRays[o.uv_screen.x * 2 + o.uv_screen.y];
                 return o;
             }
 
             half4 frag(Varyings i) : SV_TARGET0
             {
-                half4 baseColor = LOAD_FRAMEBUFFER_INPUT_MS(0, 0, i.uv_screen);
-                half4 materialData = LOAD_FRAMEBUFFER_INPUT_MS(1, 0, i.uv_screen);
-                half4 depthNormalData = LOAD_FRAMEBUFFER_INPUT_MS(2, 0, i.uv_screen);
+                #ifdef PLATFORM_SUPPORTS_NATIVE_RENDERPASS
+                    half4 baseColor = LOAD_FRAMEBUFFER_INPUT(0, i.uv_screen);
+                    half4 materialData = LOAD_FRAMEBUFFER_INPUT(1, i.uv_screen);
+                    half4 depthNormalData = LOAD_FRAMEBUFFER_INPUT(2, i.uv_screen);
+                #else
+                    half4 baseColor = _UnityFBInput0.SampleLevel(sampler_point_clamp, float2(i.uv_screen.x, 1.0 - i.uv_screen.y), 0);
+                    half4 materialData = _UnityFBInput1.SampleLevel(sampler_point_clamp, float2(i.uv_screen.x, 1.0 - i.uv_screen.y), 0);
+                    half4 depthNormalData = _UnityFBInput2.SampleLevel(sampler_point_clamp, float2(i.uv_screen.x, 1.0 - i.uv_screen.y), 0);
+                #endif
                 int materialFlag = materialData.w * 255;
                 int needShading = materialFlag >> 1;
                 if(needShading == 0) return 0.0;
 
-
                 int needShadowed = (materialFlag & 1);
 
                 half3 n;
-                float depth01;
-                DecodeDepthNormal(depthNormalData, depth01, n);
+                float depth;
+                DecodeDepthNormal(depthNormalData, depth, n);
+                float depthEye = LinearEyeDepth(depth);
                 n = mul((float3x3)UNITY_MATRIX_I_V, n);
-                float3 pos_world = _WorldSpaceCameraPos.xyz + i.vray.xyz * depth01;
+                float3 pos_world = _WorldSpaceCameraPos.xyz + i.vray.xyz * depthEye;
                 half3 v = normalize(_WorldSpaceCameraPos.xyz - pos_world);
                 half ndotv = max(0.0001, dot(n, v));
 
@@ -85,9 +94,10 @@ Shader "BXDefferedShadings/Shading"
                 half3 diffuseColor = 0.0;
                 half3 specularColor = 0.0;
 
-                uint2 screenXY = i.uv_screen * _ScreenParams.xy;
-                uint tileIndex = (screenXY.y / 16) * (_ScreenParams.x / 16) + (screenXY.x % 16);
+                uint2 screenXY = i.uv_screen * _ScreenParams.xy / 16.0;
+                uint tileIndex = screenXY.y * _ScreenParams.x / 16.0 + screenXY.x;
                 uint tileData = _TileLightingDatas[tileIndex];
+                // return half4(tileData.xxx, 1.0);
                 for(uint tileLightOffset = 0; tileLightOffset < tileData; ++tileLightOffset)
                 {
                     uint tileLightIndex = tileIndex * 256 + tileLightOffset;
@@ -102,7 +112,7 @@ Shader "BXDefferedShadings/Shading"
                     half ndotl = max(0.0, dot(n, l));
                     half ndoth = max(0.0, dot(n, h));
                     half ldoth = max(0.0, dot(l, h));
-                    half atten = 1.0 / dot(lenV, lenV);
+                    half atten =  saturate(1.0 - dot(lenV, lenV) / (lightSphere.w * lightSphere.w));
 
                     lightCol *= atten;
                     half f0 = PBR_F0(ndotl, ndotv, ldoth, materialData.g);
@@ -112,7 +122,7 @@ Shader "BXDefferedShadings/Shading"
                     specularColor += lightCol * fgd;
                 }
 
-                for(uint lightIndex = 1; lightIndex < 2; ++lightIndex)
+                for(uint lightIndex = 1; lightIndex < _DirectionalLightCount; ++lightIndex)
                 {
                     half3 l = _DirectionalLightDirections[lightIndex].xyz;
                     half3 lightCol = _DirectionalLightColors[lightIndex].xyz;
@@ -125,7 +135,7 @@ Shader "BXDefferedShadings/Shading"
                     half3 shadowCol = 1.0;
                     if(needShadowed == 1)
                     {
-                        half shadowAtten = GetDirectionalShadow(lightIndex, i.uv_screen, pos_world.xyz, n, depth01 * _ProjectionParams.z);
+                        half shadowAtten = GetDirectionalShadow(lightIndex, i.uv_screen, pos_world.xyz, n, depthEye);
                         shadowCol = lerp(_BXShadowsColor.xyz, 1.0, shadowAtten);
                     }
                     lightCol *= shadowCol;

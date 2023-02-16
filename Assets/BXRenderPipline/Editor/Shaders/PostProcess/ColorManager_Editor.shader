@@ -1,4 +1,4 @@
-Shader "BXPostProcess/ColorManager"
+Shader "BXPostProcessEditor/ColorManager"
 {
     SubShader
     {
@@ -22,10 +22,8 @@ Shader "BXPostProcess/ColorManager"
                 float2 uv_screen : TEXCOORD0;
             };
 
-            FRAMEBUFFER_INPUT_HALF(0);
-            #ifndef PLATFORM_SUPPORTS_NATIVE_RENDERPASS
-                SamplerState sampler_point_clamp;
-            #endif
+            TEXTURE2D(_LightingBuffer);
+            SAMPLER(sampler_bilinear_clamp);
 
             Varyings vert(uint vertexID : SV_VertexID)
             {
@@ -39,17 +37,13 @@ Shader "BXPostProcess/ColorManager"
                     vertexID <= 1 ? 0.0 : 2.0,
                     vertexID == 1 ? 2.0 : 0.0
                 );
-                // if(_ProjectionParams.x < 0.0) o.uv_screen.y = 1.0 - o.uv_screen.y;
+                if(_ProjectionParams.x < 0.0) o.uv_screen.y = 1.0 - o.uv_screen.y;
                 return o;
             }
 
             half4 frag(Varyings i) : SV_TARGET0
             {
-                #ifdef PLATFORM_SUPPORTS_NATIVE_RENDERPASS
-                    half4 col = LOAD_FRAMEBUFFER_INPUT(0, i.uv_screen);
-                #else
-                    half4 col = _UnityFBInput0.SampleLevel(sampler_point_clamp, float2(i.uv_screen.x, 1.0 - i.uv_screen.y), 0);
-                #endif
+                half4 col = SAMPLE_TEXTURE2D_LOD(_LightingBuffer, sampler_bilinear_clamp, i.uv_screen, 0);
                 return half4(ColorGrade(col.rgb), 1.0);
             }
             ENDHLSL

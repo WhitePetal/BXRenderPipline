@@ -42,4 +42,9 @@ inline float Linear01Depth( float z )
 {
     return 1.0 / (_ZBufferParams.x * z + _ZBufferParams.y);
 }
+
+inline float LinearEyeDepth( float z )
+{
+    return 1.0 / (_ZBufferParams.z * z + _ZBufferParams.w);
+}
 #endif

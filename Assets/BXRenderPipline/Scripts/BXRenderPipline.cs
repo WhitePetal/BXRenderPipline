@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -24,17 +25,19 @@ public class BXRenderPipline : RenderPipeline
 	private bool useDynamicBatching, useGPUInstancing, useLightsPerObject, editorMode;
 	private MainCameraRender mainCameraRenderer = new MainCameraRender();
 	private DefferedShadingSettings defferedShadingSettings;
+	private DeferredComputeSettings deferredComputeSettings;
 	private PostProcessSettings postprocessSettings;
 	private ShadowSettings shadowSettings;
 
 	public BXRenderPipline(bool editorMode, bool useDynamicBatching, bool useGPUInstancing, bool useSRPBatching, bool useLightsPerObject, FrameRate frameRate, 
-		DefferedShadingSettings defferedShadingSettings, PostProcessSettings postprocessSettings, ShadowSettings shadowSettings)
+		DefferedShadingSettings defferedShadingSettings, DeferredComputeSettings deferredComputeSettings, PostProcessSettings postprocessSettings, ShadowSettings shadowSettings)
 	{
 		this.editorMode = editorMode;
 		this.useDynamicBatching = useDynamicBatching;
 		this.useGPUInstancing = useGPUInstancing;
 		this.useLightsPerObject = useLightsPerObject;
 		this.defferedShadingSettings = defferedShadingSettings;
+		this.deferredComputeSettings = deferredComputeSettings;
 		this.postprocessSettings = postprocessSettings;
 		this.shadowSettings = shadowSettings;
 		GraphicsSettings.useScriptableRenderPipelineBatching = useSRPBatching;
@@ -50,14 +53,14 @@ public class BXRenderPipline : RenderPipeline
 	{
 		for (int i = 0; i < cameras.Length; ++i)
 		{
-			mainCameraRenderer.Render(context, cameras[i], editorMode, useDynamicBatching, useGPUInstancing, useLightsPerObject, defferedShadingSettings, postprocessSettings, shadowSettings);
+			mainCameraRenderer.Render(context, cameras[i], editorMode, useDynamicBatching, useGPUInstancing, useLightsPerObject,
+				defferedShadingSettings, deferredComputeSettings, postprocessSettings, shadowSettings);
 		}
 	}
 
 	protected override void Dispose(bool disposing)
 	{
 		base.Dispose(disposing);
-		if (mainCameraRenderer.lights.tileLightingIndicesBuffer != null) mainCameraRenderer.lights.tileLightingIndicesBuffer.Release();
-		if (mainCameraRenderer.lights.tileLightingDatasBuffer != null) mainCameraRenderer.lights.tileLightingDatasBuffer.Release();
+		mainCameraRenderer.Dispose();
 	}
 }

@@ -13,8 +13,8 @@ public enum ToneMappingType
 public class PostProcessSettings
 {
 	[SerializeField]
-	public Shader tonemappingShader;
+	public Shader colorGradeShader;
 	[SerializeField]
-	public Shader tonemappingShaderEditor;
+	public Shader colorGradeShaderEditor;
 	public ToneMappingType toneMappingType = ToneMappingType.Neutral;
 }

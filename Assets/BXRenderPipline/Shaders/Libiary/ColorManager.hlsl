@@ -25,7 +25,7 @@ half3 ColorGradePostExposure(half3 col)
 half3 ColorGradingContrast(half3 col)
 {
     col = LinearToLogC(col);
-    col = (col - ACEScc_MIDGRAY) * _ColorAdjustments.y + _ACEScc_MIDGRAY;
+    col = (col - ACEScc_MIDGRAY) * _ColorAdjustments.y + ACEScc_MIDGRAY;
     return max(LogCToLinear(col), 0.0);
 }
 
@@ -71,6 +71,21 @@ half3 ColorGradeWhiteBalance(half3 col)
     return LMSToLinear(col);
 }
 
+half3 ReinhardTonemapping(half3 col)
+{
+    col /= col + 1.0;
+    return col;
+}
+half3 NeutralTonemapping(half3 col)
+{
+    return NeutralTonemap(col.rgb);
+}
+half3 ACESTonemapping(half3 col)
+{
+    return AcesTonemap(unity_to_ACES(col.rgb));
+}
+
+
 half3 ColorGrade(half3 col)
 {
     col = min(col.rgb, 60.0);
@@ -102,20 +117,6 @@ half3 ColorGrade(half3 col)
 #endif
 
     return ACESTonemapping(col);
-}
-
-half3 ReinhardTonemapping(half3 col)
-{
-    col /= col + 1.0;
-    col;
-}
-half3 NeutralTonemapping(half3 col)
-{
-    return NeutralTonemap(col.rgb);
-}
-half3 ACESTonemapping(half3 col)
-{
-    return AcesTonemap(unity_to_ACES(col.rgb));
 }
 
 #endif

@@ -18,12 +18,15 @@ public class BXRenderPiplineAsset : RenderPipelineAsset
 	[SerializeField]
 	public DefferedShadingSettings defferedShadingSettings;
 	[SerializeField]
+	public DeferredComputeSettings deferredComputeSettings;
+	[SerializeField]
 	public PostProcessSettings processSettings;
 	[SerializeField]
 	public ShadowSettings shadowSettings;
 
 	protected override RenderPipeline CreatePipeline()
 	{
-		return new BXRenderPipline(editorMode, useDynamicBatching, useGPUInstancing, useSRPBatching, useLightsPerObject, frameRate, defferedShadingSettings, processSettings, shadowSettings);
+		return new BXRenderPipline(editorMode, useDynamicBatching, useGPUInstancing, useSRPBatching, useLightsPerObject, frameRate,
+			defferedShadingSettings, deferredComputeSettings, processSettings, shadowSettings);
 	}
 }

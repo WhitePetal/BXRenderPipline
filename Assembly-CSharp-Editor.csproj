@@ -62,7 +62,7 @@
     <Compile Include="Assets\BXRenderPipline\Editor\VectorRangeDrawer.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Assets\BXRenderPipline\Editor\Shaders\PostProcess\Tonemapping_Editor.shader" />
+    <None Include="Assets\BXRenderPipline\Editor\Shaders\PostProcess\ColorManager_Editor.shader" />
     <None Include="Assets\BXRenderPipline\Editor\Shaders\DefferedShadings\DefferedShading_Editor.shader" />
     <None Include="Assets\BXRenderPipline\Editor\Shaders\DefferedShadings\DefferedCombine_Editor.shader" />
   </ItemGroup>

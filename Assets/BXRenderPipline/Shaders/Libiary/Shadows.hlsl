@@ -115,7 +115,7 @@ half GetDirectionalShadow(int lightIndex, float2 pos_clip, float3 pos_world, hal
         if (cascadeBlend < 1.0) {
             normalBias = normal_world * (shadowData.z * _CascadeDatas[cascadeIndex + 1].y);
             shadowCoord = mul(_DirectionalShadowMatrixs[shadowIndex + 1], float4(pos_world + normalBias, 1.0));
-            shadow = lerp(FilterDirectionalShadow(shadowCoord), shadow, cascadeBlend);
+            shadow = lerp(FilterDirectionalShadow(shadowCoord.xyz), shadow, cascadeBlend);
         }
     #endif
 

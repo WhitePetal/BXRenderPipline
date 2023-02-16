@@ -8,76 +8,100 @@ RWStructuredBuffer<uint> _TileLightingDatas;
 
 // inputs
 #define MAX_POINT_LIGHT_COUNT 256
+uint _PointLightCount;
 float4 _PointLightSpheres[MAX_POINT_LIGHT_COUNT];
 Texture2D _BXDepthNormalBuffer;
-SamplerState sampler_point_clamp;
+SamplerState sampler_bilinear_clamp;
 float4 _ScreenParams;
 float4 _ProjectionParams;
-float3 _WorldSpaceCameraPos;
+float4 _ZBufferParams;
+float4 _WorldSpaceCameraPos;
 float4x4 _ViewPortRays;
+float4 _ViewPortLB;
+float4 _CameraForward;
+float4 _TileRVec;
+float4 _TileUVec;
+float4x4 unity_MatrixInvV;
 
 // temps
 groupshared uint tileMinDepth = 0xFFFFFFFF;
 groupshared uint tileMaxDepth = 0;
 groupshared uint tileVisibleLightCount = 0;
+groupshared float4 tileNormal = float4(0, 0, 0, 0);
+
+bool IntersectSide(float3 p1,float3 p2,float4 lightSphere){
+    float3 n = normalize(cross(p1,p2));
+    float d = dot(lightSphere.xyz - _WorldSpaceCameraPos.xyz,n);
+    return d < lightSphere.w;
+}
 
 bool IntersectTileAndPointLight(float zMin, float zMax, uint3 groupId, float4 lightSphere)
 {
-    float2 tileScreenUVLB = float2(groupId.x * 16 / _ScreenParams.x, groupId.y * 16 / _ScreenParams.y);
-    float2 tileScreenUVRU = float2((groupId.x + 1) * 16 / _ScreenParams.x, (groupId.y + 1) * 16 / _ScreenParams.y);
-
-    float3 lb = normalize(_ViewPortRays[2].xyz);
-    float3 rb = normalize(_ViewPortRays[3].xyz);
-    float3 lu = normalize(_ViewPortRays[0].xyz);
-    float3 ru = normalize(_ViewPortRays[1].xyz);
-
-    float3 LU = lerp(lu, ru, tileScreenUVLB.x);
-    float3 LB = lerp(lb, lu, tileScreenUVLB.x);
-    float3 bMin = _WorldSpaceCameraPos.xyz + lerp(LB, LU, tileScreenUVLB.y) * zMin;
-
-    float3 RU = lerp(lu, ru, tileScreenUVRU.x);
-    float3 RB = lerp(lb, lu, tileScreenUVRU.x);
-    float3 bMax = _WorldSpaceCameraPos.xyz + lerp(RB, RU, tileScreenUVRU.y) * zMax;
-
-    bMax = max(bMax, bMin);
-    bMin = min(bMax, bMin);
-
     float ww = lightSphere.w * lightSphere.w;
+    float3 dir = normalize(lightSphere.xyz - _WorldSpaceCameraPos.xyz);
+    float dst = sqrt(dot(lightSphere.xyz - _WorldSpaceCameraPos.xyz, lightSphere.xyz - _WorldSpaceCameraPos.xyz));
+    float lightDepthMin = dst - lightSphere.w;
+    float lightDepthMax = dst + lightSphere.w;
 
-    half dmin = 0;
-    [unroll]
-    for(int i = 0; i < 3; ++i)
+    if(lightDepthMin >= zMax || lightDepthMax <= zMin)
     {
-        dmin += lightSphere[i] < bMin[i] ? (lightSphere[i] - bMin[i]) * (lightSphere[i] - bMin[i]) : 0;
-        dmin += lightSphere[i] > bMax[i] ? (lightSphere[i] - bMax[i]) * (lightSphere[i] - bMax[i]) : 0;
+        return false;
     }
+    else
+    {
+        return true;
+    }
+    // else
+    // {
+        // float3 lb = _ViewPortLB.xyz;
+        // float3 bmin = _WorldSpaceCameraPos.xyz + (lb + _TileRVec * groupId.x + _TileUVec * groupId.y) * zMin;
+        // float3 bmax = _WorldSpaceCameraPos.xyz + (lb + _TileRVec * (groupId.x + 1) + _TileUVec * (groupId.y + 1)) * zMax;
+        // // bmin = min(bmax, bmin);
+        // // bmax = max(bmax, bmin);
+        // float dmin = 0;
+        // dmin += lightSphere.x < bmin.x ? (lightSphere.x - bmin.x)*(lightSphere.x - bmin.x) : 0.0;
+        // dmin += lightSphere.y < bmin.y ? (lightSphere.y - bmin.y)*(lightSphere.y - bmin.y) : 0.0;
+        // dmin += lightSphere.z < bmin.z ? (lightSphere.z - bmin.z)*(lightSphere.z - bmin.z) : 0.0;
 
-    return dmin <= ww;
+        // dmin += lightSphere.x > bmax.x ? (lightSphere.x - bmax.x)*(lightSphere.x - bmin.x) : 0.0;
+        // dmin += lightSphere.x > bmax.x ? (lightSphere.y - bmax.y)*(lightSphere.y - bmax.y) : 0.0;
+        // dmin += lightSphere.x > bmax.x ? (lightSphere.z - bmax.z)*(lightSphere.z - bmax.z) : 0.0;
+        // return dmin <= ww;
+        // return dmin > 0;
+    // }
+
+    return true;
+}
+
+inline float LinearEyeDepth( float z )
+{
+    return 1.0 / (_ZBufferParams.z * z + _ZBufferParams.w);
 }
 
 [numthreads(16,16,1)]
 void CSMain (uint3 id : SV_DispatchThreadID, uint groupIndex : SV_GROUPINDEX, uint3 groupId : SV_GROUPID)
-{
+{   
     if(groupIndex == 0)
     {
-        tileMinDepth = 0xFFFFFFFF;
+        tileMinDepth = _ProjectionParams.z * 100;
         tileMaxDepth = 0;
         tileVisibleLightCount = 0;
+        tileNormal = float4(0.0, 0.0, 0.0, 0.0);
     }
     GroupMemoryBarrierWithGroupSync();
 
-    float4 depthNormalData = _BXDepthNormalBuffer.SampleLevel(sampler_point_clamp, (float2)id.xy / _ScreenParams.xy, 0);
+    float4 depthNormalData = _BXDepthNormalBuffer.SampleLevel(sampler_bilinear_clamp, (id.xy + 0.5) / _ScreenParams.xy, 0);
     float3 n;
     float depth01;
     DecodeDepthNormal(depthNormalData, depth01, n);
-    float depth = depth01 * _ProjectionParams.z;
+    float depth = LinearEyeDepth(depth01);
+    n = mul((float3x3)unity_MatrixInvV, n);
     InterlockedMin(tileMinDepth,asuint(depth));
     InterlockedMax(tileMaxDepth,asuint(depth));
     GroupMemoryBarrierWithGroupSync();
 
-    float4 lightSphere = _PointLightSpheres[groupIndex];
-    uint tileIndex = groupId.y * _ScreenParams.x / 16 + groupId.x;
-    if (IntersectTileAndPointLight(asfloat(tileMinDepth), asfloat(tileMaxDepth), groupId, lightSphere))
+    uint tileIndex = groupId.y * _ScreenParams.x / 16.0 + groupId.x;
+    if (groupIndex < _PointLightCount && IntersectTileAndPointLight(asfloat(tileMinDepth), asfloat(tileMaxDepth), groupId, _PointLightSpheres[groupIndex]))
     {
         uint offset;
         InterlockedAdd(tileVisibleLightCount, 1, offset);
@@ -88,5 +112,5 @@ void CSMain (uint3 id : SV_DispatchThreadID, uint groupIndex : SV_GROUPINDEX, ui
     {
         _TileLightingDatas[tileIndex] = tileVisibleLightCount;
     }
-    GroupMemoryBarrierWithGroupSync();
+    // GroupMemoryBarrierWithGroupSync();
 }

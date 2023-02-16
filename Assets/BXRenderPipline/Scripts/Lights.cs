@@ -12,29 +12,12 @@ public class Lights
 		name = bufferName
 	};
 
-	private const int maxDirLightCount = 4;
-	private const int maxPointLightCount = 256;
-
-	private static int dirLightCountId = Shader.PropertyToID("_DirectionalLightCount");
-	private static int dirLightDirectionsId = Shader.PropertyToID("_DirectionalLightDirections");
-	private static int dirLightColorsId = Shader.PropertyToID("_DirectionalLightColors");
-	private static int directionalShadowDatasId = Shader.PropertyToID("_DirectionalShadowDatas");
-	private static int pointLightCountId = Shader.PropertyToID("_PointLightCount");
-	private static int pointLightSpheresId = Shader.PropertyToID("_PointLightSpheres");
-	private static int pointLightColorsId = Shader.PropertyToID("_PointLightColors");
-	private static int tileLightingIndicesId = Shader.PropertyToID("_TileLightingIndices");
-	private static int tileLightingDatasId = Shader.PropertyToID("_TileLightingDatas");
-
-	private static Vector4[]
-		dirLightColors = new Vector4[maxDirLightCount],
-		dirLightDirections = new Vector4[maxDirLightCount],
-		directionalShadowDatas = new Vector4[maxDirLightCount],
-		pointLightSpheres = new Vector4[maxPointLightCount],
-		pointLightColors = new Vector4[maxPointLightCount];
-
-	private static int tileLightDataCount = 0;
-	public ComputeBuffer tileLightingIndicesBuffer;
-	public ComputeBuffer tileLightingDatasBuffer;
+	public Vector4[]
+		dirLightColors = new Vector4[Constants.maxDirLightCount],
+		dirLightDirections = new Vector4[Constants.maxDirLightCount],
+		directionalShadowDatas = new Vector4[Constants.maxDirLightCount],
+		pointLightSpheres = new Vector4[Constants.maxPointLightCount],
+		pointLightColors = new Vector4[Constants.maxPointLightCount];
 
 	public int pointLightCount;
 
@@ -49,16 +32,6 @@ public class Lights
 		this.cullingResults = cullingResults;
 		commandBuffer.BeginSample(bufferName);
 		shadows.Setup(context, cullingResults, shadowSettings);
-
-		int tileLightDataCountNow = Screen.width * Screen.height;
-		if (tileLightDataCountNow != tileLightDataCount)
-		{
-			tileLightDataCount = tileLightDataCountNow;
-			if (tileLightingIndicesBuffer != null) tileLightingIndicesBuffer.Release();
-			if (tileLightingDatasBuffer != null) tileLightingDatasBuffer.Release();
-			tileLightingIndicesBuffer = new ComputeBuffer(tileLightDataCount, sizeof(uint), ComputeBufferType.Constant);
-			tileLightingDatasBuffer = new ComputeBuffer(tileLightDataCount / 256, sizeof(uint), ComputeBufferType.Constant);
-		}
 
 		SetupLights();
 		shadows.Render();
@@ -83,34 +56,33 @@ public class Lights
 			switch (visibleLight.lightType)
 			{
 				case LightType.Directional:
-					if (dirLightCount < maxDirLightCount)
+					if (dirLightCount < Constants.maxDirLightCount)
 					{
 						SetupDirectionalLight(dirLightCount++, visibleLightIndex, ref visibleLight);
 					}
 					break;
 				case LightType.Point:
-					if(pointLightCount < maxPointLightCount)
+					if(pointLightCount < Constants.maxPointLightCount)
 					{
 						SetupPointLight(pointLightCount++, ref visibleLight);
 					}
 					break;
 			}
-			if (dirLightCount >= maxDirLightCount && pointLightCount >= maxPointLightCount) break;
+			if (dirLightCount >= Constants.maxDirLightCount && pointLightCount >= Constants.maxPointLightCount) break;
 		}
-		commandBuffer.SetGlobalInt(dirLightCountId, dirLightCount);
+		commandBuffer.SetGlobalInt(Constants.dirLightCountId, dirLightCount);
 		if(dirLightCount > 0)
 		{
-			commandBuffer.SetGlobalVectorArray(dirLightDirectionsId, dirLightDirections);
-			commandBuffer.SetGlobalVectorArray(dirLightColorsId, dirLightColors);
-			commandBuffer.SetGlobalVectorArray(directionalShadowDatasId, directionalShadowDatas);
+			commandBuffer.SetGlobalVectorArray(Constants.dirLightDirectionsId, dirLightDirections);
+			commandBuffer.SetGlobalVectorArray(Constants.dirLightColorsId, dirLightColors);
+			commandBuffer.SetGlobalVectorArray(Constants.directionalShadowDatasId, directionalShadowDatas);
 		}
-		commandBuffer.SetGlobalInt(pointLightCountId, pointLightCount);
+		commandBuffer.SetGlobalInt(Constants.pointLightCountId, pointLightCount);
 		if(pointLightCount > 0)
 		{
-			commandBuffer.SetGlobalBuffer(tileLightingDatasId, tileLightingDatasBuffer);
-			commandBuffer.SetGlobalBuffer(tileLightingIndicesId, tileLightingIndicesBuffer);
-			commandBuffer.SetGlobalVectorArray(pointLightSpheresId, pointLightSpheres);
-			commandBuffer.SetGlobalVectorArray(pointLightColorsId, pointLightColors);
+			commandBuffer.SetGlobalVectorArray(Constants.pointLightSpheresId, pointLightSpheres);
+			commandBuffer.SetGlobalVectorArray(Constants.pointLightColorsId, pointLightColors);
+			commandBuffer.SetGlobalVectorArray(Constants.pointLightSpheresId, pointLightSpheres);
 		}
 		this.pointLightCount = pointLightCount;
 	}
