@@ -88,7 +88,7 @@ Shader "BXDefferedShadings/Shading"
                 uint2 screenXY = i.uv_screen * _ScreenParams.xy / 16.0;
                 uint tileIndex = screenXY.y * _ScreenParams.x / 16.0 + screenXY.x;
                 uint tileData = _TileLightingDatas[tileIndex];
-                // return half4(tileData.xxx, 1.0);
+                // return tileData;
                 for(uint tileLightOffset = 0; tileLightOffset < tileData; ++tileLightOffset)
                 {
                     uint tileLightIndex = tileIndex * 256 + tileLightOffset;

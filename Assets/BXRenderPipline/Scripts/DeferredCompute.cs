@@ -59,7 +59,6 @@ public class DeferredCompute
 		commandBuffer.SetGlobalBuffer(Constants.tileLightingDatasId, tileLightingDatasBuffer);
 		commandBuffer.SetGlobalBuffer(Constants.tileLightingIndicesId, tileLightingIndicesBuffer);
 		commandBuffer.SetComputeTextureParam(deferredComputeSettings.tileLightingCS, 0, Constants.depthNormalBufferId, Constants.depthNormalBufferTargetId);
-		commandBuffer.SetComputeMatrixParam(deferredComputeSettings.tileLightingCS, "unity_MatrixV", camera.worldToCameraMatrix);
 		commandBuffer.DispatchCompute(deferredComputeSettings.tileLightingCS, 0, Mathf.CeilToInt(width / 16f), Mathf.CeilToInt(height / 16f), 1);
 		commandBuffer.EndSample("TileLightingData");
 		ExecuteBuffer();

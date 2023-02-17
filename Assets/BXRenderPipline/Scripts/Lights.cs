@@ -82,7 +82,6 @@ public class Lights
 		{
 			commandBuffer.SetGlobalVectorArray(Constants.pointLightSpheresId, pointLightSpheres);
 			commandBuffer.SetGlobalVectorArray(Constants.pointLightColorsId, pointLightColors);
-			commandBuffer.SetGlobalVectorArray(Constants.pointLightSpheresId, pointLightSpheres);
 		}
 		this.pointLightCount = pointLightCount;
 	}

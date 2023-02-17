@@ -34,6 +34,8 @@ public class Constants
 	};
 	public static RenderTargetBinding defferedShadingBinding = new RenderTargetBinding(defferedShadingTargestsId, defferedShadingTargetLoads, defferedShadingTargetStores, depthBufferTargetId, RenderBufferLoadAction.DontCare, RenderBufferStoreAction.Store);
 
+	public static int viewPortRaysId = Shader.PropertyToID("_ViewPortRays");
+
 	public const int maxDirLightCount = 4;
 	public const int maxPointLightCount = 256;
 
@@ -41,9 +43,14 @@ public class Constants
 	public static int dirLightDirectionsId = Shader.PropertyToID("_DirectionalLightDirections");
 	public static int dirLightColorsId = Shader.PropertyToID("_DirectionalLightColors");
 	public static int directionalShadowDatasId = Shader.PropertyToID("_DirectionalShadowDatas");
+
 	public static int pointLightCountId = Shader.PropertyToID("_PointLightCount");
 	public static int pointLightSpheresId = Shader.PropertyToID("_PointLightSpheres");
 	public static int pointLightColorsId = Shader.PropertyToID("_PointLightColors");
+
 	public static int tileLightingIndicesId = Shader.PropertyToID("_TileLightingIndices");
 	public static int tileLightingDatasId = Shader.PropertyToID("_TileLightingDatas");
+	public static int tileLBStartId = Shader.PropertyToID("_TileLBStart");
+	public static int tileRVecId = Shader.PropertyToID("_TileRVec");
+	public static int tileUVecId = Shader.PropertyToID("_TileUVec");
 }

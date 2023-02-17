@@ -14,7 +14,6 @@ CBUFFER_START(_CustomeLights)
     float4 _PointLightSpheres[MAX_POINT_LIGHT_COUNT];
 CBUFFER_END
 
-// StructuredBuffer<float4> _PointLightSpheres;
 StructuredBuffer<uint> _TileLightingIndices;
 StructuredBuffer<uint> _TileLightingDatas;
 

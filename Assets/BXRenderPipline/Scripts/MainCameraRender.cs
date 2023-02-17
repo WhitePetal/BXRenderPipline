@@ -25,9 +25,6 @@ public partial class MainCameraRender
 		name = computesCommandBufferName
 	};
 
-	private static int tileRVecId = Shader.PropertyToID("_TileRVec");
-	private static int tileUVecId = Shader.PropertyToID("_TileUVec");
-
 	private int width, height;
 
 	public Lights lights = new Lights();
@@ -37,7 +34,6 @@ public partial class MainCameraRender
 
 	private DeferredComputeSettings deferredComputeSettings;
 
-	private int viewPortRaysId = Shader.PropertyToID("_ViewPortRays");
 	private Matrix4x4 viewPortRays = Matrix4x4.identity;
 
 	private GraphicsFence graphicsPiplineCompeletFence;
@@ -146,16 +142,16 @@ public partial class MainCameraRender
 		viewPortRays.SetRow(2, rb);
 		viewPortRays.SetRow(3, ru);
 
-		float tileWidth = width / 16.0f;
-		float tileHeight = height / 16.0f;
-		Vector4 tileRVec = right * tileWidth;
-		Vector4 tileUVec = up * tileHeight;
+		float tileCountX = width / 32.0f;
+		float tileCountY = height / 32.0f;
+		Vector4 tileLRStart = new Vector4(-w_half, -h_half, -1);
+		Vector4 tileRVec = new Vector4(w_half / tileCountX, 0, 0);
+		Vector4 tileUVec = new Vector4(0, h_half / tileCountY, 0);
 
-		commandBufferGraphics.SetGlobalMatrix(viewPortRaysId, viewPortRays);
-		commandBufferGraphics.SetGlobalVector("_ViewPortLB", lb);
-		commandBufferGraphics.SetGlobalVector("_CameraForward", forward);
-		commandBufferGraphics.SetGlobalVector(tileRVecId, tileRVec);
-		commandBufferGraphics.SetGlobalVector(tileUVecId, tileUVec);
+		commandBufferGraphics.SetGlobalMatrix(Constants.viewPortRaysId, viewPortRays);
+		commandBufferGraphics.SetGlobalVector(Constants.tileLBStartId, tileLRStart);
+		commandBufferGraphics.SetGlobalVector(Constants.tileRVecId, tileRVec);
+		commandBufferGraphics.SetGlobalVector(Constants.tileUVecId, tileUVec);
 
 		context.SetupCameraProperties(camera);
 		ExecuteGraphicsCommand();
