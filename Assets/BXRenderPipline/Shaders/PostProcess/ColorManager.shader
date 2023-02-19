@@ -9,7 +9,12 @@ Shader "BXPostProcess/ColorManager"
             ZTest Always
 
             HLSLPROGRAM
-            #pragma multi_compile CM_ACES CM_Reinhard CM_Neutral
+            #pragma multi_compile_local __ CM_ColorGrading    
+            #pragma multi_compile_local __ CM_ColorSplitToning
+            #pragma multi_compile_local __ CM_ShadowsMidtoneHighlights
+            #pragma multi_compile_local __ CM_ColorChannelMixer
+            #pragma multi_compile_local __ CM_ColorWhiteBalance
+            #pragma multi_compile_local CM_ACES CM_Reinhard CM_Neutral
             #pragma vertex vert
             #pragma fragment frag
 

@@ -26,6 +26,7 @@ public partial class MainCameraRender
 	};
 
 	private int width, height;
+	private ReflectType reflectType;
 
 	public Lights lights = new Lights();
 	private PostProcess postProcess = new PostProcess();
@@ -39,10 +40,12 @@ public partial class MainCameraRender
 	private GraphicsFence graphicsPiplineCompeletFence;
 
 	public void Render(ScriptableRenderContext context, Camera camera, bool editorMode, bool useDynamicBatching, bool useGPUInstancing, bool useLightsPerObject, 
+		ReflectType reflectType,
 		DefferedShadingSettings defferedShadingSettings, DeferredComputeSettings deferredComputeSettings, PostProcessSettings postprocessSettings, ShadowSettings shadowSettings)
 	{
 		this.context = context;
 		this.camera = camera;
+		this.reflectType = reflectType;
 		this.deferredComputeSettings = deferredComputeSettings;
 
 #if UNITY_EDITOR
@@ -73,7 +76,7 @@ public partial class MainCameraRender
 			width, height, aa, cameraTargetId,
 			editorMode, useDynamicBatching, useGPUInstancing, useLightsPerObject,
 			defferedShadingSettings, postprocessSettings);
-		computePipline.Setup(context, commandBufferCompute, camera, deferredComputeSettings, 
+		computePipline.Setup(context, commandBufferCompute, camera, reflectType, deferredComputeSettings, 
 			width, height, lights.pointLightCount, lights.pointLightSpheres);
 		SetupForRender();
 
@@ -106,8 +109,8 @@ public partial class MainCameraRender
 
 	private void ShadingInPlayerMode()
 	{
-		graphicsPipline.Render(out GraphicsFence ssrFence);
-		computePipline.CaculateAftRender(ssrFence);
+		graphicsPipline.Render();
+		computePipline.CaculateAftRender();
 		CleanUp();
 		Submit();
 	}
@@ -152,6 +155,18 @@ public partial class MainCameraRender
 		commandBufferGraphics.SetGlobalVector(Constants.tileLBStartId, tileLRStart);
 		commandBufferGraphics.SetGlobalVector(Constants.tileRVecId, tileRVec);
 		commandBufferGraphics.SetGlobalVector(Constants.tileUVecId, tileUVec);
+
+		for(int i = 0; i < Constants.reflectTypeKeywords.Length; ++i)
+		{
+			if(i == (int)reflectType)
+			{
+				commandBufferGraphics.EnableShaderKeyword(Constants.reflectTypeKeywords[i]);
+			}
+			else
+			{
+				commandBufferGraphics.DisableShaderKeyword(Constants.reflectTypeKeywords[i]);
+			}
+		}
 
 		context.SetupCameraProperties(camera);
 		ExecuteGraphicsCommand();

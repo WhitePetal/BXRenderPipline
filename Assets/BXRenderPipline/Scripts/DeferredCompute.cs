@@ -13,12 +13,15 @@ public class DeferredCompute
 	private int pointLightCount;
 	private Vector4[] pointLightSpheres;
 	private int width, height;
+	private ReflectType reflectType;
 
 	public ComputeBuffer tileLightingIndicesBuffer = new ComputeBuffer(2048 * 2048, sizeof(uint));
 	public ComputeBuffer tileLightingDatasBuffer = new ComputeBuffer(2048 * 2048 / 256, sizeof(uint));
 
 
-	public void Setup(ScriptableRenderContext context, CommandBuffer commandBuffer, Camera camera, DeferredComputeSettings deferredComputeSettings,
+	public void Setup(ScriptableRenderContext context, CommandBuffer commandBuffer, Camera camera, 
+		ReflectType reflectType,
+		DeferredComputeSettings deferredComputeSettings,
 		int width, int height, int pointLightCount, Vector4[] pointLightSpheres)
 	{
 		this.context = context;
@@ -29,6 +32,7 @@ public class DeferredCompute
 		this.pointLightSpheres = pointLightSpheres;
 		this.width = width;
 		this.height = height;
+		this.reflectType = reflectType;
 	}
 
 	public void CaculateBefRender()
@@ -36,9 +40,12 @@ public class DeferredCompute
 
 	}
 
-	public void CaculateAftRender(in GraphicsFence ssrFence)
+	public void CaculateAftRender()
 	{
-		GenerateSSRBuffer(ssrFence);
+		if(reflectType != ReflectType.OnlyProbe)
+		{
+			GenerateSSRBuffer();
+		}
 		GenerateTileLightingData();
 	}
 
@@ -52,10 +59,9 @@ public class DeferredCompute
 		if(tileLightingIndicesBuffer != null) tileLightingIndicesBuffer.Dispose();
 	}
 
-	private void GenerateSSRBuffer(in GraphicsFence ssrFence)
+	private void GenerateSSRBuffer()
 	{
 		commandBuffer.BeginSample("GenerateSSR");
-		commandBuffer.WaitOnAsyncGraphicsFence(ssrFence);
 		commandBuffer.SetComputeTextureParam(settings.ssrGenerateCS, 0, "_SSRBufferMip1", Constants.ssrBufferTargetId, 1);
 		commandBuffer.SetComputeTextureParam(settings.ssrGenerateCS, 0, "_SSRBufferMip2", Constants.ssrBufferTargetId, 2);
 		commandBuffer.SetComputeTextureParam(settings.ssrGenerateCS, 0, "_SSRBufferMip3", Constants.ssrBufferTargetId, 3);

@@ -13,6 +13,7 @@ Shader "BXDefferedShadings/Shading"
             #pragma target 3.5
             #pragma multi_compile _ _DIRECTIONAL_PCF3 _DIRECTIONAL_PCF5 _DIRECTIONAL_PCF7
             #pragma multi_compile _ _CASCADE_BLEND_SOFT _CASCADE_BLEND_DITHER
+            #pragma multi_compile_local _SSR_ONLY _PROBE_ONLY _SSR_AND_PROBE
 
             #pragma vertex vert
             #pragma fragment frag
@@ -137,8 +138,11 @@ Shader "BXDefferedShadings/Shading"
                     specularColor += lightCol * fgd;
                 }
 
-                half4 ssrData = _SSRBuffer.SampleLevel(sampler_bilinear_clamp, i.uv_screen, materialData.g * 3);
-                half3 indirectSpecular = 0.5 * ssrData.rgb * lerp(specCol, saturate(2.0 - materialData.g - oneMinusMetallic), PBR_SchlickFresnel(ndotv)) / (1.0 + materialData.g * materialData.g);
+                half3 indirectSpecular = 0.0;
+                #ifndef _PROBE_ONLY
+                    half4 ssrData = _SSRBuffer.SampleLevel(sampler_bilinear_clamp, i.uv_screen, materialData.g * 3);
+                    indirectSpecular = 0.5 * ssrData.rgb * lerp(specCol, saturate(2.0 - materialData.g - oneMinusMetallic), PBR_SchlickFresnel(ndotv)) / (1.0 + materialData.g * materialData.g);
+                #endif
 
                 return half4(diffuseColor * oneMinusMetallic * baseColor.rgb + specularColor * ndotv_inv + indirectSpecular, 1.0);
             }

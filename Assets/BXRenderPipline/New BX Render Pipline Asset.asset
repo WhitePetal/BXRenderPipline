@@ -18,6 +18,7 @@ MonoBehaviour:
   useSRPBatching: 1
   useLightsPerObject: 1
   frameRate: 60
+  reflectType: 0
   defferedShadingSettings:
     defferedShadingShader: {fileID: 4800000, guid: 17259b7e4effe0a4cb0cc92da2b26c26,
       type: 3}
@@ -29,6 +30,36 @@ MonoBehaviour:
     colorGradeShaderEditor: {fileID: 4800000, guid: 519a99c47de08774891234bdf8eeba8b,
       type: 3}
     toneMappingType: 2
+    colorGradingSettings:
+      enable: 1
+      exposure: 1
+      contrast: 1
+      hueShift: 0
+      satruation: 1
+      filterColor: {r: 1, g: 1, b: 1, a: 1}
+    whiteBalanceSettings:
+      enable: 1
+      temperature: 0
+      tint: 0
+    splitToningSettings:
+      enable: 1
+      shadows: {r: 0.42217872, g: 0.53740025, b: 0.5566038, a: 1}
+      highlights: {r: 0.9811321, g: 0.9220682, b: 0.7719473, a: 1}
+      balance: 31.2
+    chanelMixerSettings:
+      enable: 1
+      red: {x: 1, y: 0, z: 0}
+      green: {x: 0, y: 1, z: 0}
+      blue: {x: 0, y: 0, z: 1}
+    shadowsMidtoneHighlightSettings:
+      enable: 1
+      shadows: {r: 0.6234959, g: 0.77928734, b: 0.7924528, a: 1}
+      midtone: {r: 0.9056604, g: 0.81509435, b: 0.8762876, a: 1}
+      highlights: {r: 1, g: 0.90539086, b: 0.7962264, a: 1}
+      shadowStart: 0
+      shadowEnd: 0.112
+      highlightsStart: 0.436
+      highlightsEnd: 1.439
     fxaaSettings:
       qualitys: 1
       fxaaShader: {fileID: 4800000, guid: 046ec18a6e565410eadaee35bea0344b, type: 3}

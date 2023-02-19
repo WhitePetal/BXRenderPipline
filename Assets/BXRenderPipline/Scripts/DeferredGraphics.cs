@@ -21,6 +21,7 @@ public class DeferredGraphics
 	private int width, height, aa;
 	private RenderTargetIdentifier cameraTargetId;
 
+
 #if UNITY_EDITOR
 	private static Material material_error = new Material(Shader.Find("Hidden/InternalErrorShader"));
 #endif
@@ -62,14 +63,14 @@ public class DeferredGraphics
 		postProcess.Setup(postProcessSettings, commandBuffer, editorMode);
 	}
 
-	public void Render(out GraphicsFence ssrFence)
+	public void Render()
 	{
 		commandBuffer.BeginSample(commandBuffer.name);
 		GenerateBuffers();
 
 		BeginRenderPass();
 		DrawGeometryGBuffer(useDynamicBatching, useGPUInstancing, useLightsPerObject);
-		DrawDefferedShading(out ssrFence);
+		DrawDefferedShading();
 		DrawTransparent();
 #if UNITY_EDITOR
 		DrawUnsupportShader();
@@ -196,7 +197,7 @@ public class DeferredGraphics
 		context.EndSubPass();
 	}
 
-	private void DrawDefferedShading(out GraphicsFence ssrFence)
+	private void DrawDefferedShading()
 	{
 		var shadingOutputs = new NativeArray<int>(1, Allocator.Temp);
 		shadingOutputs[0] = Constants.lightingBufferIndex;
@@ -208,7 +209,6 @@ public class DeferredGraphics
 		shadingOutputs.Dispose();
 		shadingInputs.Dispose();
 		commandBuffer.DrawProcedural(Matrix4x4.identity, DefferedShadingMaterial, 0, MeshTopology.Triangles, 6);
-		ssrFence = commandBuffer.CreateGraphicsFence(GraphicsFenceType.AsyncQueueSynchronisation, SynchronisationStageFlags.AllGPUOperations);
 		ExecuteBuffer();
 		context.EndSubPass();
 	}

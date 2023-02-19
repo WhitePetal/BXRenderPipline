@@ -9,12 +9,20 @@ public enum FrameRate
 	FPS30 = 30
 }
 
+public enum ReflectType
+{
+	OnlySSR,
+	OnlyProbe,
+	ProbeAndSSR
+}
+
 [CreateAssetMenu(menuName = "Rendering/BXPipline")]
 public class BXRenderPiplineAsset : RenderPipelineAsset
 {
 	public bool editorMode = true;
 	public bool useDynamicBatching = true, useGPUInstancing = true, useSRPBatching = true, useLightsPerObject = true;
 	public FrameRate frameRate = FrameRate.FPS60;
+	public ReflectType reflectType = ReflectType.OnlySSR;
 	[SerializeField]
 	public DefferedShadingSettings defferedShadingSettings;
 	[SerializeField]
@@ -27,6 +35,6 @@ public class BXRenderPiplineAsset : RenderPipelineAsset
 	protected override RenderPipeline CreatePipeline()
 	{
 		return new BXRenderPipline(editorMode, useDynamicBatching, useGPUInstancing, useSRPBatching, useLightsPerObject, frameRate,
-			defferedShadingSettings, deferredComputeSettings, processSettings, shadowSettings);
+			reflectType, defferedShadingSettings, deferredComputeSettings, processSettings, shadowSettings);
 	}
 }

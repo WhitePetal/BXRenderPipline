@@ -61,4 +61,20 @@ public class Constants
 	public static int tileUVecId = Shader.PropertyToID("_TileUVec");
 
 	public static int fxaaConfigId = Shader.PropertyToID("_FXAAConfig");
+
+	public static int colorAdjustmentId = Shader.PropertyToID("_ColorAdjustments");
+	public static int filterColorId = Shader.PropertyToID("_ColorFilter");
+	public static int colorWhiteBalanceId = Shader.PropertyToID("_ColorWhiteBalance");
+	public static int colorSplitToneShadowsId = Shader.PropertyToID("_ColorSplitToningShadows");
+	public static int colorSplitToneHighlightsId = Shader.PropertyToID("_ColorSplitToningHighlights");
+	public static int colorChannelMixerId = Shader.PropertyToID("_ColorChannelMixer");
+	public static int smhShadowsId = Shader.PropertyToID("_SMHShadows");
+	public static int smhMidtonId = Shader.PropertyToID("_SMHMidtones");
+	public static int smhHighlightsId = Shader.PropertyToID("_SMHHighlights");
+	public static int smhRangeId = Shader.PropertyToID("_SMHRange");
+
+	public static string[] reflectTypeKeywords = new string[3]
+	{
+		"_SSR_ONLY", "_PROBE_ONLY", "_SSR_AND_PROBE"
+	};
 }
