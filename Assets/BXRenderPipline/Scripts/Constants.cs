@@ -5,18 +5,24 @@ using UnityEngine.Rendering;
 
 public class Constants
 {
-	public const int depthBufferIndex = 0, lightingBufferIndex = 1, baseColorBufferIndex = 2, materialDataBufferIndex = 3, depthNormalBufferIndex = 4, cameraTargetIndex = 5;
+	public const int depthBufferIndex = 0, lightingBufferIndex = 1, baseColorBufferIndex = 2, materialDataBufferIndex = 3, depthNormalBufferIndex = 4,
+		ssrBufferIndex = 5;
+	public const int fxaaInputBufferIndex = 0, cameraTargetBufferIndex = 1;
 
 	public static int depthBufferId = Shader.PropertyToID("_DepthBuffer");
 	public static int lightingBufferId = Shader.PropertyToID("_LightingBuffer");
 	public static int baseColorBufferId = Shader.PropertyToID("_BaseColorBuffer");
 	public static int materialDataBufferId = Shader.PropertyToID("_MaterialDataBuffer");
 	public static int depthNormalBufferId = Shader.PropertyToID("_BXDepthNormalBuffer");
+	public static int fxaaInputBufferId = Shader.PropertyToID("_FXAAInputBuffer");
+	public static int ssrBufferId = Shader.PropertyToID("_SSRBuffer");
 	public static RenderTargetIdentifier depthBufferTargetId = new RenderTargetIdentifier(depthBufferId);
 	public static RenderTargetIdentifier lightingBufferTargetId = new RenderTargetIdentifier(lightingBufferId);
 	public static RenderTargetIdentifier baseColorBufferTargetId = new RenderTargetIdentifier(baseColorBufferId);
 	public static RenderTargetIdentifier materialDataBufferTargetId = new RenderTargetIdentifier(materialDataBufferId);
 	public static RenderTargetIdentifier depthNormalBufferTargetId = new RenderTargetIdentifier(depthNormalBufferId);
+	public static RenderTargetIdentifier fxaaInputBufferTargetId = new RenderTargetIdentifier(fxaaInputBufferId);
+	public static RenderTargetIdentifier ssrBufferTargetId = new RenderTargetIdentifier(ssrBufferId);
 	public static RenderTargetIdentifier[] defferedShadingTargestsId = new RenderTargetIdentifier[4]
 	{
 		lightingBufferTargetId,
@@ -53,4 +59,6 @@ public class Constants
 	public static int tileLBStartId = Shader.PropertyToID("_TileLBStart");
 	public static int tileRVecId = Shader.PropertyToID("_TileRVec");
 	public static int tileUVecId = Shader.PropertyToID("_TileUVec");
+
+	public static int fxaaConfigId = Shader.PropertyToID("_FXAAConfig");
 }

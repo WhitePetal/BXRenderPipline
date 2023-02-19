@@ -22,7 +22,9 @@ Shader "BXPostProcess/ColorManager"
                 float2 uv_screen : TEXCOORD0;
             };
 
-            BXFRAMEBUFFER_INPUT_HALF(0, _LightingBuffer);
+            Texture2D _LightingBuffer;
+            SamplerState sampler_bilinear_clamp;
+            // BXFRAMEBUFFER_INPUT_HALF(0, _LightingBuffer);
 
             Varyings vert(uint vertexID : SV_VertexID)
             {
@@ -36,13 +38,13 @@ Shader "BXPostProcess/ColorManager"
                     vertexID <= 1 ? 0.0 : 2.0,
                     vertexID == 1 ? 2.0 : 0.0
                 );
-                // if(_ProjectionParams.x < 0.0) o.uv_screen.y = 1.0 - o.uv_screen.y;
+                if(_ProjectionParams.x < 0.0) o.uv_screen.y = 1.0 - o.uv_screen.y;
                 return o;
             }
 
             half4 frag(Varyings i) : SV_TARGET0
             {
-                half4 col = BXLOAD_FRAMEBUFFER_INPUT(0, _LightingBuffer, i.uv_screen);
+                half4 col = _LightingBuffer.SampleLevel(sampler_bilinear_clamp, i.uv_screen, 0);
                 return half4(ColorGrade(col.rgb), 1.0);
             }
             ENDHLSL

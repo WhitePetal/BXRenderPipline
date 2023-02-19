@@ -8,7 +8,7 @@ public class DeferredCompute
 	private Camera camera;
 	private CommandBuffer commandBuffer;
 	private ScriptableRenderContext context;
-	private DeferredComputeSettings deferredComputeSettings;
+	private DeferredComputeSettings settings;
 
 	private int pointLightCount;
 	private Vector4[] pointLightSpheres;
@@ -24,7 +24,7 @@ public class DeferredCompute
 		this.context = context;
 		this.camera = camera;
 		this.commandBuffer = commandBuffer;
-		this.deferredComputeSettings = deferredComputeSettings;
+		this.settings = deferredComputeSettings;
 		this.pointLightCount = pointLightCount;
 		this.pointLightSpheres = pointLightSpheres;
 		this.width = width;
@@ -36,9 +36,10 @@ public class DeferredCompute
 
 	}
 
-	public void CaculateAftRender(in GraphicsFence graphicsPiplineCompeletFence)
+	public void CaculateAftRender(in GraphicsFence ssrFence)
 	{
-		GenerateTileLightingData(in graphicsPiplineCompeletFence);
+		GenerateSSRBuffer(ssrFence);
+		GenerateTileLightingData();
 	}
 
 	public void CleanUp()
@@ -51,15 +52,28 @@ public class DeferredCompute
 		if(tileLightingIndicesBuffer != null) tileLightingIndicesBuffer.Dispose();
 	}
 
-	private void GenerateTileLightingData(in GraphicsFence graphicsPiplineCompeletFence)
+	private void GenerateSSRBuffer(in GraphicsFence ssrFence)
+	{
+		commandBuffer.BeginSample("GenerateSSR");
+		commandBuffer.WaitOnAsyncGraphicsFence(ssrFence);
+		commandBuffer.SetComputeTextureParam(settings.ssrGenerateCS, 0, "_SSRBufferMip1", Constants.ssrBufferTargetId, 1);
+		commandBuffer.SetComputeTextureParam(settings.ssrGenerateCS, 0, "_SSRBufferMip2", Constants.ssrBufferTargetId, 2);
+		commandBuffer.SetComputeTextureParam(settings.ssrGenerateCS, 0, "_SSRBufferMip3", Constants.ssrBufferTargetId, 3);
+		int w = width >> 2;
+		int h = height >> 2;
+		commandBuffer.DispatchCompute(settings.ssrGenerateCS, 0, Mathf.CeilToInt(w / 8f), Mathf.CeilToInt(h / 8f), 1);
+		ExecuteBuffer();
+		commandBuffer.EndSample("GenerateSSR");
+	}
+
+	private void GenerateTileLightingData()
 	{
 		if (pointLightCount == 0) return;
-		commandBuffer.WaitOnAsyncGraphicsFence(graphicsPiplineCompeletFence);
 		commandBuffer.BeginSample("TileLightingData");
 		commandBuffer.SetGlobalBuffer(Constants.tileLightingDatasId, tileLightingDatasBuffer);
 		commandBuffer.SetGlobalBuffer(Constants.tileLightingIndicesId, tileLightingIndicesBuffer);
-		commandBuffer.SetComputeTextureParam(deferredComputeSettings.tileLightingCS, 0, Constants.depthNormalBufferId, Constants.depthNormalBufferTargetId);
-		commandBuffer.DispatchCompute(deferredComputeSettings.tileLightingCS, 0, Mathf.CeilToInt(width / 16f), Mathf.CeilToInt(height / 16f), 1);
+		commandBuffer.SetComputeTextureParam(settings.tileLightingCS, 0, Constants.depthNormalBufferId, Constants.depthNormalBufferTargetId);
+		commandBuffer.DispatchCompute(settings.tileLightingCS, 0, Mathf.CeilToInt(width / 16f), Mathf.CeilToInt(height / 16f), 1);
 		commandBuffer.EndSample("TileLightingData");
 		ExecuteBuffer();
 	}

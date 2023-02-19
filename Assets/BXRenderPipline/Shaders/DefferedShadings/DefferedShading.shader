@@ -30,6 +30,8 @@ Shader "BXDefferedShadings/Shading"
             BXFRAMEBUFFER_INPUT_HALF(0, _BaseColorBuffer);
             BXFRAMEBUFFER_INPUT_HALF(1, _MaterialDataBuffer);
             BXFRAMEBUFFER_INPUT_HALF(2, _BXDepthNormalBuffer);
+            Texture2D _SSRBuffer;
+            SamplerState sampler_bilinear_clamp;
 
             Varyings vert(uint vertexID : SV_VertexID)
             {
@@ -52,7 +54,7 @@ Shader "BXDefferedShadings/Shading"
                 };
                 o.pos_clip = vertexs[vertexID];
                 o.uv_screen = uvs[vertexID];
-                // if(_ProjectionParams.x < 0.0) o.uv_screen.y = 1.0 - o.uv_screen.y;
+                if(_ProjectionParams.x < 0.0) o.uv_screen.y = 1.0 - o.uv_screen.y;
                 o.vray = _ViewPortRays[o.uv_screen.x * 2 + o.uv_screen.y];
                 return o;
             }
@@ -62,6 +64,7 @@ Shader "BXDefferedShadings/Shading"
                 half4 baseColor = BXLOAD_FRAMEBUFFER_INPUT(0,  _BaseColorBuffer, i.uv_screen);
                 half4 materialData = BXLOAD_FRAMEBUFFER_INPUT(1, _MaterialDataBuffer, i.uv_screen);
                 half4 depthNormalData = BXLOAD_FRAMEBUFFER_INPUT(2, _BXDepthNormalBuffer, i.uv_screen);
+
                 int materialFlag = materialData.w * 255;
                 int needShading = materialFlag >> 1;
                 if(needShading == 0) return 0.0;
@@ -134,8 +137,10 @@ Shader "BXDefferedShadings/Shading"
                     specularColor += lightCol * fgd;
                 }
 
+                half4 ssrData = _SSRBuffer.SampleLevel(sampler_bilinear_clamp, i.uv_screen, materialData.g * 3);
+                half3 indirectSpecular = 0.5 * ssrData.rgb * lerp(specCol, saturate(2.0 - materialData.g - oneMinusMetallic), PBR_SchlickFresnel(ndotv)) / (1.0 + materialData.g * materialData.g);
 
-                return half4(diffuseColor * oneMinusMetallic * baseColor.rgb + specularColor * ndotv_inv, 1.0);
+                return half4(diffuseColor * oneMinusMetallic * baseColor.rgb + specularColor * ndotv_inv + indirectSpecular, 1.0);
             }
             ENDHLSL
         }

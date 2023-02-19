@@ -21,15 +21,20 @@ MonoBehaviour:
   defferedShadingSettings:
     defferedShadingShader: {fileID: 4800000, guid: 17259b7e4effe0a4cb0cc92da2b26c26,
       type: 3}
-    defferedShadingShaderEditor: {fileID: 4800000, guid: 826416225c24bd94cabdf74895074c3d,
-      type: 3}
   deferredComputeSettings:
     tileLightingCS: {fileID: 7200000, guid: 12540c88edcc2e6479f2fe9f1b7aaddb, type: 3}
+    ssrGenerateCS: {fileID: 7200000, guid: d2e50bac7b2bf1143a41094ea9a1af0a, type: 3}
   processSettings:
     colorGradeShader: {fileID: 4800000, guid: 1b2ac288a9d63c44180f84199e0f52e9, type: 3}
     colorGradeShaderEditor: {fileID: 4800000, guid: 519a99c47de08774891234bdf8eeba8b,
       type: 3}
     toneMappingType: 2
+    fxaaSettings:
+      qualitys: 1
+      fxaaShader: {fileID: 4800000, guid: 046ec18a6e565410eadaee35bea0344b, type: 3}
+      fixedThreshold: 0.07
+      relativeThreshold: 0.15
+      subpixelBlending: 0.75
   shadowSettings:
     maxShadowDistance: 50
     distanceFade: 0.1

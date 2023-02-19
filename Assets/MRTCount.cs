@@ -7,6 +7,10 @@ public class MRTCount : MonoBehaviour
 {
     private string mrtCount;
     private Text t;
+
+    private int count;
+    private float deltaTime;
+
     void Start()
     {
         t = GetComponent<Text>();
@@ -16,7 +20,17 @@ public class MRTCount : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        float fps = 1.0f / Time.deltaTime;
-        t.text = mrtCount + "\n" + "FPS: " + fps;
+        if(count < 60)
+		{
+            count++;
+            deltaTime += Time.deltaTime;
+		}
+        else
+		{
+            float fps = count / deltaTime;
+            deltaTime = 0f;
+            count = 0;
+            t.text = mrtCount + "\n" + "FPS: " + fps;
+		}
     }
 }

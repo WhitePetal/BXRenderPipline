@@ -7,6 +7,4 @@ public class DefferedShadingSettings
 {
 	[SerializeField]
 	public Shader defferedShadingShader;
-	[SerializeField]
-	public Shader defferedShadingShaderEditor;
 }

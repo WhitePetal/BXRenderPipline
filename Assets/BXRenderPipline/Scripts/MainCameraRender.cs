@@ -106,8 +106,8 @@ public partial class MainCameraRender
 
 	private void ShadingInPlayerMode()
 	{
-		graphicsPipline.Render(out graphicsPiplineCompeletFence);
-		computePipline.CaculateAftRender(in graphicsPiplineCompeletFence);
+		graphicsPipline.Render(out GraphicsFence ssrFence);
+		computePipline.CaculateAftRender(ssrFence);
 		CleanUp();
 		Submit();
 	}
@@ -133,10 +133,10 @@ public partial class MainCameraRender
 		Vector4 up = camera.transform.up * h_half;
 		Vector4 right = camera.transform.right * w_half;
 
-		Vector4 lu = forward - right + up;
-		Vector4 ru = forward + right + up;
 		Vector4 lb = forward - right - up;
+		Vector4 lu = forward - right + up;
 		Vector4 rb = forward + right - up;
+		Vector4 ru = forward + right + up;
 		viewPortRays.SetRow(0, lb);
 		viewPortRays.SetRow(1, lu);
 		viewPortRays.SetRow(2, rb);

@@ -260,6 +260,7 @@ Material:
     - _Metallic: 0
     - _Mode: 0
     - _Nearest_Distance: 0.5
+    - _NormalScale: 1
     - _OUTLINE: 0
     - _OcclusionStrength: 1
     - _Offset_X_Axis_BLD: -0.05
@@ -337,7 +338,7 @@ Material:
     - _Emissive_Color: {r: 0, g: 0, b: 0, a: 1}
     - _HighColor: {r: 0.3529412, g: 0.3803922, b: 0.32941177, a: 1}
     - _MatCapColor: {r: 1, g: 1, b: 1, a: 1}
-    - _Metallic_Roughness_AOOffset: {r: 0, g: 0.65, b: 0, a: 1}
+    - _Metallic_Roughness_AOOffset: {r: 0, g: 0.8, b: 0, a: 1}
     - _Outline_Color: {r: 0.15686275, g: 0.14509805, b: 0.12941177, a: 1}
     - _RimLightColor: {r: 1, g: 1, b: 1, a: 1}
     - _SoftParticleFadeParams: {r: 0, g: 0, b: 0, a: 0}

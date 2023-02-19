@@ -7,4 +7,6 @@ public class DeferredComputeSettings
 {
 	[SerializeField]
 	public ComputeShader tileLightingCS;
+	[SerializeField]
+	public ComputeShader ssrGenerateCS;
 }

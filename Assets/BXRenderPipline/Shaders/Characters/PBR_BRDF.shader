@@ -5,6 +5,8 @@ Shader "BXCharacters/PBR_BRDF"
         _BaseColor("Color", Color) = (1, 1, 1, 1)
         _MainTex ("Texture", 2D) = "white" {}
         _MRATex("Metallic_Roughness_AO", 2D) = "white" {}
+        _NormalMap("Normal Map", 2D) = "bump" {}
+        _NormalScale("Normal Scale", Range(0, 4)) = 1
         [VectorRange(0, 1, 0.01, 1, 0, 1)]_Metallic_Roughness_AOOffset("Metallic_Roughness_AOOffset", Vector) = (1, 1, 0, 1)
         [ToggleOff]_RECEIVE_SHADOWS("Receive Shadows", Int) = 1
     }
@@ -49,13 +51,14 @@ Shader "BXCharacters/PBR_BRDF"
                 UNITY_VERTEX_INPUT_INSTANCE_ID
             };
 
-            Texture2D _MainTex, _MRATex;
+            Texture2D _MainTex, _MRATex, _NormalMap;
             SamplerState sampler_MainTex;
 
             UNITY_INSTANCING_BUFFER_START(UnityPerMaterial)
                 UNITY_DEFINE_INSTANCED_PROP(float4, _MainTex_ST)
                 UNITY_DEFINE_INSTANCED_PROP(half4, _BaseColor)
                 UNITY_DEFINE_INSTANCED_PROP(half4, _Metallic_Roughness_AOOffset)
+                UNITY_DEFINE_INSTANCED_PROP(half, _NormalScale)
             UNITY_INSTANCING_BUFFER_END(UnityPerMaterial)
 
 
@@ -88,13 +91,14 @@ Shader "BXCharacters/PBR_BRDF"
             {
                 UNITY_SETUP_INSTANCE_ID(i);
                 FragOutput output = (FragOutput)0;
+                half4 normalMap = _NormalMap.Sample(sampler_MainTex, i.uv);
                 half4 mra = _MRATex.Sample(sampler_MainTex, i.uv);
                 half4 baseColor = _MainTex.Sample(sampler_MainTex, i.uv);
                 half3 lightColor = _DirectionalLightColors[0].xyz;
                 half3 v = normalize(_WorldSpaceCameraPos.xyz - i.pos_world.xyz);
                 half3 l = _DirectionalLightDirections[0].xyz;
                 half3 h = normalize(l + v);
-                half3 n = normalize(i.normal_world);
+                half3 n = GetWorldNormalFromNormalMap(normalMap, GET_PROP(_NormalScale), i.tangent_world, i.binormal_world, i.normal_world);
                 half ndotl = max(0.0, dot(n, l));
                 half ndoth = max(0.0, dot(n, h));
                 half ndotv = max(0.001, dot(n, v));

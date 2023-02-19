@@ -43,6 +43,8 @@ CBUFFER_START(UnityPerFrame)
     // Vector4 lb = forward - right - up;
     // Vector4 rb = forward + right - up;
     float4x4 _ViewPortRays;
+
+    float4x4 unity_CameraProjection;
 CBUFFER_END
 
 CBUFFER_START(UnityPerDraw)

@@ -26,21 +26,32 @@ Shader "BXSkyBox/ConstantColor"
             struct v2f
             {
                 float4 vertex : SV_POSITION;
+                half3 normal_view : TEXCOORD0;
             };
 
             half4 _BaseColor;
+
+            struct FragOutput
+            {
+                half4 lightingBuffer : SV_TARGET;
+                half4 depthNormalBuffer : SV_TARGET3;
+            };
 
             v2f vert (appdata v)
             {
                 v2f o;
                 float3 pos_world = TransformObjectToWorld(v.vertex.xyz);
+                o.normal_view = normalize(mul((float3x3)unity_MatrixV, -pos_world));
                 o.vertex = TransformWorldToHClip(pos_world);
                 return o;
             }
 
-            half4 frag (v2f i) : SV_Target
+            FragOutput frag (v2f i)
             {
-                return half4(_BaseColor.rgb, 1.0);
+                FragOutput output;
+                output.lightingBuffer = half4(_BaseColor.rgb, 1.0);
+                output.depthNormalBuffer = float4(EncodeViewNormalStereo(i.normal_view), 1.0, 1.0);
+                return output;
             }
             ENDHLSL
         }

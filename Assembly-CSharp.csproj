@@ -82,6 +82,7 @@
     <None Include="Assets\Picola\Toon\Shader\Toon_ShadingGradeMap_Mobile_StencilMask.shader" />
     <None Include="Assets\Picola\Toon\Shader\Tess\Toon_DoubleShadeWithFeather_Tess_Light_StencilMask.shader" />
     <None Include="Assets\BXRenderPipline\Shaders\SkyBox\ConstantColor.shader" />
+    <None Include="Assets\BXRenderPipline\Shaders\Characters\PBR_BSSSDF_Skin.shader" />
     <None Include="Assets\Picola\Toon\Shader\Tess\ToonColor_DoubleShadeWithFeather_TransClipping_Tess.shader" />
     <None Include="Assets\Picola\Toon\Shader\UCTS_DoubleShadeWithFeather.cginc" />
     <None Include="Assets\Picola\Toon\Shader\Tess\Toon_DoubleShadeWithFeather_Clipping_Tess.shader" />
@@ -99,9 +100,9 @@
     <None Include="Assets\BXRenderPipline\Shaders\DefferedShadings\TileBasedLightingCS.compute" />
     <None Include="Assets\Picola\Toon\Shader\Toon_OutlineObject.shader" />
     <None Include="Assets\Picola\Toon\Shader\Tess\UCTS_ShadowCaster_Tess.cginc" />
-    <None Include="Assets\PureNature\Shaders\Billboards.shader" />
     <None Include="Assets\Picola\Toon\Shader\Toon_ShadingGradeMap_StencilOut.shader" />
     <None Include="Assets\Picola\Toon\Shader\Toon_ShadingGradeMap_AngelRing_TransClipping.shader" />
+    <None Include="Assets\BXRenderPipline\Shaders\DefferedShadings\SSRGenerateCS.compute" />
     <None Include="Assets\Picola\Toon\Shader\Tess\ToonColor_DoubleShadeWithFeather_Transparent_Tess_StencilOut.shader" />
     <None Include="Assets\Picola\Toon\Shader\Toon_DoubleShadeWithFeather_StencilMask.shader" />
     <None Include="Assets\Picola\Toon\Shader\Tess\UCTS_Tess.cginc" />
@@ -116,22 +117,17 @@
     <None Include="Assets\Picola\Toon\Shader\Tess\ToonColor_ShadingGradeMap_Tess_StencilMask.shader" />
     <None Include="Assets\Picola\Toon\Shader\Toon_DoubleShadeWithFeather_Clipping.shader" />
     <None Include="Assets\Picola\Toon\Shader\Tess\Toon_ShadingGradeMap_AngelRing_TransClipping_Tess.shader" />
-    <None Include="Assets\PureNature\Shaders\Water.shader" />
     <None Include="Assets\Picola\Toon\Shader\ToonColor_ShadingGradeMap_StencilMask.shader" />
-    <None Include="Assets\PureNature\Shaders\GrassMesh.shader" />
     <None Include="Assets\BXRenderPipline\Shaders\DefferedShadings\DefferedCombine.shader" />
     <None Include="Assets\Picola\Toon\Shader\Tess\Toon_DoubleShadeWithFeather_Clipping_Tess_StencilOut.shader" />
     <None Include="Assets\Picola\Toon\Shader\Toon_DoubleShadeWithFeather_Mobile_TransClipping.shader" />
     <None Include="Assets\Picola\Toon\Shader\Tess\Toon_ShadingGradeMap_AngelRing_TransClipping_Tess_StencilOut.shader" />
     <None Include="Assets\BXRenderPipline\Shaders\Libiary\ColorManager.hlsl" />
-    <None Include="Assets\PureNature\Shaders\StandardLayer_ObjectSpace.shader" />
     <None Include="Assets\Picola\Toon\Shader\Tess\Toon_ShadingGradeMap_Tess_Light.shader" />
     <None Include="Assets\Picola\Toon\Shader\Toon_DoubleShadeWithFeather_Mobile_StencilOut.shader" />
     <None Include="Assets\Picola\Toon\Shader\ToonColor_ShadingGradeMap_AngelRing_TransClipping_StencilOut.shader" />
-    <None Include="Assets\PureNature\Shaders\StandardLayer.shader" />
     <None Include="Assets\BXRenderPipline\Shaders\Libiary\UnityInput.hlsl" />
     <None Include="Assets\Picola\Toon\Shader\Tess\Toon_OutlineObject_Tess_StencilOut.shader" />
-    <None Include="Assets\PureNature\Shaders\WaterFall.shader" />
     <None Include="Assets\BXRenderPipline\Shaders\Libiary\AllCommon.hlsl" />
     <None Include="Assets\Picola\Toon\Shader\ToonColor_DoubleShadeWithFeather_TransClipping.shader" />
     <None Include="Assets\Picola\Toon\Shader\ToonColor_DoubleShadeWithFeather_TransClipping_StencilMask.shader" />
@@ -163,8 +159,6 @@
     <None Include="Assets\Picola\Toon\Shader\ToonColor_ShadingGradeMap_AngelRing.shader" />
     <None Include="Assets\Picola\Toon\Shader\Tess\Toon_ShadingGradeMap_AngelRing_Tess_Light_StencilOut.shader" />
     <None Include="Assets\Picola\Toon\Shader\Toon_DoubleShadeWithFeather_TransClipping_StencilMask.shader" />
-    <None Include="Assets\PureNature\Shaders\Clouds.shader" />
-    <None Include="Assets\PureNature\Shaders\VegetationTrunk.shader" />
     <None Include="Assets\Picola\Toon\Shader\Tess\ToonColor_DoubleShadeWithFeather_Tess.shader" />
     <None Include="Assets\Picola\Toon\Shader\Tess\Toon_DoubleShadeWithFeather_Tess_StencilOut.shader" />
     <None Include="Assets\Picola\Toon\Shader\Toon_ShadingGradeMap_Mobile.shader" />
@@ -197,7 +191,6 @@
     <None Include="Assets\Picola\Toon\Shader\UCTS_Outline.cginc" />
     <None Include="Assets\Picola\Toon\Shader\Tess\Toon_ShadingGradeMap_Tess_StencilMask.shader" />
     <None Include="Assets\Picola\Toon\Shader\Toon_DoubleShadeWithFeather_Mobile.shader" />
-    <None Include="Assets\PureNature\Shaders\GrassTerrain.shader" />
     <None Include="Assets\Picola\Toon\Shader\Tess\ToonColor_ShadingGradeMap_Transparent_Tess_StencilOut.shader" />
     <None Include="Assets\Picola\Toon\Shader\Tess\UCTS_DoubleShadeWithFeather_tess.cginc" />
     <None Include="Assets\Picola\Toon\Shader\Tess\Toon_ShadingGradeMap_TransClipping_Tess_StencilMask.shader" />
@@ -215,12 +208,12 @@
     <None Include="Assets\Picola\Toon\Shader\ToonColor_ShadingGradeMap_Transparent_StencilOut.shader" />
     <None Include="Assets\Picola\Toon\Shader\Toon_DoubleShadeWithFeather_Mobile_StencilMask.shader" />
     <None Include="Assets\Picola\Toon\Shader\Tess\Toon_ShadingGradeMap_TransClipping_Tess.shader" />
-    <None Include="Assets\PureNature\Shaders\VegetationLeaves.shader" />
     <None Include="Assets\Picola\Toon\Shader\Tess\Toon_DoubleShadeWithFeather_Tess.shader" />
     <None Include="Assets\Picola\Toon\Shader\Tess\Toon_DoubleShadeWithFeather_TransClipping_Tess.shader" />
     <None Include="Assets\Picola\Toon\Shader\ToonColor_ShadingGradeMap.shader" />
     <None Include="Assets\Picola\Toon\Shader\Tess\ToonColor_ShadingGradeMap_TransClipping_Tess_StencilMask.shader" />
     <None Include="Assets\Picola\Toon\Shader\Toon_ShadingGradeMap_Mobile_StencilOut.shader" />
+    <None Include="Assets\BXRenderPipline\Shaders\DefferedShadings\SSR.shader" />
     <None Include="Assets\Picola\Toon\Shader\Tess\Toon_ShadingGradeMap_Tess_Light_StencilMask.shader" />
   </ItemGroup>
   <ItemGroup>

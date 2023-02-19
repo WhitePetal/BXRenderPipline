@@ -56,7 +56,7 @@ inline float3 DecodeViewNormalStereo( float4 enc4 )
 inline float4 EncodeDepthNormal( float depth, float3 normal) // need 8bit
 {
     float4 enc;
-    enc.xy = EncodeViewNormalStereo (normal);
+    enc.xy = EncodeViewNormalStereo(normal);
     enc.zw = EncodeFloatRG(depth);
     return enc;
 }

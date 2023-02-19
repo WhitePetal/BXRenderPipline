@@ -1,0 +1,172 @@
+// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel CSMain
+
+#include "Assets/BXRenderPipline/Shaders/Libiary/Common.hlsl"
+
+// outputs
+RWTexture2D<float4> _SSRBuffer;
+RWTexture2D<float4> _SSRBufferMip1;
+RWTexture2D<float4> _SSRBufferMip2;
+RWTexture2D<float4> _SSRBufferMip3;
+
+// inputs
+Texture2D _LightingBuffer;
+Texture2D _BXDepthNormalBuffer;
+SamplerState sampler_bilinear_clamp;
+
+// temps
+groupshared float4 tempCol[64];
+
+const float JittersX[10] = {0.1, 0.3, 0.85, 0.12, 0.43, 0.24, 0.66, 0.93, 0.03, 0.33};
+const float JittersY[10] = {0.1, 0.3, 0.85, 0.12, 0.43, 0.24, 0.66, 0.83, 0.03, 0.33};
+
+bool checkDepthCollision(float3 pos_v, out float2 screenPos, inout float depthDistance) 
+{
+    float4 clipPos = mul(unity_CameraProjection, float4(pos_v, 1.0));
+    clipPos = clipPos / clipPos.w;
+    screenPos = clipPos.xy * 0.5 + 0.5;
+
+    float4 depthNormalData = _BXDepthNormalBuffer.SampleLevel(sampler_bilinear_clamp, screenPos, 0);
+    float d01 = DecodeFloatRG(depthNormalData.zw);
+    float depthEye = d01 * _ProjectionParams.z;
+
+    // if(d01 > 0.999) return true;
+    return screenPos.x > 0 && screenPos.y > 0 && screenPos.x < 1.0 && screenPos.y < 1.0 && (-pos_v.z) > depthEye && (-pos_v.z) < depthEye+0.2;
+}
+
+bool viewSpaceRayMarching(float3 rayOri, float3 rayDir,float currentRayMarchingStepSize, inout float depthDistance, inout float3 currentViewPos, out float2 hitScreenPos) 
+{
+    // int2 uv_jitter = floor(frac(hitScreenPos * 2048) * 10);
+    // float jitter = (JittersX[uv_jitter.x] + JittersY[uv_jitter.y]);
+
+    // rayOri += jitter * rayDir * 0.1;
+ 
+    int maxStep = 10;
+
+    UNITY_LOOP
+    for (int i = 0; i < maxStep; i++) 
+    {
+        float3 currentPos = rayOri + rayDir * currentRayMarchingStepSize * i;
+
+        // if (length(rayOri - currentPos) > _maxRayMarchingDistance)
+        //     return false;
+        if (checkDepthCollision(currentPos, hitScreenPos, depthDistance))
+        {
+            currentViewPos = currentPos;
+            return true;
+        }
+    }
+    return false;
+}
+
+ bool binarySearchRayMarching(float3 rayOri,float3 rayDir, out float2 hitScreenPos)
+ {
+    float currentStepSize = 0.1;
+    float3 currentPos = rayOri;
+    float depthDistance = 0;
+    // UNITY_LOOP
+    for (int i = 0; i < 10; i++) 
+    {
+        if (viewSpaceRayMarching(rayOri, rayDir, currentStepSize, depthDistance, currentPos, hitScreenPos))
+        {
+            if (depthDistance < 0.1)
+            {
+                return true;
+            }
+            //在原点重新步进，并且currentStepSize减小一半
+            rayOri = currentPos - rayDir * currentStepSize;
+            currentStepSize *= 0.5;
+        }
+        else
+        {
+            return false;
+        }
+    }
+     
+    return false;
+ }
+
+[numthreads(8,8,1)]
+void CSMain (uint3 id : SV_DispatchThreadID, uint groupIndex : SV_GROUPINDEX)
+{
+    tempCol[groupIndex] = half4(0.7480242, 0.9622641, 0.9385321, 1.0);
+    GroupMemoryBarrierWithGroupSync();
+    float2 uv = id.xy * 4 / _ScreenParams.xy;
+
+    half4 finalCol = 0.0;
+    half4 depthNormal = _BXDepthNormalBuffer.SampleLevel(sampler_bilinear_clamp, uv, 0);
+    float depth_01;
+    half3 n;
+    DecodeDepthNormal(depthNormal, depth_01, n);
+    float depthEye = depth_01 * _ProjectionParams.z;
+
+    float3 vray_u = (_ViewPortRays[1].xyz - _ViewPortRays[0].xyz) * uv.y;
+    float3 vray_r = (_ViewPortRays[2].xyz - _ViewPortRays[0].xyz) * uv.x;
+    float3 vray = _ViewPortRays[0].xyz + vray_r + vray_u;
+    float3 pos_v = mul(unity_MatrixV, float4(_WorldSpaceCameraPos.xyz + vray * depthEye, 1.0)).xyz;
+
+    half3 v = normalize(pos_v);
+    half3 r = reflect(v, n);
+
+    int2 uv_jitter = floor(frac(uv * 2048) * 10);
+    float jitter = (JittersX[uv_jitter.x] + JittersY[uv_jitter.y]);
+
+    pos_v += jitter * r * 0.1;
+
+    UNITY_UNROLL
+    for(int i = 0; i < 10; ++i)
+    {
+        float3 curPos = pos_v + r * i * 0.1;
+        float4 curPosClip = mul(unity_CameraProjection, float4(curPos, 1.0));
+        float2 rUV = (curPosClip.xy / curPosClip.w) * 0.5 + 0.5;
+        float4 dnData = _BXDepthNormalBuffer.SampleLevel(sampler_bilinear_clamp, rUV, 0);
+        float d01 = DecodeFloatRG(dnData.zw);
+        float dEye = d01 * _ProjectionParams.z;
+        float dCur = -curPos.z;
+
+        if(dCur > dEye && dCur < dEye+0.2)
+        {
+            tempCol[groupIndex] = _LightingBuffer.SampleLevel(sampler_bilinear_clamp, rUV, 0);
+        }
+        else
+        {
+            tempCol[groupIndex] = half4(0.7480242, 0.9622641, 0.9385321, 1.0);
+        }
+    }        
+
+    GroupMemoryBarrierWithGroupSync();
+    _SSRBuffer[id.xy] = tempCol[groupIndex];
+
+    if(id.x % 2 == 0 && id.y % 2 == 0)
+    {
+        half4 c0 = tempCol[groupIndex];
+        half4 c1 = tempCol[groupIndex + 1];
+        half4 c2 = tempCol[groupIndex + 8];
+        half4 c3 = tempCol[groupIndex + 9];
+        tempCol[groupIndex] = (c0 + c1 + c2 + c3) * 0.25;
+    }
+    GroupMemoryBarrierWithGroupSync();
+    _SSRBufferMip1[id.xy * 0.5] = tempCol[groupIndex];
+
+    if(id.x % 2 == 0 && id.y % 2 ==0)
+    {
+        half4 c0 = tempCol[groupIndex];
+        half4 c1 = tempCol[groupIndex + 2];
+        half4 c2 = tempCol[groupIndex + 16];
+        half4 c3 = tempCol[groupIndex + 18];
+        tempCol[groupIndex] = (c0 + c1 + c2 + c3) * 0.25;
+    }
+    GroupMemoryBarrierWithGroupSync();
+    _SSRBufferMip2[id.xy * 0.25] = tempCol[groupIndex];
+
+    if(id.x % 4 == 0 && id.y % 4 ==0)
+    {
+        half4 c0 = tempCol[groupIndex];
+        half4 c1 = tempCol[groupIndex + 4];
+        half4 c2 = tempCol[groupIndex + 32];
+        half4 c3 = tempCol[groupIndex + 36];
+        tempCol[groupIndex] = (c0 + c1 + c2 + c3) * 0.25;
+    }
+    GroupMemoryBarrierWithGroupSync();
+    _SSRBufferMip3[id.xy * 0.125] = tempCol[groupIndex];
+}

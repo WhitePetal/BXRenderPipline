@@ -117,7 +117,7 @@ void CSMain (uint3 id : SV_DispatchThreadID, uint groupIndex : SV_GROUPINDEX, ui
     GroupMemoryBarrierWithGroupSync();
 
     float2 uv = id.xy / _ScreenParams.xy;
-    uv.y = 1.0 - uv.y;
+    // uv.y = 1.0 - uv.y;
     float4 depthNormalData = _BXDepthNormalBuffer.SampleLevel(sampler_bilinear_clamp, uv, 0);
     float3 n;
     float depth01;

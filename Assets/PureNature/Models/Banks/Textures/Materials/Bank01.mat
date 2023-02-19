@@ -59,7 +59,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MRATex:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: c52e77156ac3b4244a30326a80634887, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
@@ -68,6 +68,10 @@ Material:
         m_Offset: {x: 0, y: 0}
     - _MetallicGlossMap:
         m_Texture: {fileID: 2800000, guid: c52e77156ac3b4244a30326a80634887, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _NormalMap:
+        m_Texture: {fileID: 2800000, guid: 5d52f6f47469b974d9c38135d1bf8ea0, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _OcclusionMap:
@@ -104,6 +108,7 @@ Material:
     - _Metallic: 0
     - _Mode: 0
     - _NormalPower: 1
+    - _NormalScale: 1
     - _OcclusionStrength: 1
     - _Parallax: 0.02
     - _RECEIVE_SHADOWS: 1
@@ -121,7 +126,8 @@ Material:
     - __dirty: 0
     m_Colors:
     - _2ndColor: {r: 1, g: 1, b: 1, a: 1}
+    - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _Metallic_Roughness_AOOffset: {r: 0, g: 1, b: 0, a: 1}
+    - _Metallic_Roughness_AOOffset: {r: 1, g: 1, b: 0, a: 1}
   m_BuildTextureStacks: []
