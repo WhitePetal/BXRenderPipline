@@ -8,6 +8,9 @@ Shader "BXCharacters/PBR_BRDF"
         _NormalMap("Normal Map", 2D) = "bump" {}
         _NormalScale("Normal Scale", Range(0, 4)) = 1
         [VectorRange(0, 1, 0.01, 1, 0, 1)]_Metallic_Roughness_AOOffset("Metallic_Roughness_AOOffset", Vector) = (1, 1, 0, 1)
+        [Toggle]_EMISSION("Emission On", Int) = 0
+        _EmissionMap("EmissionMap", 2D) = "white" {}
+        [HDR]_EmissionColor("Emission Color", Color) = (1, 1, 1, 1)
         [ToggleOff]_RECEIVE_SHADOWS("Receive Shadows", Int) = 1
     }
     SubShader
@@ -20,6 +23,7 @@ Shader "BXCharacters/PBR_BRDF"
             HLSLPROGRAM
             #pragma target 3.5
             #pragma shader_feature_local _RECEIVE_SHADOWS_OFF
+            #pragma shader_feature_local _EMISSION_ON
             #pragma multi_compile _ _DIRECTIONAL_PCF3 _DIRECTIONAL_PCF5 _DIRECTIONAL_PCF7
             #pragma multi_compile _ _CASCADE_BLEND_SOFT _CASCADE_BLEND_DITHER
             #pragma multi_compile_instancing
@@ -53,12 +57,18 @@ Shader "BXCharacters/PBR_BRDF"
 
             Texture2D _MainTex, _MRATex, _NormalMap;
             SamplerState sampler_MainTex;
+            #ifdef _EMISSION_ON
+                Texture2D _EmissionMap;
+            #endif
 
             UNITY_INSTANCING_BUFFER_START(UnityPerMaterial)
                 UNITY_DEFINE_INSTANCED_PROP(float4, _MainTex_ST)
                 UNITY_DEFINE_INSTANCED_PROP(half4, _BaseColor)
                 UNITY_DEFINE_INSTANCED_PROP(half4, _Metallic_Roughness_AOOffset)
                 UNITY_DEFINE_INSTANCED_PROP(half, _NormalScale)
+                // #ifdef _EMISSION_ON
+                    UNITY_DEFINE_INSTANCED_PROP(half4, _EmissionColor)
+                // #endif
             UNITY_INSTANCING_BUFFER_END(UnityPerMaterial)
 
 
@@ -94,6 +104,9 @@ Shader "BXCharacters/PBR_BRDF"
                 half4 normalMap = _NormalMap.Sample(sampler_MainTex, i.uv);
                 half4 mra = _MRATex.Sample(sampler_MainTex, i.uv);
                 half4 baseColor = _MainTex.Sample(sampler_MainTex, i.uv);
+                #ifdef _EMISSION_ON
+                    half4 emissionMap = _EmissionMap.Sample(sampler_MainTex, i.uv);
+                #endif
                 half3 lightColor = _DirectionalLightColors[0].xyz;
                 half3 v = normalize(_WorldSpaceCameraPos.xyz - i.pos_world.xyz);
                 half3 l = _DirectionalLightDirections[0].xyz;
@@ -121,7 +134,11 @@ Shader "BXCharacters/PBR_BRDF"
                 half3 indirectDiffuse = 0.2 * ao * baseColor.rgb;
                 half3 specularColor = fgd * 0.25 / ndotv;
 
-                output.lightingBuffer = half4((diffuseColor + specularColor) * shadowCol * lightColor + indirectDiffuse, 1.0);
+                half3 lighting = (diffuseColor + specularColor) * shadowCol * lightColor + indirectDiffuse;
+                #ifdef _EMISSION_ON
+                    lighting = lighting + emissionMap.rgb * GET_PROP(_EmissionColor).rgb * emissionMap.a;
+                #endif
+                output.lightingBuffer = half4(lighting, 1.0);
                 output.baseColorBuffer = baseColor;
                 int materialFlag = 2; // 1 << 1
                 #ifndef _RECEIVE_SHADOWS_OFF

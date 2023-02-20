@@ -11,7 +11,7 @@ RWStructuredBuffer<uint> _TileLightingDatas;
 int _PointLightCount;
 float4 _PointLightSpheres[MAX_POINT_LIGHT_COUNT];
 Texture2D _BXDepthNormalBuffer;
-SamplerState sampler_bilinear_clamp;
+SamplerState sampler_point_clamp;
 float4 _TileLBStart;
 float4 _CameraForward;
 float4 _TileRVec;
@@ -28,19 +28,6 @@ groupshared float tileDepthMax = 0;
 groupshared float depthSliceInterval = 1;
 
 
-//aabb.xy为中心,aabb.zw为extents
-bool IntersectAABB(float4 aabb,float4 lightSphere){
-    float2 p = aabb.xy + aabb.zw * sign(lightSphere.xy - aabb.xy);
-    float2 d = p - lightSphere.xy;
-    return dot(d,d) < lightSphere.w * lightSphere.w;
-}
-
-bool IntersectSide(float3 p1,float3 p2,float4 lightSphere){
-    float3 n = -normalize(cross(p1,p2));
-    float d = dot(lightSphere.xyz,n);
-    return d < lightSphere.w;
-}
-
 bool IntersectTileAndPointLight(float zMin, float zMax, uint3 groupId, float4 lightSphere)
 {
     float lightMinDepth = -lightSphere.z - lightSphere.w;
@@ -48,12 +35,12 @@ bool IntersectTileAndPointLight(float zMin, float zMax, uint3 groupId, float4 li
     uint lightSliceStart = max(0, floor(lightMinDepth - tileDepthMin) / depthSliceInterval);
     uint lightSliceEnd = min(31, floor(lightMaxDepth - tileDepthMin) / depthSliceInterval);
     uint lightDepthMask = 0;
-    for(int i = lightSliceStart; i <= lightSliceEnd; i++)
+    for(uint i = lightSliceStart; i <= lightSliceEnd; i++)
     {
         lightDepthMask |= (1 << i);
     }
+    [branch]
     if((lightDepthMask & geoDepthMask) == 0) return false;
-    // return true;
 
     float3 bextent = lightSphere.www;
 
@@ -78,7 +65,7 @@ bool IntersectTileAndPointLight(float zMin, float zMax, uint3 groupId, float4 li
     float3 n5 = normalize(cross(v0, v2));
     frustume[5] = float4(n5, 0);
 
-    [unroll]
+    [unroll(6)]
     for(int i = 0; i < 6; i++)
     {
         // https://gdbooks.gitbooks.io/3dcollisions/content/Chapter2/static_aabb_plane.html AABB-平面相交
@@ -88,7 +75,8 @@ bool IntersectTileAndPointLight(float zMin, float zMax, uint3 groupId, float4 li
         float d = plane.w;
         float r = dot(bextent, n_abs);
         float s = dot(n, lightSphere.xyz) + d;
-        
+
+        [branch]    
         if((-r - s) > 0)
         {
             return false;
@@ -101,7 +89,7 @@ bool IntersectTileAndPointLight(float zMin, float zMax, uint3 groupId, float4 li
 [numthreads(16,16,1)]
 void CSMain (uint3 id : SV_DispatchThreadID, uint groupIndex : SV_GROUPINDEX, uint3 groupId : SV_GROUPID)
 {   
-    uint tileIndex = groupId.y * _ScreenParams.x / 16.0 + groupId.x;    
+    uint tileIndex = groupId.y * _ScreenParams.x / 16.0 + groupId.x;
     if(groupIndex == 0)
     {
         _TileLightingDatas[tileIndex] = 0;
@@ -118,7 +106,7 @@ void CSMain (uint3 id : SV_DispatchThreadID, uint groupIndex : SV_GROUPINDEX, ui
 
     float2 uv = id.xy / _ScreenParams.xy;
     // uv.y = 1.0 - uv.y;
-    float4 depthNormalData = _BXDepthNormalBuffer.SampleLevel(sampler_bilinear_clamp, uv, 0);
+    float4 depthNormalData = _BXDepthNormalBuffer.SampleLevel(sampler_point_clamp, uv, 0);
     float3 n;
     float depth01;
     DecodeDepthNormal(depthNormalData, depth01, n);
@@ -131,10 +119,12 @@ void CSMain (uint3 id : SV_DispatchThreadID, uint groupIndex : SV_GROUPINDEX, ui
     tileDepthMin = asfloat(tileMinDepthInt);
     tileDepthMax = asfloat(tileMaxDepthInt);
     depthSliceInterval = max(0.0001,(tileDepthMax - tileDepthMin) / 32.0);
+    
     uint depthSliceIndex = floor((depth -  tileDepthMin) / depthSliceInterval);
     InterlockedOr(geoDepthMask,1 << depthSliceIndex);
     GroupMemoryBarrierWithGroupSync();
 
+    [branch]
     if (groupIndex < _PointLightCount)
     {
         float4 lightSphere = _PointLightSpheres[groupIndex];

@@ -5,47 +5,55 @@ using UnityEngine.Rendering;
 
 public class PostProcess
 {
-	private bool editorMode;
+	private int width, height;
+	private int bloomPyarmCount;
 
 	private PostProcessSettings settings;
 
-	private Material colorGradeMaterial;
-	public Material ColorGradeMaterial
+	private Material copyTexMaterial;
+	private Material CopyTexMaterial
 	{
 		get
 		{
-#if UNITY_EDITOR
-			if (editorMode)
+			if(copyTexMaterial == null && settings.copTexShader != null)
 			{
-				if (colorGradeMaterial == null && settings.colorGradeShaderEditor != null)
-				{
-					colorGradeMaterial = new Material(settings.colorGradeShaderEditor);
-					colorGradeMaterial.hideFlags = HideFlags.HideAndDontSave;
-				}
-				return colorGradeMaterial;
+				copyTexMaterial = new Material(settings.copTexShader);
+				copyTexMaterial.hideFlags = HideFlags.HideAndDontSave;
 			}
-			else
+			return copyTexMaterial;
+		}
+	}
+
+	private Material bloomMaterial;
+	public Material BloomMaterial
+	{
+		get
+		{
+			if (bloomMaterial == null && settings.bloomSettings.bloomShader != null)
 			{
-				if (colorGradeMaterial == null && settings.colorGradeShader != null)
-				{
-					colorGradeMaterial = new Material(settings.colorGradeShader);
-					colorGradeMaterial.hideFlags = HideFlags.HideAndDontSave;
-				}
-				return colorGradeMaterial;
+				bloomMaterial = new Material(settings.bloomSettings.bloomShader);
+				bloomMaterial.hideFlags = HideFlags.HideAndDontSave;
 			}
-#else
+			return bloomMaterial;
+		}
+	}
+
+	private Material colorGradeMaterial;
+	private Material ColorGradeMaterial
+	{
+		get
+		{
 			if (colorGradeMaterial == null && settings.colorGradeShader != null)
 			{
 				colorGradeMaterial = new Material(settings.colorGradeShader);
 				colorGradeMaterial.hideFlags = HideFlags.HideAndDontSave;
 			}
 			return colorGradeMaterial;
-#endif
 		}
 	}
 
 	private Material fxaaMaterial;
-	public Material FXAAMaterial
+	private Material FXAAMaterial
 	{
 		get
 		{
@@ -69,15 +77,104 @@ public class PostProcess
 		"FXAA_QUALITY_LOW", "FXAA_QUALITY_MEDIUM", "FXAA_QUALITY_HIGH"
 	};
 
-	public void Setup(PostProcessSettings settings, CommandBuffer commandBuffer, bool editorMode)
+	public void Setup(PostProcessSettings settings, CommandBuffer commandBuffer, int width, int height)
 	{
 		this.settings = settings;
-		this.editorMode = editorMode;
+		this.width = width;
+		this.height = height;
 		this.commandBuffer = commandBuffer;
+	}
+
+	public void CleanUp()
+	{
+		for (int i = 0; i < bloomPyarmCount - 1; ++i)
+		{
+			commandBuffer.ReleaseTemporaryRT(Constants.bloomPyarmIds[i]);
+		}
+		commandBuffer.ReleaseTemporaryRT(Constants.bloomPrefilterId);
+	}
+
+	public void Copy(RenderTargetIdentifier from, RenderTargetIdentifier to)
+	{
+		commandBuffer.SetRenderTarget(to);
+		commandBuffer.ClearRenderTarget(true, true, Color.clear);
+		commandBuffer.SetGlobalTexture(Constants.copyInputId, from);
+		commandBuffer.DrawProcedural(Matrix4x4.identity, CopyTexMaterial, 0, MeshTopology.Triangles, 3);
+	}
+
+	private void BloomBlur(RenderTargetIdentifier from, RenderTargetIdentifier to, int pass, bool clear = false)
+	{
+		commandBuffer.SetRenderTarget(to);
+		if(clear) commandBuffer.ClearRenderTarget(true, true, Color.clear);
+		commandBuffer.SetGlobalTexture(Constants.bloomInputId, from);
+		commandBuffer.DrawProcedural(Matrix4x4.identity, BloomMaterial, pass, MeshTopology.Triangles, 3);
+	}
+
+	public void Bloom()
+	{
+		BloomSettings bloomSettings = settings.bloomSettings;
+		int bloomWidth = width >> 1;
+		int bloomHeight = height >> 1;
+
+		commandBuffer.GetTemporaryRT(Constants.bloomPrefilterId, width, height, 0, FilterMode.Bilinear, RenderTextureFormat.ARGBHalf, RenderTextureReadWrite.Linear, 1, false, RenderTextureMemoryless.None);
+		Vector4 threshold;
+		threshold.x = Mathf.GammaToLinearSpace(bloomSettings.threshold);
+		threshold.y = threshold.x * bloomSettings.thresholdKnee;
+		threshold.z = 2f * threshold.y;
+		threshold.w = 0.25f / (threshold.y + 0.00001f);
+		threshold.y -= threshold.x;
+		commandBuffer.SetGlobalVector(Constants.bloomThresholdId, threshold);
+		commandBuffer.SetRenderTarget(Constants.bloomPrefilterTargetId);
+		commandBuffer.ClearRenderTarget(true, true, Color.clear);
+		commandBuffer.DrawProcedural(Matrix4x4.identity, BloomMaterial, 2, MeshTopology.Triangles, 3);
+
+		int fromIndex = -1, toIndex = -1;
+		RenderTargetIdentifier fromId = Constants.bloomPrefilterTargetId, toId = Constants.bloomPyarmTargetIds[1];
+
+		bloomPyarmCount = 0;
+		for (int i = 0; i < bloomSettings.maxIterations * 2; i += 2)
+		{
+			if (bloomWidth < bloomSettings.downScaleLimit || bloomHeight < bloomSettings.downScaleLimit) break;
+			commandBuffer.GetTemporaryRT(Constants.bloomPyarmIds[bloomPyarmCount], bloomWidth, bloomHeight, 0, FilterMode.Bilinear, RenderTextureFormat.ARGBHalf, RenderTextureReadWrite.Linear, 1, false, RenderTextureMemoryless.None);
+			commandBuffer.GetTemporaryRT(Constants.bloomPyarmIds[bloomPyarmCount + 1], bloomWidth, bloomHeight, 0, FilterMode.Bilinear, RenderTextureFormat.ARGBHalf, RenderTextureReadWrite.Linear, 1, false, RenderTextureMemoryless.None);
+
+			fromIndex = toIndex;
+			toIndex += 2;
+			if(fromIndex > -1)
+			{
+				fromId = Constants.bloomPyarmTargetIds[fromIndex];
+				toId = Constants.bloomPyarmTargetIds[toIndex];
+			}
+			RenderTargetIdentifier midId = Constants.bloomPyarmTargetIds[toIndex - 1];
+			BloomBlur(fromId, midId, 0);
+			BloomBlur(midId, toId, 1);
+
+			bloomWidth = bloomWidth >> 1;
+			bloomHeight = bloomHeight >> 1;
+			bloomPyarmCount += 2;
+		}
+		while(fromIndex >= 0)
+		{
+			int midIndex = toIndex - 1;
+			RenderTargetIdentifier midId = Constants.bloomPyarmTargetIds[midIndex];
+			BloomBlur(toId, midId, 0);
+			BloomBlur(midId, fromId, 1);
+			toIndex = fromIndex;
+			fromIndex -= 2;
+		}
+
+		commandBuffer.SetRenderTarget(Constants.bloomPrefilterTargetId);
+		commandBuffer.ClearRenderTarget(true, true, Color.clear);
+		commandBuffer.SetGlobalTexture(Constants.bloomInputId, Constants.bloomPyarmTargetIds[fromIndex == -2 ? 0 : 1]);
+		commandBuffer.SetGlobalFloat(Constants.bloomIntensityId, bloomSettings.intensity);
+		commandBuffer.DrawProcedural(Matrix4x4.identity, BloomMaterial, 3, MeshTopology.Triangles, 3);
 	}
 
 	public void ColorGrade()
 	{
+		commandBuffer.SetRenderTarget(Constants.fxaaInputBufferTargetId);
+		commandBuffer.ClearRenderTarget(true, true, Color.clear);
+		commandBuffer.SetGlobalTexture(Constants.postprocessInputId, Constants.bloomPrefilterTargetId);
 		for (int i = 0; i < tonemappingKeywords.Length; ++i)
 		{
 			if (i == (int)settings.toneMappingType)

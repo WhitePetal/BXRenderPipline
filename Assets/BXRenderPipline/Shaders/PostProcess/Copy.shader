@@ -1,4 +1,4 @@
-Shader "BXPostProcess/ColorManager"
+Shader "BXPostProcess/Copy"
 {
     SubShader
     {
@@ -9,12 +9,6 @@ Shader "BXPostProcess/ColorManager"
             ZTest Always
 
             HLSLPROGRAM
-            #pragma multi_compile_local __ CM_ColorGrading    
-            #pragma multi_compile_local __ CM_ColorSplitToning
-            #pragma multi_compile_local __ CM_ShadowsMidtoneHighlights
-            #pragma multi_compile_local __ CM_ColorChannelMixer
-            #pragma multi_compile_local __ CM_ColorWhiteBalance
-            #pragma multi_compile_local CM_ACES CM_Reinhard CM_Neutral
             #pragma vertex vert
             #pragma fragment frag
 
@@ -27,8 +21,8 @@ Shader "BXPostProcess/ColorManager"
                 float2 uv_screen : TEXCOORD0;
             };
 
-            Texture2D _PostProcessInput;
-            SamplerState sampler_point_clamp;
+            Texture2D _CopyInput;
+            SamplerState sampler_bilinear_clamp;
             // BXFRAMEBUFFER_INPUT_HALF(0, _LightingBuffer);
 
             Varyings vert(uint vertexID : SV_VertexID)
@@ -43,14 +37,13 @@ Shader "BXPostProcess/ColorManager"
                     vertexID <= 1 ? 0.0 : 2.0,
                     vertexID == 1 ? 2.0 : 0.0
                 );
-                // if(_ProjectionParams.x < 0.0) o.uv_screen.y = 1.0 - o.uv_screen.y;
+                if(_ProjectionParams.x < 0.0) o.uv_screen.y = 1.0 - o.uv_screen.y;
                 return o;
             }
 
             half4 frag(Varyings i) : SV_TARGET0
             {
-                half4 col = _PostProcessInput.SampleLevel(sampler_point_clamp, i.uv_screen, 0);
-                return half4(ColorGrade(col.rgb), 1.0);
+                return _CopyInput.SampleLevel(sampler_bilinear_clamp, i.uv_screen, 0);
             }
             ENDHLSL
         }

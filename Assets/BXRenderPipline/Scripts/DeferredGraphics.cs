@@ -60,10 +60,10 @@ public class DeferredGraphics
 		this.height = height;
 		this.aa = aa;
 
-		postProcess.Setup(postProcessSettings, commandBuffer, editorMode);
+		postProcess.Setup(postProcessSettings, commandBuffer, width, height);
 	}
 
-	public void Render()
+	public void Render(out GraphicsFence graphicsFence)
 	{
 		commandBuffer.BeginSample(commandBuffer.name);
 		GenerateBuffers();
@@ -78,14 +78,11 @@ public class DeferredGraphics
 #endif
 		context.EndRenderPass();
 
-		BeginPostProcessRenderPass();
 		DrawPostProcess();
-		RenderToCameraTargetAndTonemapping();
-		FXAA();
+		FXAA(out graphicsFence);
 #if UNITY_EDITOR
 		DrawGizmosAfterPostProcess();
 #endif
-		context.EndRenderPass();
 	}
 
 	public void CleanUp()
@@ -94,11 +91,13 @@ public class DeferredGraphics
 		commandBuffer.ReleaseTemporaryRT(Constants.depthNormalBufferId);
 		commandBuffer.ReleaseTemporaryRT(Constants.fxaaInputBufferId);
 		commandBuffer.ReleaseTemporaryRT(Constants.ssrBufferId);
+
 #if UNITY_EDITOR_OSX
 		commandBuffer.ReleaseTemporaryRT(Constants.lightingBufferId);
 		commandBuffer.ReleaseTemporaryRT(Constants.baseColorBufferId);
 		commandBuffer.ReleaseTemporaryRT(Constants.materialDataBufferId);
 #endif
+		postProcess.CleanUp();
 	}
 
 	private void GenerateBuffers()
@@ -127,6 +126,7 @@ public class DeferredGraphics
 
 	private void BeginRenderPass()
 	{
+		var lightingGeoBufferTarget = new AttachmentDescriptor(RenderTextureFormat.ARGBHalf);
 		var lightingBufferTarget = new AttachmentDescriptor(RenderTextureFormat.ARGBHalf);
 		var baseColorBufferTarget = new AttachmentDescriptor(RenderTextureFormat.ARGB32);
 		var materialDataBufferTarget = new AttachmentDescriptor(RenderTextureFormat.ARGB32);
@@ -201,7 +201,7 @@ public class DeferredGraphics
 	{
 		var shadingOutputs = new NativeArray<int>(1, Allocator.Temp);
 		shadingOutputs[0] = Constants.lightingBufferIndex;
-		var shadingInputs = new NativeArray<int>(4, Allocator.Temp);
+		var shadingInputs = new NativeArray<int>(3, Allocator.Temp);
 		shadingInputs[0] = Constants.baseColorBufferIndex;
 		shadingInputs[1] = Constants.materialDataBufferIndex;
 		shadingInputs[2] = Constants.depthNormalBufferIndex;
@@ -222,50 +222,19 @@ public class DeferredGraphics
 		context.EndSubPass();
 	}
 
-	private void BeginPostProcessRenderPass()
-	{
-		var fxaaInputBufferTarget = new AttachmentDescriptor(RenderTextureFormat.ARGB32);
-		var cameraTarget = new AttachmentDescriptor(RenderTextureFormat.ARGB32);
-
-		fxaaInputBufferTarget.ConfigureClear(Color.clear);
-		cameraTarget.ConfigureClear(Color.clear);
-
-		fxaaInputBufferTarget.ConfigureTarget(Constants.fxaaInputBufferTargetId, false, true);
-		cameraTarget.ConfigureTarget(cameraTargetId, false, true);
-
-		var attchments = new NativeArray<AttachmentDescriptor>(2, Allocator.Temp);
-		attchments[0] = fxaaInputBufferTarget;
-		attchments[1] = cameraTarget;
-
-		context.BeginRenderPass(width, height, aa, attchments, -1);
-		attchments.Dispose();
-	}
-
 	private void DrawPostProcess()
 	{
-
-	}
-
-	private void RenderToCameraTargetAndTonemapping()
-	{
-		var postProcessOutput = new NativeArray<int>(1, Allocator.Temp);
-		postProcessOutput[0] = Constants.fxaaInputBufferIndex;
-		context.BeginSubPass(postProcessOutput, true);
-		postProcessOutput.Dispose();
+		postProcess.Bloom();
 		postProcess.ColorGrade();
-		ExecuteBuffer();
-		context.EndSubPass();
 	}
 
-	private void FXAA()
+	private void FXAA(out GraphicsFence graphicsFence)
 	{
-		var postProcessOutput = new NativeArray<int>(1, Allocator.Temp);
-		postProcessOutput[0] = Constants.cameraTargetBufferIndex;
-		context.BeginSubPass(postProcessOutput, true);
-		postProcessOutput.Dispose();
+		commandBuffer.SetRenderTarget(cameraTargetId);
+		commandBuffer.ClearRenderTarget(true, true, Color.clear);
 		postProcess.FXAA();
+		graphicsFence = commandBuffer.CreateGraphicsFence(GraphicsFenceType.AsyncQueueSynchronisation, SynchronisationStageFlags.AllGPUOperations);
 		ExecuteBuffer();
-		context.EndSubPass();
 	}
 
 #if UNITY_EDITOR
@@ -300,12 +269,7 @@ public class DeferredGraphics
 	{
 		if (Handles.ShouldRenderGizmos())
 		{
-			var renderOutputs = new NativeArray<int>(1, Allocator.Temp);
-			renderOutputs[0] = Constants.cameraTargetBufferIndex;
-			context.BeginSubPass(renderOutputs);
-			renderOutputs.Dispose();
 			context.DrawGizmos(camera, GizmoSubset.PostImageEffects);
-			context.EndSubPass();
 		}
 	}
 #endif

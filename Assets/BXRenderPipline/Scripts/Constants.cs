@@ -77,4 +77,41 @@ public class Constants
 	{
 		"_SSR_ONLY", "_PROBE_ONLY", "_SSR_AND_PROBE"
 	};
+
+	public const int maxBloomPyramidLevels = 4;
+	public static int[] bloomPyarmIds = new int[maxBloomPyramidLevels * 4]
+	{
+		Shader.PropertyToID("_BloomPyarm0"), Shader.PropertyToID("_BloomPyarm1"), Shader.PropertyToID("_BloomPyarm2"), Shader.PropertyToID("_BloomPyarm3"),
+		Shader.PropertyToID("_BloomPyarm4"), Shader.PropertyToID("_BloomPyarm5"), Shader.PropertyToID("_BloomPyarm6"), Shader.PropertyToID("_BloomPyarm7"),
+		Shader.PropertyToID("_BloomPyarm8"), Shader.PropertyToID("_BloomPyarm9"), Shader.PropertyToID("_BloomPyarm10"), Shader.PropertyToID("_BloomPyarm11"),
+		Shader.PropertyToID("_BloomPyarm12"), Shader.PropertyToID("_BloomPyarm13"), Shader.PropertyToID("_BloomPyarm14"), Shader.PropertyToID("_BloomPyarm15"),
+	};
+	public static int bloomCombineId = Shader.PropertyToID("_BloomCombine");
+	public static int bloomPrefilterId = Shader.PropertyToID("_BloomPrefilter");
+	public static RenderTargetIdentifier[] bloomPyarmTargetIds = new RenderTargetIdentifier[maxBloomPyramidLevels * 4]
+	{
+		new RenderTargetIdentifier(bloomPyarmIds[0]),
+		new RenderTargetIdentifier(bloomPyarmIds[1]),
+		new RenderTargetIdentifier(bloomPyarmIds[2]),
+		new RenderTargetIdentifier(bloomPyarmIds[3]),
+		new RenderTargetIdentifier(bloomPyarmIds[4]),
+		new RenderTargetIdentifier(bloomPyarmIds[5]),
+		new RenderTargetIdentifier(bloomPyarmIds[6]),
+		new RenderTargetIdentifier(bloomPyarmIds[7]),
+		new RenderTargetIdentifier(bloomPyarmIds[8]),
+		new RenderTargetIdentifier(bloomPyarmIds[9]),
+		new RenderTargetIdentifier(bloomPyarmIds[10]),
+		new RenderTargetIdentifier(bloomPyarmIds[11]),
+		new RenderTargetIdentifier(bloomPyarmIds[12]),
+		new RenderTargetIdentifier(bloomPyarmIds[13]),
+		new RenderTargetIdentifier(bloomPyarmIds[14]),
+		new RenderTargetIdentifier(bloomPyarmIds[15])
+	};
+	public static RenderTargetIdentifier bloomPrefilterTargetId = new RenderTargetIdentifier(bloomPrefilterId);
+
+	public static int postprocessInputId = Shader.PropertyToID("_PostProcessInput");
+	public static int copyInputId = Shader.PropertyToID("_CopyInput");
+	public static int bloomInputId = Shader.PropertyToID("_BloomInput");
+	public static int bloomThresholdId = Shader.PropertyToID("_BloomThreshold");
+	public static int bloomIntensityId = Shader.PropertyToID("_BloomIntensity");
 }

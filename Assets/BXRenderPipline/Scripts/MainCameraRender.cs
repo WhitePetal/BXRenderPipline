@@ -109,8 +109,8 @@ public partial class MainCameraRender
 
 	private void ShadingInPlayerMode()
 	{
-		graphicsPipline.Render();
-		computePipline.CaculateAftRender();
+		graphicsPipline.Render(out GraphicsFence graphicsFence);
+		computePipline.CaculateAftRender(graphicsFence);
 		CleanUp();
 		Submit();
 	}

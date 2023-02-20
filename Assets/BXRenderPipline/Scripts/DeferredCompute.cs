@@ -40,8 +40,9 @@ public class DeferredCompute
 
 	}
 
-	public void CaculateAftRender()
+	public void CaculateAftRender(in GraphicsFence graphicsFence)
 	{
+		commandBuffer.WaitOnAsyncGraphicsFence(graphicsFence);
 		if(reflectType != ReflectType.OnlyProbe)
 		{
 			GenerateSSRBuffer();

@@ -93,7 +93,7 @@ Shader "BXDefferedShadings/Shading"
                 uint tileIndex = screenXY.y * _ScreenParams.x / 16.0 + screenXY.x;
                 uint tileData = _TileLightingDatas[tileIndex];
                 // return tileData;
-                for(uint tileLightOffset = 0; tileLightOffset < tileData; ++tileLightOffset)
+                for(uint tileLightOffset = 0; tileLightOffset < tileData; tileLightOffset++)
                 {
                     uint tileLightIndex = tileIndex * 256 + tileLightOffset;
                     uint pointLightIndex = _TileLightingIndices[tileLightIndex];
@@ -144,7 +144,7 @@ Shader "BXDefferedShadings/Shading"
                     indirectSpecular = 0.5 * ssrData.rgb * lerp(specCol, saturate(2.0 - materialData.g - oneMinusMetallic), PBR_SchlickFresnel(ndotv)) / (1.0 + materialData.g * materialData.g);
                 #endif
 
-                return half4(diffuseColor * oneMinusMetallic * baseColor.rgb + specularColor * ndotv_inv + indirectSpecular, 1.0);
+                return half4(max(0.0, diffuseColor * oneMinusMetallic * baseColor.rgb + specularColor * ndotv_inv + indirectSpecular), 1.0);
             }
             ENDHLSL
         }

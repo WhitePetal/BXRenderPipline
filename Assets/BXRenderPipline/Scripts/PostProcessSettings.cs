@@ -10,6 +10,23 @@ public enum ToneMappingType
 }
 
 [System.Serializable]
+public struct BloomSettings
+{
+	public Shader bloomShader;
+	[Range(0, Constants.maxBloomPyramidLevels)]
+	public int maxIterations;
+	[Min(0)]
+	public int downScaleLimit;
+
+	[Min(0f)]
+	public float threshold;
+	[Range(0f, 1f)]
+	public float thresholdKnee;
+	[Min(0f)]
+	public float intensity;
+}
+
+[System.Serializable]
 public struct ColorGradingSettings
 {
 	public bool enable;
@@ -90,9 +107,19 @@ public struct FXAASettings
 public class PostProcessSettings
 {
 	[SerializeField]
+	public Shader copTexShader;
+	[SerializeField]
 	public Shader colorGradeShader;
 	[SerializeField]
 	public Shader colorGradeShaderEditor;
+	public BloomSettings bloomSettings = new BloomSettings
+	{
+		maxIterations = 4,
+		downScaleLimit = 2,
+		threshold = 0.5f,
+		thresholdKnee = 0.5f,
+		intensity = 0.5f
+	};
 	public ToneMappingType toneMappingType = ToneMappingType.Neutral;
 	public ColorGradingSettings colorGradingSettings = new ColorGradingSettings
 	{

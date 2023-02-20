@@ -155,6 +155,7 @@ Material:
     - _DistanceMax: 3
     - _DistanceMin: 1
     - _DstBlend: 0
+    - _EMISSION: 0
     - _Float0: 1
     - _GlossMapScale: 0.51
     - _Glossiness: 0.5

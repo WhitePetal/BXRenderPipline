@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: New Material
+  m_Name: New Material 1
   m_Shader: {fileID: 4800000, guid: b69311fef3e1db94d8f9d9badc777135, type: 3}
   m_ValidKeywords:
   - _EMISSION_ON
@@ -89,6 +89,6 @@ Material:
     m_Colors:
     - _BaseColor: {r: 0.9245283, g: 0.89366955, b: 0.53552866, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
-    - _EmissionColor: {r: 1.0592737, g: 0.84298223, b: 0.3105724, a: 1}
+    - _EmissionColor: {r: 4.78613, g: 1.0137315, b: 0.5147344, a: 1}
     - _Metallic_Roughness_AOOffset: {r: 0.906, g: 0.018, b: 0, a: 1}
   m_BuildTextureStacks: []
