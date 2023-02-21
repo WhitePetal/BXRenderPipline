@@ -101,17 +101,19 @@ Shader "BXCharacters/PBR_BSSSDF_Skin"
                 half3 v = normalize(_WorldSpaceCameraPos.xyz - i.pos_world.xyz);
                 half3 n = GetWorldNormalFromNormalMap(normalMap, GET_PROP(_NormalScale), i.tangent_world, i.binormal_world, i.normal_world);
                 half r = saturate(dot(1, fwidth(n) / fwidth(i.pos_world.xyz)) * 0.333);
-                half ndotv = max(0.001, dot(n, v));
+                half ndotv_source = dot(n, v);
+                half ndotv = max(0.001, ndotv_source);
 
                 half metallic = mra.r * GET_PROP(_Metallic_Roughness_AOOffset).x;
                 half oneMinusMetallic = 1.0 - metallic;
                 half roughness = mra.g * GET_PROP(_Metallic_Roughness_AOOffset).y;
                 half ao = saturate(mra.b + GET_PROP(_Metallic_Roughness_AOOffset).z);
+                baseColor *= GET_PROP(_BaseColor);
                 half3 albedo = baseColor.rgb * (1.0 - metallic);
                 half3 specCol = lerp(0.04, baseColor.rgb, metallic * 0.5);
                 float depthEye = LinearEyeDepth(i.pos_world.w);
 
-                half3 ndotl_sss_avg = _LUTSSS.Sample(sampler_bilinear_clamp, float2(ndotv, r)).rgb;
+                half3 ndotl_sss_avg = _LUTSSS.Sample(sampler_bilinear_clamp, float2(ndotv_source * 0.5 + 0.5, r)).rgb;
 
                 half3 indirectDiffuse = 0.2 * ao * albedo;
                 half3 diffuseColor = 0.0;
@@ -123,7 +125,7 @@ Shader "BXCharacters/PBR_BSSSDF_Skin"
                     half3 lightColor = _DirectionalLightColors[lightIndex].xyz;
                     half3 h = SafeNormalize(l + v);
                     half ndotl_source = dot(n, l);
-                    half ndotl = max(0.0, dot(n, l));
+                    half ndotl = max(0.0, ndotl_source);
                     half3 ndotl_sss = _LUTSSS.Sample(sampler_bilinear_clamp, float2(ndotl_source * 0.5 + 0.5, r)).rgb;
                     half ndoth = max(0.0, dot(n, h));
                     half vdoth = max(0.0, dot(v, h));
