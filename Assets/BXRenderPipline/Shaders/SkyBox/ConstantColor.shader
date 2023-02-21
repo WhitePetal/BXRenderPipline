@@ -33,8 +33,8 @@ Shader "BXSkyBox/ConstantColor"
 
             struct FragOutput
             {
-                half4 lightingBuffer : SV_TARGET;
-                half4 depthNormalBuffer : SV_TARGET3;
+                half4 lightingBuffer : SV_TARGET0;
+                half4 depthNormalBuffer : SV_TARGET1;
             };
 
             v2f vert (appdata v)

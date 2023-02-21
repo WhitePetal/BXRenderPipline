@@ -76,7 +76,7 @@ Shader "BXPostProcess/FXAA"
 
             half GetLuma(float2 uv, float uoffset, float voffset)
             {
-                uv += float2(uoffset, voffset) * _FXAAInputBuffer_TexelSize;
+                uv += float2(uoffset, voffset) * _FXAAInputBuffer_TexelSize.xy;
                 return _FXAAInputBuffer.SampleLevel(sampler_bilinear_clamp, uv, 0).g;
             }
 
@@ -192,9 +192,9 @@ Shader "BXPostProcess/FXAA"
                 float lumaDeltaN = GetLuma(uvN, 0, 0) - edgeLuma;
                 bool atEndN = lumaDeltaN >= gradientThreshold;
                 UNITY_UNROLL
-                for (int i = 0; i < EXTRA_EDGE_STEPS && !atEndN; i++) 
+                for (int k = 0; k < EXTRA_EDGE_STEPS && !atEndN; k++) 
                 {
-                    uvN -= uvStep * edgeStepSizes[i];
+                    uvN -= uvStep * edgeStepSizes[k];
                     lumaDeltaN = GetLuma(uvN, 0, 0) - edgeLuma;
                     atEndN = abs(lumaDeltaN) >= gradientThreshold;
                 }

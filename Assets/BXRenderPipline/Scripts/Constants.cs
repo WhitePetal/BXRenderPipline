@@ -5,40 +5,30 @@ using UnityEngine.Rendering;
 
 public class Constants
 {
-	public const int depthBufferIndex = 0, lightingBufferIndex = 1, baseColorBufferIndex = 2, materialDataBufferIndex = 3, depthNormalBufferIndex = 4,
-		ssrBufferIndex = 5;
-	public const int fxaaInputBufferIndex = 0, cameraTargetBufferIndex = 1;
-
 	public static int depthBufferId = Shader.PropertyToID("_DepthBuffer");
 	public static int lightingBufferId = Shader.PropertyToID("_LightingBuffer");
-	public static int baseColorBufferId = Shader.PropertyToID("_BaseColorBuffer");
-	public static int materialDataBufferId = Shader.PropertyToID("_MaterialDataBuffer");
 	public static int depthNormalBufferId = Shader.PropertyToID("_BXDepthNormalBuffer");
 	public static int fxaaInputBufferId = Shader.PropertyToID("_FXAAInputBuffer");
 	public static int ssrBufferId = Shader.PropertyToID("_SSRBuffer");
 	public static RenderTargetIdentifier depthBufferTargetId = new RenderTargetIdentifier(depthBufferId);
 	public static RenderTargetIdentifier lightingBufferTargetId = new RenderTargetIdentifier(lightingBufferId);
-	public static RenderTargetIdentifier baseColorBufferTargetId = new RenderTargetIdentifier(baseColorBufferId);
-	public static RenderTargetIdentifier materialDataBufferTargetId = new RenderTargetIdentifier(materialDataBufferId);
 	public static RenderTargetIdentifier depthNormalBufferTargetId = new RenderTargetIdentifier(depthNormalBufferId);
 	public static RenderTargetIdentifier fxaaInputBufferTargetId = new RenderTargetIdentifier(fxaaInputBufferId);
 	public static RenderTargetIdentifier ssrBufferTargetId = new RenderTargetIdentifier(ssrBufferId);
-	public static RenderTargetIdentifier[] defferedShadingTargestsId = new RenderTargetIdentifier[4]
+	public static RenderTargetIdentifier[] shadingTargestsId = new RenderTargetIdentifier[2]
 	{
 		lightingBufferTargetId,
-		baseColorBufferTargetId,
-		materialDataBufferTargetId,
 		depthNormalBufferTargetId
 	};
-	public static RenderBufferLoadAction[] defferedShadingTargetLoads = new RenderBufferLoadAction[4]
+	public static RenderBufferLoadAction[] shadingTargetLoads = new RenderBufferLoadAction[2]
 	{
-		RenderBufferLoadAction.DontCare, RenderBufferLoadAction.DontCare, RenderBufferLoadAction.DontCare, RenderBufferLoadAction.DontCare
+		RenderBufferLoadAction.DontCare, RenderBufferLoadAction.DontCare
 	};
-	public static RenderBufferStoreAction[] defferedShadingTargetStores = new RenderBufferStoreAction[4]
+	public static RenderBufferStoreAction[] shadingTargetStores = new RenderBufferStoreAction[2]
 	{
-		RenderBufferStoreAction.Store, RenderBufferStoreAction.Store, RenderBufferStoreAction.Store, RenderBufferStoreAction.Store
+		RenderBufferStoreAction.Store, RenderBufferStoreAction.Store
 	};
-	public static RenderTargetBinding defferedShadingBinding = new RenderTargetBinding(defferedShadingTargestsId, defferedShadingTargetLoads, defferedShadingTargetStores, depthBufferTargetId, RenderBufferLoadAction.DontCare, RenderBufferStoreAction.Store);
+	public static RenderTargetBinding shadingBinding = new RenderTargetBinding(shadingTargestsId, shadingTargetLoads, shadingTargetStores, depthBufferTargetId, RenderBufferLoadAction.DontCare, RenderBufferStoreAction.Store);
 
 	public static int viewPortRaysId = Shader.PropertyToID("_ViewPortRays");
 
@@ -111,7 +101,8 @@ public class Constants
 
 	public static int postprocessInputId = Shader.PropertyToID("_PostProcessInput");
 	public static int copyInputId = Shader.PropertyToID("_CopyInput");
-	public static int bloomInputId = Shader.PropertyToID("_BloomInput");
+	public static int bloomInput0Id = Shader.PropertyToID("_BloomInput0");
+	public static int bloomInput1Id = Shader.PropertyToID("_BloomInput1");
 	public static int bloomThresholdId = Shader.PropertyToID("_BloomThreshold");
 	public static int bloomIntensityId = Shader.PropertyToID("_BloomIntensity");
 }

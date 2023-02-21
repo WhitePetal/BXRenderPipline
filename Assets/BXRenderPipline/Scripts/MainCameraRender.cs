@@ -29,19 +29,14 @@ public partial class MainCameraRender
 	private ReflectType reflectType;
 
 	public Lights lights = new Lights();
-	private PostProcess postProcess = new PostProcess();
 	private DeferredGraphics graphicsPipline = new DeferredGraphics();
 	private DeferredCompute computePipline = new DeferredCompute();
 
 	private DeferredComputeSettings deferredComputeSettings;
 
-	private Matrix4x4 viewPortRays = Matrix4x4.identity;
-
-	private GraphicsFence graphicsPiplineCompeletFence;
-
 	public void Render(ScriptableRenderContext context, Camera camera, bool editorMode, bool useDynamicBatching, bool useGPUInstancing, bool useLightsPerObject, 
 		ReflectType reflectType,
-		DefferedShadingSettings defferedShadingSettings, DeferredComputeSettings deferredComputeSettings, PostProcessSettings postprocessSettings, ShadowSettings shadowSettings)
+		DeferredComputeSettings deferredComputeSettings, PostProcessSettings postprocessSettings, ShadowSettings shadowSettings)
 	{
 		this.context = context;
 		this.camera = camera;
@@ -63,36 +58,19 @@ public partial class MainCameraRender
 		width = camera.pixelWidth;
 		height = camera.pixelHeight;
 		int aa = 1;
-		RenderTargetIdentifier cameraTargetId = new RenderTargetIdentifier(BuiltinRenderTextureType.CameraTarget);
-		if(camera.targetTexture != null)
-		{
-			width = camera.targetTexture.width;
-			height = camera.targetTexture.height;
-			aa = camera.targetTexture.antiAliasing;
-			cameraTargetId = camera.targetTexture;
-		}
 
 		graphicsPipline.Setup(context, cullingResults, commandBufferGraphics, camera,
-			width, height, aa, cameraTargetId,
+			width, height, aa,
 			editorMode, useDynamicBatching, useGPUInstancing, useLightsPerObject,
-			defferedShadingSettings, postprocessSettings);
+			postprocessSettings);
 		computePipline.Setup(context, commandBufferCompute, camera, reflectType, deferredComputeSettings, 
 			width, height, lights.pointLightCount, lights.pointLightSpheres);
 		SetupForRender();
 
-//#if UNITY_EDITOR
-//		if (editorMode)
-//		{
-//			ShadingInEditorMode();
-//		}
-//		else
-//		{
-//			if (camera.cameraType == CameraType.Game)
-//				ShadingInPlayerMode();
-//		}
-//#else
-		ShadingInPlayerMode();
-//#endif
+		graphicsPipline.Render();
+		computePipline.CaculateAftRender();
+		CleanUp();
+		Submit();
 	}
 
 	private void ExecuteGraphicsCommand()
@@ -105,14 +83,6 @@ public partial class MainCameraRender
 	{
 		context.ExecuteCommandBuffer(commandBufferCompute);
 		commandBufferCompute.Clear();
-	}
-
-	private void ShadingInPlayerMode()
-	{
-		graphicsPipline.Render(out GraphicsFence graphicsFence);
-		computePipline.CaculateAftRender(graphicsFence);
-		CleanUp();
-		Submit();
 	}
 
 	private bool Cull(float maxShadowDistance)
@@ -132,6 +102,7 @@ public partial class MainCameraRender
 		float aspec = camera.aspect;
 		float h_half = Mathf.Tan(0.5f * fov * Mathf.Deg2Rad);
 		float w_half = h_half * aspec;
+		Matrix4x4 viewPortRays = Matrix4x4.identity;
 		Vector4 forward = camera.transform.forward;
 		Vector4 up = camera.transform.up * h_half;
 		Vector4 right = camera.transform.right * w_half;

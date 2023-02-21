@@ -106,7 +106,7 @@ public class PostProcess
 	{
 		commandBuffer.SetRenderTarget(to);
 		if(clear) commandBuffer.ClearRenderTarget(true, true, Color.clear);
-		commandBuffer.SetGlobalTexture(Constants.bloomInputId, from);
+		commandBuffer.SetGlobalTexture(Constants.bloomInput0Id, from);
 		commandBuffer.DrawProcedural(Matrix4x4.identity, BloomMaterial, pass, MeshTopology.Triangles, 3);
 	}
 
@@ -115,8 +115,7 @@ public class PostProcess
 		BloomSettings bloomSettings = settings.bloomSettings;
 		int bloomWidth = width >> 1;
 		int bloomHeight = height >> 1;
-
-		commandBuffer.GetTemporaryRT(Constants.bloomPrefilterId, width, height, 0, FilterMode.Bilinear, RenderTextureFormat.ARGBHalf, RenderTextureReadWrite.Linear, 1, false, RenderTextureMemoryless.None);
+		commandBuffer.GetTemporaryRT(Constants.bloomPyarmIds[0], bloomWidth, bloomHeight, 0, FilterMode.Bilinear, RenderTextureFormat.ARGBHalf, RenderTextureReadWrite.Linear, 1, false, RenderTextureMemoryless.None);
 		Vector4 threshold;
 		threshold.x = Mathf.GammaToLinearSpace(bloomSettings.threshold);
 		threshold.y = threshold.x * bloomSettings.thresholdKnee;
@@ -124,15 +123,15 @@ public class PostProcess
 		threshold.w = 0.25f / (threshold.y + 0.00001f);
 		threshold.y -= threshold.x;
 		commandBuffer.SetGlobalVector(Constants.bloomThresholdId, threshold);
-		commandBuffer.SetRenderTarget(Constants.bloomPrefilterTargetId);
+		commandBuffer.SetRenderTarget(Constants.bloomPyarmTargetIds[0]);
 		commandBuffer.ClearRenderTarget(true, true, Color.clear);
-		commandBuffer.DrawProcedural(Matrix4x4.identity, BloomMaterial, 2, MeshTopology.Triangles, 3);
+		commandBuffer.DrawProcedural(Matrix4x4.identity, BloomMaterial, 0, MeshTopology.Triangles, 3);
 
-		int fromIndex = -1, toIndex = -1;
-		RenderTargetIdentifier fromId = Constants.bloomPrefilterTargetId, toId = Constants.bloomPyarmTargetIds[1];
-
-		bloomPyarmCount = 0;
-		for (int i = 0; i < bloomSettings.maxIterations * 2; i += 2)
+		int fromIndex = 0, toIndex = 0;
+		RenderTargetIdentifier fromId = Constants.bloomPyarmTargetIds[0], toId, midId;
+		bloomPyarmCount = 1;
+		int i;
+		for (i = 0; i < bloomSettings.maxIterations * 2; i += 2)
 		{
 			if (bloomWidth < bloomSettings.downScaleLimit || bloomHeight < bloomSettings.downScaleLimit) break;
 			commandBuffer.GetTemporaryRT(Constants.bloomPyarmIds[bloomPyarmCount], bloomWidth, bloomHeight, 0, FilterMode.Bilinear, RenderTextureFormat.ARGBHalf, RenderTextureReadWrite.Linear, 1, false, RenderTextureMemoryless.None);
@@ -140,33 +139,39 @@ public class PostProcess
 
 			fromIndex = toIndex;
 			toIndex += 2;
-			if(fromIndex > -1)
-			{
-				fromId = Constants.bloomPyarmTargetIds[fromIndex];
-				toId = Constants.bloomPyarmTargetIds[toIndex];
-			}
-			RenderTargetIdentifier midId = Constants.bloomPyarmTargetIds[toIndex - 1];
-			BloomBlur(fromId, midId, 0);
-			BloomBlur(midId, toId, 1);
+			fromId = Constants.bloomPyarmTargetIds[fromIndex];
+			toId = Constants.bloomPyarmTargetIds[toIndex];
+			midId = Constants.bloomPyarmTargetIds[toIndex - 1];
+			BloomBlur(fromId, midId, 1);
+			BloomBlur(midId, toId, 2);
 
 			bloomWidth = bloomWidth >> 1;
 			bloomHeight = bloomHeight >> 1;
 			bloomPyarmCount += 2;
 		}
-		while(fromIndex >= 0)
+
+
+		commandBuffer.SetGlobalFloat(Constants.bloomIntensityId, 1f);
+		for (i -= 1; i > 0 && fromIndex >= 0; --i)
 		{
 			int midIndex = toIndex - 1;
-			RenderTargetIdentifier midId = Constants.bloomPyarmTargetIds[midIndex];
-			BloomBlur(toId, midId, 0);
-			BloomBlur(midId, fromId, 1);
+			toId = Constants.bloomPyarmTargetIds[toIndex];
+			midId = Constants.bloomPyarmTargetIds[midIndex];
+			fromId = Constants.bloomPyarmTargetIds[fromIndex];
+			commandBuffer.SetRenderTarget(fromId);
+			commandBuffer.SetGlobalTexture(Constants.bloomInput0Id, toId);
+			commandBuffer.SetGlobalTexture(Constants.bloomInput1Id, midId);
+			commandBuffer.DrawProcedural(Matrix4x4.identity, BloomMaterial, 3, MeshTopology.Triangles, 3);
 			toIndex = fromIndex;
 			fromIndex -= 2;
 		}
 
+		commandBuffer.GetTemporaryRT(Constants.bloomPrefilterId, width, height, 0, FilterMode.Bilinear, RenderTextureFormat.ARGBHalf, RenderTextureReadWrite.Linear, 1, false, RenderTextureMemoryless.None);
 		commandBuffer.SetRenderTarget(Constants.bloomPrefilterTargetId);
 		commandBuffer.ClearRenderTarget(true, true, Color.clear);
-		commandBuffer.SetGlobalTexture(Constants.bloomInputId, Constants.bloomPyarmTargetIds[fromIndex == -2 ? 0 : 1]);
 		commandBuffer.SetGlobalFloat(Constants.bloomIntensityId, bloomSettings.intensity);
+		commandBuffer.SetGlobalTexture(Constants.bloomInput0Id, fromId);
+		commandBuffer.SetGlobalTexture(Constants.bloomInput1Id, Constants.lightingBufferTargetId);
 		commandBuffer.DrawProcedural(Matrix4x4.identity, BloomMaterial, 3, MeshTopology.Triangles, 3);
 	}
 

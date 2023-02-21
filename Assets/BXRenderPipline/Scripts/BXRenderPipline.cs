@@ -25,20 +25,18 @@ public class BXRenderPipline : RenderPipeline
 	private bool useDynamicBatching, useGPUInstancing, useLightsPerObject, editorMode;
 	private ReflectType reflectType;
 	private MainCameraRender mainCameraRenderer = new MainCameraRender();
-	private DefferedShadingSettings defferedShadingSettings;
 	private DeferredComputeSettings deferredComputeSettings;
 	private PostProcessSettings postprocessSettings;
 	private ShadowSettings shadowSettings;
 
 	public BXRenderPipline(bool editorMode, bool useDynamicBatching, bool useGPUInstancing, bool useSRPBatching, bool useLightsPerObject,
 		FrameRate frameRate, ReflectType reflectType,
-		DefferedShadingSettings defferedShadingSettings, DeferredComputeSettings deferredComputeSettings, PostProcessSettings postprocessSettings, ShadowSettings shadowSettings)
+		DeferredComputeSettings deferredComputeSettings, PostProcessSettings postprocessSettings, ShadowSettings shadowSettings)
 	{
 		this.editorMode = editorMode;
 		this.useDynamicBatching = useDynamicBatching;
 		this.useGPUInstancing = useGPUInstancing;
 		this.useLightsPerObject = useLightsPerObject;
-		this.defferedShadingSettings = defferedShadingSettings;
 		this.deferredComputeSettings = deferredComputeSettings;
 		this.postprocessSettings = postprocessSettings;
 		this.shadowSettings = shadowSettings;
@@ -58,7 +56,7 @@ public class BXRenderPipline : RenderPipeline
 		{
 			mainCameraRenderer.Render(context, cameras[i], editorMode, useDynamicBatching, useGPUInstancing, useLightsPerObject,
 				reflectType,
-				defferedShadingSettings, deferredComputeSettings, postprocessSettings, shadowSettings);
+				deferredComputeSettings, postprocessSettings, shadowSettings);
 		}
 	}
 

@@ -24,17 +24,15 @@ public class BXRenderPiplineAsset : RenderPipelineAsset
 	public FrameRate frameRate = FrameRate.FPS60;
 	public ReflectType reflectType = ReflectType.OnlySSR;
 	[SerializeField]
-	public DefferedShadingSettings defferedShadingSettings;
+	public ShadowSettings shadowSettings;
 	[SerializeField]
 	public DeferredComputeSettings deferredComputeSettings;
 	[SerializeField]
 	public PostProcessSettings processSettings;
-	[SerializeField]
-	public ShadowSettings shadowSettings;
 
 	protected override RenderPipeline CreatePipeline()
 	{
 		return new BXRenderPipline(editorMode, useDynamicBatching, useGPUInstancing, useSRPBatching, useLightsPerObject, frameRate,
-			reflectType, defferedShadingSettings, deferredComputeSettings, processSettings, shadowSettings);
+			reflectType, deferredComputeSettings, processSettings, shadowSettings);
 	}
 }

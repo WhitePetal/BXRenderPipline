@@ -63,6 +63,14 @@ void ClipLOD(float2 pos_clip, half fade)
     #endif
 }
 
+float4 GetScreenUV(float4 positionCS)
+{
+    float4 o = positionCS * 0.5f;
+    o.xy = float2(o.x, o.y * _ProjectionParams.x) + o.w;
+    o.zw = positionCS.zw;
+    return o;
+}
+
 inline float Linear01Depth( float z )
 {
     return 1.0 / (_ZBufferParams.x * z + _ZBufferParams.y);

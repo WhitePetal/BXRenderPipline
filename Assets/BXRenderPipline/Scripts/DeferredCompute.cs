@@ -40,9 +40,8 @@ public class DeferredCompute
 
 	}
 
-	public void CaculateAftRender(in GraphicsFence graphicsFence)
+	public void CaculateAftRender()
 	{
-		commandBuffer.WaitOnAsyncGraphicsFence(graphicsFence);
 		if(reflectType != ReflectType.OnlyProbe)
 		{
 			GenerateSSRBuffer();
@@ -52,6 +51,7 @@ public class DeferredCompute
 
 	public void CleanUp()
 	{
+
 	}
 
 	public void Dispose()
@@ -69,8 +69,8 @@ public class DeferredCompute
 		int w = width >> 2;
 		int h = height >> 2;
 		commandBuffer.DispatchCompute(settings.ssrGenerateCS, 0, Mathf.CeilToInt(w / 8f), Mathf.CeilToInt(h / 8f), 1);
-		ExecuteBuffer();
 		commandBuffer.EndSample("GenerateSSR");
+		ExecuteBuffer();
 	}
 
 	private void GenerateTileLightingData()
@@ -79,7 +79,6 @@ public class DeferredCompute
 		commandBuffer.BeginSample("TileLightingData");
 		commandBuffer.SetGlobalBuffer(Constants.tileLightingDatasId, tileLightingDatasBuffer);
 		commandBuffer.SetGlobalBuffer(Constants.tileLightingIndicesId, tileLightingIndicesBuffer);
-		commandBuffer.SetComputeTextureParam(settings.tileLightingCS, 0, Constants.depthNormalBufferId, Constants.depthNormalBufferTargetId);
 		commandBuffer.DispatchCompute(settings.tileLightingCS, 0, Mathf.CeilToInt(width / 16f), Mathf.CeilToInt(height / 16f), 1);
 		commandBuffer.EndSample("TileLightingData");
 		ExecuteBuffer();

@@ -26,6 +26,7 @@ Shader "BXCharacters/PBR_BRDF"
             #pragma shader_feature_local _EMISSION_ON
             #pragma multi_compile _ _DIRECTIONAL_PCF3 _DIRECTIONAL_PCF5 _DIRECTIONAL_PCF7
             #pragma multi_compile _ _CASCADE_BLEND_SOFT _CASCADE_BLEND_DITHER
+            #pragma multi_compile _SSR_ONLY _PROBE_ONLY _SSR_AND_PROBE
             #pragma multi_compile_instancing
 
             #pragma vertex vert
@@ -47,11 +48,12 @@ Shader "BXCharacters/PBR_BRDF"
             {
                 float4 vertex : SV_POSITION;
                 float2 uv : TEXCOORD0;
-                float4 pos_world : TEXCOORD1;
-                half3 normal_world : TEXCOORD2;
-                half3 tangent_world : TEXCOORD3;
-                half3 binormal_world : TEXCOORD4;
-                float3 normal_view : TEXCOORD5;
+                float2 uv_screen : TEXCOORD1;
+                float4 pos_world : TEXCOORD2;
+                half3 normal_world : TEXCOORD3;
+                half3 tangent_world : TEXCOORD4;
+                half3 binormal_world : TEXCOORD5;
+                float3 normal_view : TEXCOORD6;
                 UNITY_VERTEX_INPUT_INSTANCE_ID
             };
 
@@ -79,8 +81,10 @@ Shader "BXCharacters/PBR_BRDF"
                 UNITY_TRANSFER_INSTANCE_ID(v, o);
                 o.pos_world.xyz = TransformObjectToWorld(v.vertex.xyz);
                 o.vertex = TransformWorldToHClip(o.pos_world.xyz);
-                o.pos_world.w = Linear01Depth(o.vertex.z / o.vertex.w);
+                float4 posH = o.vertex / o.vertex.w;
+                o.pos_world.w = posH.z;
                 o.uv = v.uv * GET_PROP(_MainTex_ST).xy + GET_PROP(_MainTex_ST).zw;
+                o.uv_screen = GetScreenUV(posH).xy;
                 o.normal_world = TransformObjectToWorldNormal(v.normal);
                 o.tangent_world = TransformObjectToWorldDir(v.tangent.xyz);
                 o.binormal_world = cross(o.normal_world, o.tangent_world) * v.tangent.w * unity_WorldTransformParams.w;
@@ -91,10 +95,8 @@ Shader "BXCharacters/PBR_BRDF"
 
             struct FragOutput
             {
-                half4 lightingBuffer : SV_TARGET;
-                half4 baseColorBuffer : SV_TARGET1;
-                half4 materialDataBuffer : SV_TARGET2;
-                half4 depthNormalBuffer : SV_TARGET3;
+                half4 lightingBuffer : SV_TARGET0;
+                half4 depthNormalBuffer : SV_TARGET1;
             };
 
             FragOutput frag (v2f i)
@@ -107,51 +109,92 @@ Shader "BXCharacters/PBR_BRDF"
                 #ifdef _EMISSION_ON
                     half4 emissionMap = _EmissionMap.Sample(sampler_MainTex, i.uv);
                 #endif
-                half3 lightColor = _DirectionalLightColors[0].xyz;
                 half3 v = normalize(_WorldSpaceCameraPos.xyz - i.pos_world.xyz);
-                half3 l = _DirectionalLightDirections[0].xyz;
-                half3 h = normalize(l + v);
                 half3 n = GetWorldNormalFromNormalMap(normalMap, GET_PROP(_NormalScale), i.tangent_world, i.binormal_world, i.normal_world);
-                half ndotl = max(0.0, dot(n, l));
-                half ndoth = max(0.0, dot(n, h));
                 half ndotv = max(0.001, dot(n, v));
-                half vdoth = max(0.0, dot(v, h));
-                half ldoth = max(0.0, dot(l, h));
 
                 half metallic = mra.r * GET_PROP(_Metallic_Roughness_AOOffset).x;
+                half oneMinusMetallic = 1.0 - metallic;
                 half roughness = mra.g * GET_PROP(_Metallic_Roughness_AOOffset).y;
                 half ao = saturate(mra.b + GET_PROP(_Metallic_Roughness_AOOffset).z);
-
                 baseColor *= GET_PROP(_BaseColor);
+                half3 albedo = baseColor.rgb * (1.0 - metallic);
                 half3 specCol = lerp(0.04, baseColor.rgb, metallic * 0.5);
-                half f0 = PBR_F0(ndotl, ndotv, ldoth, roughness);
-                half3 fgd = PBR_SchlickFresnelFunction(specCol, ldoth) * PBR_G(ndotl, ndotv, roughness) * PBR_D(roughness, ndoth);
+                float depthEye = LinearEyeDepth(i.pos_world.w);
 
-                half shadowAtten = GetDirectionalShadow(0, i.vertex.xy, i.pos_world.xyz, n, i.pos_world.w * _ProjectionParams.z);
-                half3 shadowCol = lerp(_BXShadowsColor.xyz, 1.0, shadowAtten);
+                half3 indirectDiffuse = 0.2 * ao * albedo;
+                half3 diffuseColor = 0.0;
+                half3 specularColor = 0.0;
 
-                half3 diffuseColor = baseColor.rgb * (1.0 - metallic) * f0 * ndotl;
-                half3 indirectDiffuse = 0.2 * ao * baseColor.rgb;
-                half3 specularColor = fgd * 0.25 / ndotv;
+                for(uint lightIndex = 0; lightIndex < _DirectionalLightCount; ++lightIndex)
+                {
+                    half3 l = _DirectionalLightDirections[lightIndex].xyz;
+                    half3 lightColor = _DirectionalLightColors[lightIndex].xyz;
+                    half3 h = SafeNormalize(l + v);
+                    half ndotl = max(0.0, dot(n, l));
+                    half ndoth = max(0.0, dot(n, h));
+                    half vdoth = max(0.0, dot(v, h));
+                    half ldoth = max(0.0, dot(l, h));
+                    half f0 = PBR_F0(ndotl, ndotv, ldoth, roughness);
+                    half3 fgd = PBR_SchlickFresnelFunction(specCol, ldoth) * PBR_G(ndotl, ndotv, roughness) * PBR_D(roughness, ndoth);
+                    half shadowAtten = GetDirectionalShadow(lightIndex, i.uv_screen, i.pos_world.xyz, n, depthEye);
+                    half3 shadowCol = lerp(_BXShadowsColor.xyz, 1.0, shadowAtten);
+                    lightColor *= shadowCol;
 
-                half3 lighting = (diffuseColor + specularColor) * shadowCol * lightColor + indirectDiffuse;
+                    diffuseColor += lightColor * f0 * ndotl;
+                    specularColor += lightColor * fgd;
+                }
+
+                uint2 screenXY = i.uv_screen * _ScreenParams.xy / 16.0;
+                uint tileIndex = screenXY.y * _ScreenParams.x / 16.0 + screenXY.x;
+                uint tileData = _TileLightingDatas[tileIndex];
+                for(uint tileLightOffset = 0; tileLightOffset < min(tileData, _PointLightCount); ++tileLightOffset)
+                {
+                    uint tileLightIndex = tileIndex * 256 + tileLightOffset;
+                    uint pointLightIndex = _TileLightingIndices[tileLightIndex];
+                    float4 lightSphere = _PointLightSpheres[pointLightIndex];
+                    half3 lightColor = _PointLightColors[pointLightIndex].xyz;
+
+                    float3 lenV = lightSphere.xyz - i.pos_world.xyz;
+                    half lenSqr = max(0.001, dot(lenV, lenV));
+                    half3 l = lenV * rsqrt(lenSqr);
+                    half3 h = SafeNormalize(l + v);
+
+                    half ndotl = max(0.0, dot(n, l));
+                    half ndoth = max(0.0, dot(n, h));
+                    half ldoth = max(0.0, dot(l, h));
+                    half atten =  saturate(1.0 - lenSqr / (lightSphere.w * lightSphere.w));
+
+                    lightColor *= atten;
+                    half f0 = PBR_F0(ndotl, ndotv, ldoth, roughness);
+                    half3 fgd = PBR_SchlickFresnelFunction(specCol, ldoth) * PBR_G(ndotl, ndotv, roughness) * PBR_D(roughness, ndoth);
+
+                    diffuseColor += lightColor * f0 * ndotl;
+                    specularColor += lightColor * fgd;
+                }
+
+                half3 indirectSpecular = 0.0;
+                #ifndef _PROBE_ONLY
+                    half4 ssrData = _SSRBuffer.SampleLevel(sampler_point_clamp, i.uv_screen, roughness * 3);
+                    indirectSpecular = 0.5 * ssrData.rgb * lerp(specCol, saturate(2.0 - roughness - oneMinusMetallic), PBR_SchlickFresnel(ndotv)) / (1.0 + roughness * roughness);
+                #endif
+
+                diffuseColor *= albedo;
+                specularColor *= 0.25 / ndotv;
+                half3 lighting = (diffuseColor + specularColor) + indirectDiffuse + indirectSpecular;
                 #ifdef _EMISSION_ON
-                    lighting = lighting + emissionMap.rgb * GET_PROP(_EmissionColor).rgb * emissionMap.a;
+                    lighting += emissionMap.rgb * GET_PROP(_EmissionColor).rgb * emissionMap.a;
                 #endif
                 output.lightingBuffer = half4(lighting, 1.0);
-                output.baseColorBuffer = baseColor;
-                int materialFlag = 2; // 1 << 1
-                #ifndef _RECEIVE_SHADOWS_OFF
-                    materialFlag += 1;
-                #endif
-                output.materialDataBuffer = half4(metallic, roughness, ao, materialFlag / 255.0);
+
                 output.depthNormalBuffer = (i.pos_world.w < (1.0-1.0/65025.0)) ? EncodeDepthNormal(i.pos_world.w, normalize(i.normal_view)) : float4(0.5,0.5,1.0,1.0);
                 return output;
             }
             ENDHLSL
         }
 
-        Pass {
+        Pass 
+        {
 			Tags {"LightMode" = "ShadowCaster"}
             Cull Off
 			ColorMask 0

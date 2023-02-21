@@ -4,6 +4,11 @@
 #include "Assets/BXRenderPipline/Shaders/Libiary/Shadows.hlsl"
 #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Packing.hlsl"
 
+#ifndef _PROBE_ONLY
+    Texture2D _SSRBuffer;
+    SamplerState sampler_point_clamp;
+#endif
+
 half3 GetWorldNormalFromNormalMap(half4 normalMap, half normalScale, half3 tangent, half3 birnormal, half3 normal)
 {
     half3 nor_tan = UnpackNormalScale(normalMap, normalScale);
@@ -19,15 +24,15 @@ half PBR_D(half roughness, half ndoth)
     half rr = roughness * roughness;
     half ndoth_sqr = max(0.001, ndoth * ndoth);
     half tan_ndoth_sqr = (1.0 - ndoth_sqr) / ndoth_sqr;
-    half b = roughness / (ndoth_sqr * (rr + tan_ndoth_sqr));
+    half b = roughness / max(0.01, ndoth_sqr * (rr + tan_ndoth_sqr));
     return pi_inv * b*b;
 }
 
 half PBR_G(half ndotl, half ndotv, half roughness)
 {
     half rr = roughness*roughness;
-    half ndotl_sqr = ndotl*ndotl;
-    half ndotv_Sqr = ndotv*ndotv;
+    half ndotl_sqr = max(0.001, ndotl*ndotl);
+    half ndotv_Sqr = max(0.001, ndotv*ndotv);
 
     half smithL = 2.0 * ndotl / (ndotl + sqrt(rr + (1.0 - rr) * ndotl_sqr));
     half smithV = 2.0 * ndotv / (ndotv + sqrt(rr + (1.0 - rr) * ndotv_Sqr));

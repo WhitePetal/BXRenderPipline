@@ -61,7 +61,6 @@
     <Compile Include="Assets\BXRenderPipline\Scripts\DeferredCompute.cs" />
     <Compile Include="Assets\BXRenderPipline\Scripts\PostProcessSettings.cs" />
     <Compile Include="Assets\BXRenderPipline\Scripts\DeferredComputeSettings.cs" />
-    <Compile Include="Assets\BXRenderPipline\Scripts\DefferedShadingSettings.cs" />
     <Compile Include="Assets\BXRenderPipline\Scripts\BXRenderPiplineAsset.cs" />
     <Compile Include="Assets\BXRenderPipline\Scripts\PostProcess.cs" />
     <Compile Include="Assets\BXRenderPipline\Scripts\BXRenderPipline.cs" />
@@ -119,7 +118,6 @@
     <None Include="Assets\Picola\Toon\Shader\Toon_DoubleShadeWithFeather_Clipping.shader" />
     <None Include="Assets\Picola\Toon\Shader\Tess\Toon_ShadingGradeMap_AngelRing_TransClipping_Tess.shader" />
     <None Include="Assets\Picola\Toon\Shader\ToonColor_ShadingGradeMap_StencilMask.shader" />
-    <None Include="Assets\BXRenderPipline\Shaders\DefferedShadings\DefferedCombine.shader" />
     <None Include="Assets\Picola\Toon\Shader\Tess\Toon_DoubleShadeWithFeather_Clipping_Tess_StencilOut.shader" />
     <None Include="Assets\Picola\Toon\Shader\Toon_DoubleShadeWithFeather_Mobile_TransClipping.shader" />
     <None Include="Assets\Picola\Toon\Shader\Tess\Toon_ShadingGradeMap_AngelRing_TransClipping_Tess_StencilOut.shader" />
@@ -135,7 +133,6 @@
     <None Include="Assets\Picola\Toon\Shader\ToonColor_DoubleShadeWithFeather.shader" />
     <None Include="Assets\BXRenderPipline\Shaders\Characters\PBR_BRDF.shader" />
     <None Include="Assets\Picola\Toon\Shader\Tess\Toon_ShadingGradeMap_Tess_StencilOut.shader" />
-    <None Include="Assets\BXRenderPipline\Shaders\DefferedShadings\DefferedShading.shader" />
     <None Include="Assets\Picola\Toon\Shader\Toon_ShadingGradeMap_TransClipping_StencilOut.shader" />
     <None Include="Assets\Picola\Toon\Shader\ToonColor_ShadingGradeMap_Transparent.shader" />
     <None Include="Assets\Picola\Toon\Shader\ToonColor_DoubleShadeWithFeather_Transparent.shader" />
