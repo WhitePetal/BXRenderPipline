@@ -3,7 +3,7 @@ Shader "BXCharacters/PBR_BSSSDF_Skin"
     Properties
     {
         _LUTSSS("LUT_SSS", 2D) = "white" {}
-        _BaseColor("Color", Color) = (1, 1, 1, 1)
+        _Color("Color", Color) = (1, 1, 1, 1)
         _MainTex ("Texture", 2D) = "white" {}
         _MRATex("Metallic_Roughness_AO", 2D) = "white" {}
         _NormalMap("Normal Map", 2D) = "bump" {}
@@ -25,11 +25,12 @@ Shader "BXCharacters/PBR_BSSSDF_Skin"
             #pragma multi_compile _ _CASCADE_BLEND_SOFT _CASCADE_BLEND_DITHER
             #pragma multi_compile_instancing
 
+            #define BSSSDFSKIN_LIGHTING 1
+
             #pragma vertex vert
             #pragma fragment frag
 
             #include "Assets/BXRenderPipline/Shaders/Libiary/Common.hlsl"
-            #include "Assets/BXRenderPipline/Shaders/Libiary/PBRLibiary.hlsl"
 
             struct appdata
             {
@@ -59,11 +60,12 @@ Shader "BXCharacters/PBR_BSSSDF_Skin"
 
             UNITY_INSTANCING_BUFFER_START(UnityPerMaterial)
                 UNITY_DEFINE_INSTANCED_PROP(float4, _MainTex_ST)
-                UNITY_DEFINE_INSTANCED_PROP(half4, _BaseColor)
+                UNITY_DEFINE_INSTANCED_PROP(half4, _Color)
                 UNITY_DEFINE_INSTANCED_PROP(half4, _Metallic_Roughness_AOOffset)
                 UNITY_DEFINE_INSTANCED_PROP(half, _NormalScale)
             UNITY_INSTANCING_BUFFER_END(UnityPerMaterial)
 
+            #include "Assets/BXRenderPipline/Shaders/Libiary/PBRLibiary.hlsl"
 
             v2f vert (appdata v)
             {
@@ -108,66 +110,19 @@ Shader "BXCharacters/PBR_BSSSDF_Skin"
                 half oneMinusMetallic = 1.0 - metallic;
                 half roughness = mra.g * GET_PROP(_Metallic_Roughness_AOOffset).y;
                 half ao = saturate(mra.b + GET_PROP(_Metallic_Roughness_AOOffset).z);
-                baseColor *= GET_PROP(_BaseColor);
+                baseColor *= GET_PROP(_Color);
                 half3 albedo = baseColor.rgb * (1.0 - metallic);
                 half3 specCol = lerp(0.04, baseColor.rgb, metallic * 0.5);
                 float depthEye = LinearEyeDepth(i.pos_world.w);
 
                 half3 ndotl_sss_avg = _LUTSSS.Sample(sampler_bilinear_clamp, float2(ndotv_source * 0.5 + 0.5, r)).rgb;
 
-                half3 indirectDiffuse = 0.2 * ao * albedo;
+                half3 indirectDiffuse = PBR_GetIndirectDiffuseFromProbe(i.pos_world.xyz, n);
                 half3 diffuseColor = 0.0;
                 half3 specularColor = 0.0;
 
-                for(uint lightIndex = 0; lightIndex < _DirectionalLightCount; ++lightIndex)
-                {
-                    half3 l = _DirectionalLightDirections[lightIndex].xyz;
-                    half3 lightColor = _DirectionalLightColors[lightIndex].xyz;
-                    half3 h = SafeNormalize(l + v);
-                    half ndotl_source = dot(n, l);
-                    half ndotl = max(0.0, ndotl_source);
-                    half3 ndotl_sss = _LUTSSS.Sample(sampler_bilinear_clamp, float2(ndotl_source * 0.5 + 0.5, r)).rgb;
-                    half ndoth = max(0.0, dot(n, h));
-                    half vdoth = max(0.0, dot(v, h));
-                    half ldoth = max(0.0, dot(l, h));
-                    half f0 = PBR_F0(ndotl, ndotv, ldoth, roughness);
-                    half3 fgd = PBR_SchlickFresnelFunction(specCol, ldoth) * PBR_G(ndotl, ndotv, roughness) * PBR_D(roughness, ndoth);
-                    half shadowAtten = GetDirectionalShadow(lightIndex, i.uv_screen, i.pos_world.xyz, n, depthEye);
-                    half3 shadowCol = lerp(_BXShadowsColor.xyz, 1.0, shadowAtten);
-                    lightColor *= shadowCol;
-
-                    diffuseColor += lightColor * f0 * ndotl_sss;
-                    specularColor += lightColor * fgd;
-                }
-
-                uint2 screenXY = i.uv_screen * _ScreenParams.xy / 16.0;
-                uint tileIndex = screenXY.y * _ScreenParams.x / 16.0 + screenXY.x;
-                uint tileData = _TileLightingDatas[tileIndex];
-
-                for(uint tileLightOffset = 0; tileLightOffset < min(tileData, _PointLightCount); ++tileLightOffset)
-                {
-                    uint tileLightIndex = tileIndex * 256 + tileLightOffset;
-                    uint pointLightIndex = _TileLightingIndices[tileLightIndex];
-                    float4 lightSphere = _PointLightSpheres[pointLightIndex];
-                    half3 lightColor = _PointLightColors[pointLightIndex].xyz;
-
-                    float3 lenV = lightSphere.xyz - i.pos_world.xyz;
-                    half lenSqr = max(0.001, dot(lenV, lenV));
-                    half3 l = lenV * rsqrt(lenSqr);
-                    half3 h = SafeNormalize(l + v);
-
-                    half ndotl = max(0.0, dot(n, l));
-                    half ndoth = max(0.0, dot(n, h));
-                    half ldoth = max(0.0, dot(l, h));
-                    half atten =  saturate(1.0 - lenSqr / (lightSphere.w * lightSphere.w));
-
-                    lightColor *= atten;
-                    half f0 = PBR_F0(ndotl, ndotv, ldoth, roughness);
-                    half3 fgd = PBR_SchlickFresnelFunction(specCol, ldoth) * PBR_G(ndotl, ndotv, roughness) * PBR_D(roughness, ndoth);
-
-                    diffuseColor += lightColor * f0 * ndotl_sss_avg;
-                    specularColor += lightColor * fgd;
-                }
+                PBR_BSSSDFSkin_DirectionalLighting(specCol, i.pos_world.xyz, n, v, i.uv_screen, ndotv, r, roughness, depthEye, diffuseColor, specularColor);
+                PBR_BSSSDFSkin_PointLighting(specCol, ndotl_sss_avg, i.pos_world.xyz, n, v, i.uv_screen, ndotv, roughness, depthEye, diffuseColor, specularColor);
 
                 half3 indirectSpecular = 0.0;
                 #ifndef _PROBE_ONLY
@@ -175,9 +130,9 @@ Shader "BXCharacters/PBR_BSSSDF_Skin"
                     indirectSpecular = 0.5 * ssrData.rgb * lerp(specCol, saturate(2.0 - roughness - oneMinusMetallic), PBR_SchlickFresnel(ndotv)) / (1.0 + roughness * roughness);
                 #endif
 
-                diffuseColor *= albedo;
+                diffuseColor = (diffuseColor + indirectDiffuse * ao) * albedo;
                 specularColor *= 0.25 / ndotv;
-                half3 lighting = (diffuseColor + specularColor) + indirectDiffuse + indirectSpecular;
+                half3 lighting = diffuseColor + specularColor + indirectSpecular;
                 output.lightingBuffer = half4(lighting, 1.0);
 
                 output.depthNormalBuffer = (i.pos_world.w < (1.0-1.0/65025.0)) ? EncodeDepthNormal(i.pos_world.w, normalize(i.normal_view)) : float4(0.5,0.5,1.0,1.0);

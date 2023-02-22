@@ -2,14 +2,18 @@
 %TAG !u! tag:unity3d.com,2011:
 --- !u!21 &2100000
 Material:
-  serializedVersion: 6
+  serializedVersion: 8
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Cliff02_Snow
-  m_Shader: {fileID: 4800000, guid: f560932f44076e9438f038943604f8f5, type: 3}
-  m_ShaderKeywords: _METALLICGLOSSMAP _NORMALMAP _VERTEXCOLORCHANNEL_B
+  m_Shader: {fileID: 4800000, guid: ce319887da97f410fac6307fe23d9db0, type: 3}
+  m_ValidKeywords: []
+  m_InvalidKeywords:
+  - _METALLICGLOSSMAP
+  - _NORMALMAP
+  - _VERTEXCOLORCHANNEL_B
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -51,12 +55,20 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _MRATex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _MainTex:
         m_Texture: {fileID: 2800000, guid: c62db5b329a61e04b94a78a0fbae0576, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MetallicGlossMap:
         m_Texture: {fileID: 2800000, guid: 6a9731325dc22434da0ea5d390c1095f, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _NormalMap:
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _OcclusionMap:
@@ -75,6 +87,7 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    m_Ints: []
     m_Floats:
     - _2ndNormalPower: 1
     - _BlendNormals: 0
@@ -86,6 +99,7 @@ Material:
     - _DepositThreshold: 15
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
+    - _EMISSION: 0
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
@@ -97,9 +111,12 @@ Material:
     - _MetallicPower: 0
     - _Mode: 0
     - _NormalPower: 1
+    - _NormalScale: 1
     - _OcclusionPower: 0.25
     - _OcclusionStrength: 1
     - _Parallax: 0.02
+    - _REALTIME_LIGHTING: 0
+    - _RECEIVE_SHADOWS: 1
     - _SecondNormalPower: 0.4
     - _SeeVertexColors: 0
     - _SmoothnessPower: 0.71
@@ -117,3 +134,5 @@ Material:
     - _2ndColor: {r: 1, g: 1, b: 1, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
+    - _Metallic_Roughness_AOOffset: {r: 1, g: 1, b: 0, a: 1}
+  m_BuildTextureStacks: []
