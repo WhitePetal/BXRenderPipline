@@ -9,7 +9,8 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: RockModular_Snow
   m_Shader: {fileID: 4800000, guid: ce319887da97f410fac6307fe23d9db0, type: 3}
-  m_ValidKeywords: []
+  m_ValidKeywords:
+  - _REALTIME_LIGHTING_ON
   m_InvalidKeywords:
   - _BLENDNORMALS_ON
   - _METALLICGLOSSMAP
@@ -177,7 +178,7 @@ Material:
     - _OcclusionStrength: 1
     - _Parallax: 0
     - _ParallaxBias: 0
-    - _REALTIME_LIGHTING: 0
+    - _REALTIME_LIGHTING: 1
     - _RECEIVE_SHADOWS: 1
     - _SecondNormalPower: 1
     - _SeeVertexColors: 0

@@ -14,4 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   modifiedAssetPathList:
   - Assets/Bakery/examples/content/sponza/sponza.FBX
-  modifiedAssetPaddingHash: d6a958ff
+  - Assets/PureNature/Models/Banks/Bank02.fbx
+  - Assets/PureNature/Models/Rocks/Cliffs/Cliff03b.fbx
+  - Assets/PureNature/Models/Banks/Bank01.fbx
+  - Assets/PureNature/Models/Rocks/RocksModular/RockModular02.fbx
+  - Assets/PureNature/Models/Rocks/RocksModular/RockModular04.fbx
+  - Assets/PureNature/Models/Rocks/RocksModular/RockModular03.fbx
+  modifiedAssetPaddingHash: d6a958fff1f23a06353fd3d9de09ecc0b74608c8ae5634b704c5d890

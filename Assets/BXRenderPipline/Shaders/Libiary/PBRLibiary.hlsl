@@ -138,6 +138,13 @@ half3 PBR_F0_SSS(half3 ndotl_sss, half ndotv, half ldoth, half roughness)
 #if BRDF_LIGHTING
 void PBR_BRDF_DirectionalLighting(half3 specCol, float3 pos_world, half3 n, half3 v, float2 uv_screen, half ndotv, half roughness, half depthEye, inout half3 diffuseColor, inout half3 specularColor)
 {
+    half shadowDistanceStrength = GetShadowDistanceStrength(depthEye);
+    #if defined(_SHADOW_MASK_ALWAYS) || defined(_SHADOW_MASK_DISTANCE)
+        half baked = SampleBakedShadows(pos_world, lightmapUV);
+	#endif
+    #if defined(_SHADOW_MASK_ALWAYS)
+        half3 shadowCol = lerp(_BXShadowsColor.xyz, 1.0, baked);
+    #endif
     for(uint lightIndex = 0; lightIndex < _DirectionalLightCount; ++lightIndex)
     {
         half3 l = _DirectionalLightDirections[lightIndex].xyz;
@@ -149,8 +156,13 @@ void PBR_BRDF_DirectionalLighting(half3 specCol, float3 pos_world, half3 n, half
         half ldoth = max(0.0, dot(l, h));
         half f0 = PBR_F0(ndotl, ndotv, ldoth, roughness);
         half3 fgd = PBR_SchlickFresnelFunction(specCol, ldoth) * PBR_G(ndotl, ndotv, roughness) * PBR_D(roughness, ndoth);
-        half shadowAtten = GetDirectionalShadow(lightIndex, uv_screen, pos_world, n, depthEye);
-        half3 shadowCol = lerp(_BXShadowsColor.xyz, 1.0, shadowAtten);
+        #ifndef _SHADOW_MASK_ALWAYS
+            half shadowAtten = GetDirectionalShadow(lightIndex, uv_screen, pos_world, n, shadowDistanceStrength);
+            #if defined(_SHADOW_MASK_DISTANCE)
+                shadowAtten = lerp(baked, shadowAtten, shadowDistanceStrength);
+            #endif
+            half3 shadowCol = lerp(_BXShadowsColor.xyz, 1.0, shadowAtten);
+        #endif
         lightColor *= shadowCol;
 
         diffuseColor += lightColor * f0 * ndotl;
@@ -158,7 +170,7 @@ void PBR_BRDF_DirectionalLighting(half3 specCol, float3 pos_world, half3 n, half
     }
 }
 
-void PBR_BRDF_PointLighting(half3 specCol, float3 pos_world, half3 n, half3 v, float2 uv_screen, half ndotv, half roughness, half depthEye, inout half3 diffuseColor, inout half3 specularColor)
+void PBR_BRDF_PointLighting(half3 specCol, float3 pos_world, half3 n, half3 v, float2 uv_screen, half ndotv, half roughness, inout half3 diffuseColor, inout half3 specularColor)
 {
     uint2 screenXY = uv_screen * _ScreenParams.xy / 16.0;
     uint tileIndex = screenXY.y * _ScreenParams.x / 16.0 + screenXY.x;
@@ -193,6 +205,13 @@ void PBR_BRDF_PointLighting(half3 specCol, float3 pos_world, half3 n, half3 v, f
 #if BSSSDFSKIN_LIGHTING
 void PBR_BSSSDFSkin_DirectionalLighting(half3 specCol, float3 pos_world, half3 n, half3 v, float2 uv_screen, half ndotv, half r, half roughness, half depthEye, inout half3 diffuseColor, inout half3 specularColor)
 {
+    half shadowDistanceStrength = GetShadowDistanceStrength(depthEye);
+    #if defined(_SHADOW_MASK_ALWAYS) || defined(_SHADOW_MASK_DISTANCE)
+        half baked = SampleBakedShadows(pos_world, lightmapUV);
+	#endif
+    #if defined(_SHADOW_MASK_ALWAYS)
+        half3 shadowCol = lerp(_BXShadowsColor.xyz, 1.0, baked);
+    #endif
     for(uint lightIndex = 0; lightIndex < _DirectionalLightCount; ++lightIndex)
     {
         half3 l = _DirectionalLightDirections[lightIndex].xyz;
@@ -206,8 +225,13 @@ void PBR_BSSSDFSkin_DirectionalLighting(half3 specCol, float3 pos_world, half3 n
         half ldoth = max(0.0, dot(l, h));
         half f0 = PBR_F0(ndotl, ndotv, ldoth, roughness);
         half3 fgd = PBR_SchlickFresnelFunction(specCol, ldoth) * PBR_G(ndotl, ndotv, roughness) * PBR_D(roughness, ndoth);
-        half shadowAtten = GetDirectionalShadow(lightIndex, uv_screen, pos_world, n, depthEye);
-        half3 shadowCol = lerp(_BXShadowsColor.xyz, 1.0, shadowAtten);
+        #ifndef _SHADOW_MASK_ALWAYS
+            half shadowAtten = GetDirectionalShadow(lightIndex, uv_screen, pos_world, n, shadowDistanceStrength);
+            #if defined(_SHADOW_MASK_DISTANCE)
+                shadowAtten = lerp(baked, shadowAtten, shadowDistanceStrength);
+            #endif
+            half3 shadowCol = lerp(_BXShadowsColor.xyz, 1.0, shadowAtten);
+        #endif
         lightColor *= shadowCol;
 
         diffuseColor += lightColor * f0 * ndotl_sss;
@@ -215,7 +239,7 @@ void PBR_BSSSDFSkin_DirectionalLighting(half3 specCol, float3 pos_world, half3 n
     }
 }
 
-void PBR_BSSSDFSkin_PointLighting(half3 specCol, half3 ndotl_sss_avg, float3 pos_world, half3 n, half3 v, float2 uv_screen, half ndotv, half roughness, half depthEye, inout half3 diffuseColor, inout half3 specularColor)
+void PBR_BSSSDFSkin_PointLighting(half3 specCol, half3 ndotl_sss_avg, float3 pos_world, half3 n, half3 v, float2 uv_screen, half ndotv, half roughness, inout half3 diffuseColor, inout half3 specularColor)
 {
     uint2 screenXY = uv_screen * _ScreenParams.xy / 16.0;
     uint tileIndex = screenXY.y * _ScreenParams.x / 16.0 + screenXY.x;

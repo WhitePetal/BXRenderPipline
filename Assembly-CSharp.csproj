@@ -205,6 +205,7 @@
     <None Include="Assets\Picola\Toon\Shader\UCTS_ShadowCaster.cginc" />
     <None Include="Assets\Picola\Toon\Shader\Toon_ShadingGradeMap_TransClipping.shader" />
     <None Include="Assets\Picola\Toon\Shader\ToonColor_ShadingGradeMap_Transparent_StencilOut.shader" />
+    <None Include="Assets\BXRenderPipline\Shaders\Scenes\Scene_Opaque.shader" />
     <None Include="Assets\Picola\Toon\Shader\Toon_DoubleShadeWithFeather_Mobile_StencilMask.shader" />
     <None Include="Assets\Picola\Toon\Shader\Tess\Toon_ShadingGradeMap_TransClipping_Tess.shader" />
     <None Include="Assets\Picola\Toon\Shader\Tess\Toon_DoubleShadeWithFeather_Tess.shader" />
@@ -947,13 +948,13 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="BakeryEditorAssembly.csproj">
-      <Project>{829DE445-3CFA-CD2E-5854-F9519ADAD7DE}</Project>
-      <Name>BakeryEditorAssembly</Name>
-    </ProjectReference>
     <ProjectReference Include="BakeryRuntimeAssembly.csproj">
       <Project>{CFDEC12E-E7FB-B87C-BE85-8FC9B85F5D25}</Project>
       <Name>BakeryRuntimeAssembly</Name>
+    </ProjectReference>
+    <ProjectReference Include="BakeryEditorAssembly.csproj">
+      <Project>{829DE445-3CFA-CD2E-5854-F9519ADAD7DE}</Project>
+      <Name>BakeryEditorAssembly</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

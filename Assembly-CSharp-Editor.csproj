@@ -60,6 +60,7 @@
     <Compile Include="Assets\TutorialInfo\Scripts\Editor\ReadmeEditor.cs" />
     <Compile Include="Assets\Picola\Toon\Editor\UTS2GUI.cs" />
     <Compile Include="Assets\BXRenderPipline\Editor\VectorRangeDrawer.cs" />
+    <Compile Include="Assets\BXRenderPipline\Editor\ShaderInspetors\SceneOpaqueInspector.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\BXRenderPipline\Editor\x64\Bakery\frender.dll" />
@@ -365,14 +366,8 @@
     <Reference Include="Unity.Burst.Cecil.Mdb">
       <HintPath>Library\PackageCache\com.unity.burst@1.6.5\Unity.Burst.CodeGen\Unity.Burst.Cecil.Mdb.dll</HintPath>
     </Reference>
-    <Reference Include="Unity.VisualScripting.TextureAssets">
-      <HintPath>Library\PackageCache\com.unity.visualscripting@1.8.0\Editor\VisualScripting.Core\EditorAssetResources\Unity.VisualScripting.TextureAssets.dll</HintPath>
-    </Reference>
     <Reference Include="Unity.VisualScripting.IonicZip">
       <HintPath>Library\PackageCache\com.unity.visualscripting@1.8.0\Editor\VisualScripting.Core\Dependencies\DotNetZip\Unity.VisualScripting.IonicZip.dll</HintPath>
-    </Reference>
-    <Reference Include="unityplastic">
-      <HintPath>Library\PackageCache\com.unity.collab-proxy@2.0.0\Lib\Editor\PlasticSCM\unityplastic.dll</HintPath>
     </Reference>
     <Reference Include="Unity.Burst.Cecil.Pdb">
       <HintPath>Library\PackageCache\com.unity.burst@1.6.5\Unity.Burst.CodeGen\Unity.Burst.Cecil.Pdb.dll</HintPath>
@@ -385,6 +380,12 @@
     </Reference>
     <Reference Include="Unity.Burst.Cecil.Rocks">
       <HintPath>Library\PackageCache\com.unity.burst@1.6.5\Unity.Burst.CodeGen\Unity.Burst.Cecil.Rocks.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.VisualScripting.TextureAssets">
+      <HintPath>Library\PackageCache\com.unity.visualscripting@1.8.0\Editor\VisualScripting.Core\EditorAssetResources\Unity.VisualScripting.TextureAssets.dll</HintPath>
+    </Reference>
+    <Reference Include="unityplastic">
+      <HintPath>Library\PackageCache\com.unity.collab-proxy@2.0.0\Lib\Editor\PlasticSCM\unityplastic.dll</HintPath>
     </Reference>
     <Reference Include="Unity.VisualScripting.Antlr3.Runtime">
       <HintPath>Library\PackageCache\com.unity.visualscripting@1.8.0\Runtime\VisualScripting.Flow\Dependencies\NCalc\Unity.VisualScripting.Antlr3.Runtime.dll</HintPath>
@@ -1115,13 +1116,13 @@
       <Project>{4749002D-CF13-13F2-B30D-37D93E97CDA1}</Project>
       <Name>Assembly-CSharp</Name>
     </ProjectReference>
-    <ProjectReference Include="BakeryEditorAssembly.csproj">
-      <Project>{829DE445-3CFA-CD2E-5854-F9519ADAD7DE}</Project>
-      <Name>BakeryEditorAssembly</Name>
-    </ProjectReference>
     <ProjectReference Include="BakeryRuntimeAssembly.csproj">
       <Project>{CFDEC12E-E7FB-B87C-BE85-8FC9B85F5D25}</Project>
       <Name>BakeryRuntimeAssembly</Name>
+    </ProjectReference>
+    <ProjectReference Include="BakeryEditorAssembly.csproj">
+      <Project>{829DE445-3CFA-CD2E-5854-F9519ADAD7DE}</Project>
+      <Name>BakeryEditorAssembly</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

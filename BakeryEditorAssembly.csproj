@@ -56,45 +56,45 @@
     <Analyzer Include="D:\VisualStudio\Common7\IDE\Extensions\Microsoft\Visual Studio Tools for Unity\Analyzers\Microsoft.Unity.Analyzers.dll" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\BXRenderPipline\Editor\x64\Bakery\scripts\ftAtlasPreview.cs" />
-    <Compile Include="Assets\BXRenderPipline\Editor\x64\Bakery\scripts\ftUVGBufferGen.cs" />
+    <Compile Include="Assets\BXRenderPipline\Editor\x64\Bakery\scripts\ftLMGroupSelectorInspector.cs" />
     <Compile Include="Assets\BXRenderPipline\Editor\x64\Bakery\scripts\ftSaveSettingsMenu.cs" />
-    <Compile Include="Assets\BXRenderPipline\Editor\x64\Bakery\scripts\ftBuildLights.cs" />
-    <Compile Include="Assets\BXRenderPipline\Editor\x64\Bakery\scripts\ftCreateMenu.cs" />
-    <Compile Include="Assets\BXRenderPipline\Editor\x64\Bakery\scripts\ftSavePadding.cs" />
-    <Compile Include="Assets\BXRenderPipline\Editor\x64\Bakery\scripts\ftSceneView.cs" />
-    <Compile Include="Assets\BXRenderPipline\Editor\x64\Bakery\scripts\ftRestorePaddingMenu.cs" />
-    <Compile Include="Assets\BXRenderPipline\Editor\x64\Bakery\scripts\xatlas\xatlasEnable.cs" />
-    <Compile Include="Assets\BXRenderPipline\Editor\x64\Bakery\scripts\ftDefine.cs" />
-    <Compile Include="Assets\BXRenderPipline\Editor\x64\Bakery\scripts\ftClearCache.cs" />
-    <Compile Include="Assets\BXRenderPipline\Editor\x64\Bakery\scripts\ftLightmappedPrefabInspector.cs" />
-    <Compile Include="Assets\BXRenderPipline\Editor\x64\Bakery\scripts\ftSettingsProvider.cs" />
-    <Compile Include="Assets\BXRenderPipline\Editor\x64\Bakery\scripts\ftTextureProcessor.cs" />
-    <Compile Include="Assets\BXRenderPipline\Editor\x64\Bakery\scripts\ftSectorInspector.cs" />
-    <Compile Include="Assets\BXRenderPipline\Editor\x64\Bakery\scripts\ftLightingDataGen.cs" />
-    <Compile Include="Assets\BXRenderPipline\Editor\x64\Bakery\scripts\ftShaderTweaks.cs" />
-    <Compile Include="Assets\BXRenderPipline\Editor\x64\Bakery\scripts\ftAdditionalConfig.cs" />
-    <Compile Include="Assets\BXRenderPipline\Editor\x64\Bakery\scripts\ftDetectSettings.cs" />
-    <Compile Include="Assets\BXRenderPipline\Editor\x64\Bakery\scripts\ftRenderLightmap.cs" />
-    <Compile Include="Assets\BXRenderPipline\Editor\x64\Bakery\scripts\ftVolumeInspector.cs" />
-    <Compile Include="Assets\BXRenderPipline\Editor\x64\Bakery\scripts\xatlas\xatlas.cs" />
-    <Compile Include="Assets\BXRenderPipline\Editor\x64\Bakery\scripts\ftPointLightInspector.cs" />
-    <Compile Include="Assets\BXRenderPipline\Editor\x64\Bakery\scripts\ftSkyLightInspector.cs" />
-    <Compile Include="Assets\BXRenderPipline\Editor\x64\Bakery\scripts\ftDirectLightInspector.cs" />
-    <Compile Include="Assets\BXRenderPipline\Editor\x64\Bakery\scripts\ftLightMeshInspector.cs" />
-    <Compile Include="Assets\BXRenderPipline\Editor\x64\Bakery\scripts\ftLightmapsStorageInspector.cs" />
     <Compile Include="Assets\BXRenderPipline\Editor\x64\Bakery\scripts\ftClient.cs" />
     <Compile Include="Assets\BXRenderPipline\Editor\x64\Bakery\scripts\ftBuildGraphics.cs" />
-    <Compile Include="Assets\BXRenderPipline\Editor\x64\Bakery\scripts\ftFixResettingGlobalsOnSave.cs" />
-    <Compile Include="Assets\BXRenderPipline\Editor\x64\Bakery\scripts\ftModelPostProcessor.cs" />
-    <Compile Include="Assets\BXRenderPipline\Editor\x64\Bakery\scripts\ftErrorCodes.cs" />
-    <Compile Include="Assets\BXRenderPipline\Editor\x64\Bakery\scripts\ftDDS.cs" />
-    <Compile Include="Assets\BXRenderPipline\Editor\x64\Bakery\scripts\ftSavedPadding2.cs" />
-    <Compile Include="Assets\BXRenderPipline\Editor\x64\Bakery\scripts\ftLMGroupSelectorInspector.cs" />
-    <Compile Include="Assets\BXRenderPipline\Editor\x64\Bakery\scripts\ftClearMenu.cs" />
-    <Compile Include="Assets\BXRenderPipline\Editor\x64\Bakery\scripts\ftLMGroupInspector.cs" />
-    <Compile Include="Assets\BXRenderPipline\Editor\x64\Bakery\scripts\ftUpdater.cs" />
     <Compile Include="Assets\BXRenderPipline\Editor\x64\Bakery\scripts\ftExtendLightmapParameters.cs" />
+    <Compile Include="Assets\BXRenderPipline\Editor\x64\Bakery\scripts\ftLightmappedPrefabInspector.cs" />
+    <Compile Include="Assets\BXRenderPipline\Editor\x64\Bakery\scripts\ftSectorInspector.cs" />
+    <Compile Include="Assets\BXRenderPipline\Editor\x64\Bakery\scripts\ftClearMenu.cs" />
+    <Compile Include="Assets\BXRenderPipline\Editor\x64\Bakery\scripts\ftCreateMenu.cs" />
+    <Compile Include="Assets\BXRenderPipline\Editor\x64\Bakery\scripts\xatlas\xatlasEnable.cs" />
+    <Compile Include="Assets\BXRenderPipline\Editor\x64\Bakery\scripts\ftTextureProcessor.cs" />
+    <Compile Include="Assets\BXRenderPipline\Editor\x64\Bakery\scripts\ftRenderLightmap.cs" />
+    <Compile Include="Assets\BXRenderPipline\Editor\x64\Bakery\scripts\ftUpdater.cs" />
+    <Compile Include="Assets\BXRenderPipline\Editor\x64\Bakery\scripts\ftSavedPadding2.cs" />
+    <Compile Include="Assets\BXRenderPipline\Editor\x64\Bakery\scripts\ftBuildLights.cs" />
+    <Compile Include="Assets\BXRenderPipline\Editor\x64\Bakery\scripts\ftAtlasPreview.cs" />
+    <Compile Include="Assets\BXRenderPipline\Editor\x64\Bakery\scripts\ftUVGBufferGen.cs" />
+    <Compile Include="Assets\BXRenderPipline\Editor\x64\Bakery\scripts\ftShaderTweaks.cs" />
+    <Compile Include="Assets\BXRenderPipline\Editor\x64\Bakery\scripts\ftClearCache.cs" />
+    <Compile Include="Assets\BXRenderPipline\Editor\x64\Bakery\scripts\ftPointLightInspector.cs" />
+    <Compile Include="Assets\BXRenderPipline\Editor\x64\Bakery\scripts\ftSavePadding.cs" />
+    <Compile Include="Assets\BXRenderPipline\Editor\x64\Bakery\scripts\xatlas\xatlas.cs" />
+    <Compile Include="Assets\BXRenderPipline\Editor\x64\Bakery\scripts\ftDetectSettings.cs" />
+    <Compile Include="Assets\BXRenderPipline\Editor\x64\Bakery\scripts\ftRestorePaddingMenu.cs" />
+    <Compile Include="Assets\BXRenderPipline\Editor\x64\Bakery\scripts\ftLightingDataGen.cs" />
+    <Compile Include="Assets\BXRenderPipline\Editor\x64\Bakery\scripts\ftModelPostProcessor.cs" />
+    <Compile Include="Assets\BXRenderPipline\Editor\x64\Bakery\scripts\ftLightMeshInspector.cs" />
+    <Compile Include="Assets\BXRenderPipline\Editor\x64\Bakery\scripts\ftVolumeInspector.cs" />
+    <Compile Include="Assets\BXRenderPipline\Editor\x64\Bakery\scripts\ftSettingsProvider.cs" />
+    <Compile Include="Assets\BXRenderPipline\Editor\x64\Bakery\scripts\ftErrorCodes.cs" />
+    <Compile Include="Assets\BXRenderPipline\Editor\x64\Bakery\scripts\ftSkyLightInspector.cs" />
+    <Compile Include="Assets\BXRenderPipline\Editor\x64\Bakery\scripts\ftSceneView.cs" />
+    <Compile Include="Assets\BXRenderPipline\Editor\x64\Bakery\scripts\ftDefine.cs" />
+    <Compile Include="Assets\BXRenderPipline\Editor\x64\Bakery\scripts\ftDirectLightInspector.cs" />
+    <Compile Include="Assets\BXRenderPipline\Editor\x64\Bakery\scripts\ftFixResettingGlobalsOnSave.cs" />
+    <Compile Include="Assets\BXRenderPipline\Editor\x64\Bakery\scripts\ftDDS.cs" />
+    <Compile Include="Assets\BXRenderPipline\Editor\x64\Bakery\scripts\ftLightmapsStorageInspector.cs" />
+    <Compile Include="Assets\BXRenderPipline\Editor\x64\Bakery\scripts\ftAdditionalConfig.cs" />
+    <Compile Include="Assets\BXRenderPipline\Editor\x64\Bakery\scripts\ftLMGroupInspector.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\BXRenderPipline\Editor\x64\Bakery\scripts\xatlas\xatlas-license.txt" />
@@ -375,14 +375,8 @@
     <Reference Include="Unity.Burst.Cecil.Mdb">
       <HintPath>Library\PackageCache\com.unity.burst@1.6.5\Unity.Burst.CodeGen\Unity.Burst.Cecil.Mdb.dll</HintPath>
     </Reference>
-    <Reference Include="Unity.VisualScripting.TextureAssets">
-      <HintPath>Library\PackageCache\com.unity.visualscripting@1.8.0\Editor\VisualScripting.Core\EditorAssetResources\Unity.VisualScripting.TextureAssets.dll</HintPath>
-    </Reference>
     <Reference Include="Unity.VisualScripting.IonicZip">
       <HintPath>Library\PackageCache\com.unity.visualscripting@1.8.0\Editor\VisualScripting.Core\Dependencies\DotNetZip\Unity.VisualScripting.IonicZip.dll</HintPath>
-    </Reference>
-    <Reference Include="unityplastic">
-      <HintPath>Library\PackageCache\com.unity.collab-proxy@2.0.0\Lib\Editor\PlasticSCM\unityplastic.dll</HintPath>
     </Reference>
     <Reference Include="Unity.Burst.Cecil.Pdb">
       <HintPath>Library\PackageCache\com.unity.burst@1.6.5\Unity.Burst.CodeGen\Unity.Burst.Cecil.Pdb.dll</HintPath>
@@ -395,6 +389,12 @@
     </Reference>
     <Reference Include="Unity.Burst.Cecil.Rocks">
       <HintPath>Library\PackageCache\com.unity.burst@1.6.5\Unity.Burst.CodeGen\Unity.Burst.Cecil.Rocks.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.VisualScripting.TextureAssets">
+      <HintPath>Library\PackageCache\com.unity.visualscripting@1.8.0\Editor\VisualScripting.Core\EditorAssetResources\Unity.VisualScripting.TextureAssets.dll</HintPath>
+    </Reference>
+    <Reference Include="unityplastic">
+      <HintPath>Library\PackageCache\com.unity.collab-proxy@2.0.0\Lib\Editor\PlasticSCM\unityplastic.dll</HintPath>
     </Reference>
     <Reference Include="Unity.VisualScripting.Antlr3.Runtime">
       <HintPath>Library\PackageCache\com.unity.visualscripting@1.8.0\Runtime\VisualScripting.Flow\Dependencies\NCalc\Unity.VisualScripting.Antlr3.Runtime.dll</HintPath>

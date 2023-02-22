@@ -27,6 +27,7 @@ Shader "BXScenes/Scene_Opaque"
             #pragma shader_feature_local _EMISSION_ON
             #pragma shader_feature_local _REALTIME_LIGHTING_ON
             #pragma multi_compile __ LIGHTMAP_ON
+            #pragma multi_compile _ _SHADOW_MASK_ALWAYS _SHADOW_MASK_DISTANCE
             #pragma multi_compile _ _DIRECTIONAL_PCF3 _DIRECTIONAL_PCF5 _DIRECTIONAL_PCF7
             #pragma multi_compile _ _CASCADE_BLEND_SOFT _CASCADE_BLEND_DITHER
             #pragma multi_compile _SSR_ONLY _PROBE_ONLY _SSR_AND_PROBE
@@ -142,7 +143,7 @@ Shader "BXScenes/Scene_Opaque"
 
                 #ifdef _REALTIME_LIGHTING_ON
                     PBR_BRDF_DirectionalLighting(specCol, i.pos_world.xyz, n, v, i.uv_screen, ndotv, roughness, depthEye, diffuseColor, specularColor);
-                    PBR_BRDF_PointLighting(specCol, i.pos_world.xyz, n, v, i.uv_screen, ndotv, roughness, depthEye, diffuseColor, specularColor);
+                    PBR_BRDF_PointLighting(specCol, i.pos_world.xyz, n, v, i.uv_screen, ndotv, roughness, diffuseColor, specularColor);
                 #endif
 
                 half3 indirectDiffuse;
@@ -151,6 +152,7 @@ Shader "BXScenes/Scene_Opaque"
                 #else
                     indirectDiffuse = PBR_GetIndirectDiffuseFromProbe(i.pos_world.xyz, n);
                 #endif
+                indirectDiffuse *= ao;
 
                 half3 indirectSpecular = 0.0;
                 #ifndef _PROBE_ONLY
@@ -293,6 +295,30 @@ Shader "BXScenes/Scene_Opaque"
 			            PositivePow(meta.rgb, unity_OneOverOutputBoost), unity_MaxOutputValue
 		            );
                 }
+                else if (unity_MetaFragmentControl.y) 
+                {
+                    #ifdef _EMISSION_ON
+		                meta = float4(_EmissionMap.Sample(sampler_MainTex, i.uv).rgb * GET_PROP(_EmissionColor).rgb, 1.0);
+                    #else
+                        meta = float4(0, 0, 0, 1);
+                    #endif
+	            }
+                // Output custom normal to use with Bakery's "Baked Normal Map" mode
+                else if (unity_MetaFragmentControl.z)
+                {
+                    // Calculate custom normal
+                    float3 customNormalMap = UnpackNormalScale(_NormalMap.Sample(sampler_MainTex, i.uv), GET_PROP(_NormalScale)); // example: UVs are procedurally distorted
+                    float3 n = normalize(float3(
+                        dot(float3(i.tangent.x, i.binormal.x, i.normal.x), customNormalMap), 
+                        dot(float3(i.tangent.y, i.binormal.y, i.normal.y), customNormalMap),
+                        dot(float3(i.tangent.z, i.binormal.z, i.normal.z), customNormalMap)
+                    ));
+                    meta = float4(EncodeNormalBestFit(n), 1.0);
+                }
+                else if (unity_MetaFragmentControl.w)
+                {
+                    meta = baseColor.a * GET_PROP(_Color).a;
+                }
                 return meta;
             }
 
@@ -302,4 +328,5 @@ Shader "BXScenes/Scene_Opaque"
             ENDHLSL
         }
     }
+    CustomEditor "SceneOpaqueInspector"
 }

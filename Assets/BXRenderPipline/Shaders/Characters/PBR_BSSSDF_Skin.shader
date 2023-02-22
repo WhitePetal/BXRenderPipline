@@ -122,7 +122,7 @@ Shader "BXCharacters/PBR_BSSSDF_Skin"
                 half3 specularColor = 0.0;
 
                 PBR_BSSSDFSkin_DirectionalLighting(specCol, i.pos_world.xyz, n, v, i.uv_screen, ndotv, r, roughness, depthEye, diffuseColor, specularColor);
-                PBR_BSSSDFSkin_PointLighting(specCol, ndotl_sss_avg, i.pos_world.xyz, n, v, i.uv_screen, ndotv, roughness, depthEye, diffuseColor, specularColor);
+                PBR_BSSSDFSkin_PointLighting(specCol, ndotl_sss_avg, i.pos_world.xyz, n, v, i.uv_screen, ndotv, roughness, diffuseColor, specularColor);
 
                 half3 indirectSpecular = 0.0;
                 #ifndef _PROBE_ONLY

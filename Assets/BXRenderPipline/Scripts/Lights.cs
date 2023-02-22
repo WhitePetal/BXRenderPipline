@@ -26,6 +26,8 @@ public class Lights
 
 	private Shadows shadows = new Shadows();
 
+	private bool useShadowMask;
+
 	public void Setup(ScriptableRenderContext context, CullingResults cullingResults, ShadowSettings shadowSettings)
 	{
 		this.context = context;
@@ -34,7 +36,7 @@ public class Lights
 		shadows.Setup(context, cullingResults, shadowSettings);
 
 		SetupLights();
-		shadows.Render();
+		shadows.Render(useShadowMask);
 		commandBuffer.EndSample(bufferName);
 		ExecuteCommandBuffer();
 	}
@@ -53,6 +55,15 @@ public class Lights
 		for(int visibleLightIndex = 0; visibleLightIndex < visibleLights.Length; ++visibleLightIndex)
 		{
 			VisibleLight visibleLight = visibleLights[visibleLightIndex];
+			LightBakingOutput lightBaking = visibleLight.light.bakingOutput;
+			if (
+				lightBaking.lightmapBakeType == LightmapBakeType.Mixed &&
+				lightBaking.mixedLightingMode == MixedLightingMode.Shadowmask
+			)
+			{
+				useShadowMask = true;
+			}
+			if (visibleLight.light.lightmapBakeType == LightmapBakeType.Baked) continue;
 			switch (visibleLight.lightType)
 			{
 				case LightType.Directional:

@@ -22,6 +22,9 @@ TEXTURE2D_SHADOW(_DirectionalShadowMap);
 #define SHADOW_SAMPLER sampler_linear_clamp_compare
 SAMPLER_CMP(SHADOW_SAMPLER);
 
+TEXTURE2D(unity_ShadowMask);
+SAMPLER(samplerunity_ShadowMask);
+
 CBUFFER_START(_CustomeShadows)
     half4 _BXShadowsColor;
 
@@ -32,6 +35,35 @@ CBUFFER_START(_CustomeShadows)
     float4 _ShadowsDistanceFade;
     float4 _ShadowMapSize;
 CBUFFER_END
+
+half SampleBakedShadows (float3 pos_world, float2 lightmapUV) 
+{
+    half4 mask;
+	#if defined(LIGHTMAP_ON)
+		mask = SAMPLE_TEXTURE2D(
+			unity_ShadowMask, samplerunity_ShadowMask, lightmapUV
+		);
+	#else
+        #if UNITY_LIGHT_PROBE_PROXY_VOLUME
+            if (unity_ProbeVolumeParams.x) 
+            {
+                mask = SampleProbeOcclusion(
+                    TEXTURE3D_ARGS(unity_ProbeVolumeSH, samplerunity_ProbeVolumeSH),
+                    pos_world, unity_ProbeVolumeWorldToObject,
+                    unity_ProbeVolumeParams.y, unity_ProbeVolumeParams.z,
+                    unity_ProbeVolumeMin.xyz, unity_ProbeVolumeSizeInv.xyz
+                );
+            }
+            else 
+            {
+                mask = unity_ProbesOcclusion;
+            }
+        #else
+            mask = unity_ProbesOcclusion;
+        #endif
+	#endif
+    return min(mask.r, min(mask.g, min(mask.b, mask.a)));
+}
 
 half SampleDirectionalShadowMap(float3 pos_shadow)
 {
@@ -65,13 +97,19 @@ half FadeShadowsStrength(float depth, float scale, float fade)
     return saturate((1.0 - depth * scale) * fade);
 }
 
-half GetDirectionalShadow(int lightIndex, float2 pos_clip, float3 pos_world, half3 normal_world, float depthView)
+half GetShadowDistanceStrength(float depthView)
+{
+    return FadeShadowsStrength(depthView, _ShadowsDistanceFade.x, _ShadowsDistanceFade.y);
+}
+
+half GetDirectionalShadow(int lightIndex, float2 pos_clip, float3 pos_world, half3 normal_world, half shadowDistanceStrength)
 {
     #ifdef _RECEIVE_SHADOWS_OFF
         return 1.0;
     #endif
+
     half4 shadowData = _DirectionalShadowDatas[lightIndex];
-    half shadowStrength = shadowData.x * FadeShadowsStrength(depthView, _ShadowsDistanceFade.x, _ShadowsDistanceFade.y);
+    half shadowStrength = shadowData.x * shadowDistanceStrength;
     if(shadowStrength <= 0.0) return 1.0;
     int cascadeIndex;
     half cascadeBlend = 1.0;
@@ -97,10 +135,7 @@ half GetDirectionalShadow(int lightIndex, float2 pos_clip, float3 pos_world, hal
     #if defined(_CASCADE_BLEND_DITHER)
         half dither = InterleavedGradientNoise(pos_clip.xy, 0);
     #endif
-    if(cascadeIndex == _CascadeCount) 
-    {
-        return 1.0;
-    }
+
     #if defined(_CASCADE_BLEND_DITHER)
         if (cascadeBlend < dither) 
         {

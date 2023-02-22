@@ -70,14 +70,14 @@ MonoBehaviour:
       green: {x: 0, y: 1, z: 0}
       blue: {x: 0, y: 0, z: 1}
     shadowsMidtoneHighlightSettings:
-      enable: 0
+      enable: 1
       shadows: {r: 0.6234959, g: 0.77928734, b: 0.7924528, a: 1}
-      midtone: {r: 0.9056604, g: 0.81509435, b: 0.8762876, a: 1}
-      highlights: {r: 1, g: 0.90539086, b: 0.7962264, a: 1}
+      midtone: {r: 0.9245283, g: 0.8669633, b: 0.9045057, a: 1}
+      highlights: {r: 0.9811321, g: 0.9811321, b: 0.9811321, a: 1}
       shadowStart: 0
       shadowEnd: 0.112
       highlightsStart: 0.436
-      highlightsEnd: 1.439
+      highlightsEnd: 1.31
     fxaaSettings:
       qualitys: 1
       fxaaShader: {fileID: 4800000, guid: 046ec18a6e565410eadaee35bea0344b, type: 3}

@@ -57,30 +57,28 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\BXRenderPipline\Bakery\ftLocalStorage.cs" />
-    <Compile Include="Assets\BXRenderPipline\Bakery\BakerySectorCapture.cs" />
-    <Compile Include="Assets\BXRenderPipline\Bakery\ftLightmapsStorage.cs" />
-    <Compile Include="Assets\BXRenderPipline\Bakery\BakerySkyLight.cs" />
-    <Compile Include="Assets\BXRenderPipline\Bakery\ftGlobalStorage.cs" />
-    <Compile Include="Assets\BXRenderPipline\Bakery\BakeryLightMesh.cs" />
-    <Compile Include="Assets\BXRenderPipline\Bakery\shader\Editor\BakeryShaderGUI.cs" />
-    <Compile Include="Assets\BXRenderPipline\Bakery\BakeryLightmapGroup.cs" />
-    <Compile Include="Assets\BXRenderPipline\Bakery\BakeryVolume.cs" />
-    <Compile Include="Assets\BXRenderPipline\Bakery\BakeryLightmapGroupSelector.cs" />
-    <Compile Include="Assets\BXRenderPipline\Bakery\BakeryAlwaysRender.cs" />
-    <Compile Include="Assets\BXRenderPipline\Bakery\BakeryProjectSettings.cs" />
-    <Compile Include="Assets\BXRenderPipline\Bakery\BakeryDirectLight.cs" />
-    <Compile Include="Assets\BXRenderPipline\Bakery\BakeryPointLight.cs" />
     <Compile Include="Assets\BXRenderPipline\Bakery\BakerySector.cs" />
-    <Compile Include="Assets\BXRenderPipline\Bakery\BakeryPackAsSingleSquare.cs" />
-    <Compile Include="Assets\BXRenderPipline\Bakery\ftLightmaps.cs" />
+    <Compile Include="Assets\BXRenderPipline\Bakery\BakeryLightmapGroup.cs" />
     <Compile Include="Assets\BXRenderPipline\Bakery\BakeryLightmappedPrefab.cs" />
+    <Compile Include="Assets\BXRenderPipline\Bakery\ftGlobalStorage.cs" />
+    <Compile Include="Assets\BXRenderPipline\Bakery\BakeryDirectLight.cs" />
+    <Compile Include="Assets\BXRenderPipline\Bakery\BakeryAlwaysRender.cs" />
+    <Compile Include="Assets\BXRenderPipline\Bakery\BakeryPointLight.cs" />
+    <Compile Include="Assets\BXRenderPipline\Bakery\BakeryProjectSettings.cs" />
+    <Compile Include="Assets\BXRenderPipline\Bakery\ftLightmapsStorage.cs" />
+    <Compile Include="Assets\BXRenderPipline\Bakery\BakeryLightMesh.cs" />
+    <Compile Include="Assets\BXRenderPipline\Bakery\BakeryVolume.cs" />
+    <Compile Include="Assets\BXRenderPipline\Bakery\BakeryPackAsSingleSquare.cs" />
+    <Compile Include="Assets\BXRenderPipline\Bakery\BakerySectorCapture.cs" />
+    <Compile Include="Assets\BXRenderPipline\Bakery\BakerySkyLight.cs" />
+    <Compile Include="Assets\BXRenderPipline\Bakery\BakeryLightmapGroupSelector.cs" />
+    <Compile Include="Assets\BXRenderPipline\Bakery\ftLightmaps.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\BXRenderPipline\Bakery\ftUnlitTerrain.shader" />
     <None Include="Assets\BXRenderPipline\Bakery\ftOverlapTest.shader" />
     <None Include="Assets\BXRenderPipline\Bakery\BakeryRuntimeAssembly.asmdef" />
     <None Include="Assets\BXRenderPipline\Bakery\ftFarSphere.shader" />
-    <None Include="Assets\BXRenderPipline\Bakery\shader\BakeryStandard.shader" />
     <None Include="Assets\BXRenderPipline\Bakery\ftFarSphereProjClip.shader" />
     <None Include="Assets\BXRenderPipline\Bakery\ftFarSphereRenderOccluder.shader" />
     <None Include="Assets\BXRenderPipline\Bakery\ftLight.shader" />
@@ -91,14 +89,12 @@
     <None Include="Assets\BXRenderPipline\Bakery\ftCubemap2StripExport.shader" />
     <None Include="Assets\BXRenderPipline\Bakery\ftRGBM2Half.shader" />
     <None Include="Assets\BXRenderPipline\Bakery\ftCubemap2Strip.shader" />
+    <None Include="Assets\BXRenderPipline\Bakery\BakeryMetaPass.hlsl" />
     <None Include="Assets\BXRenderPipline\Bakery\ftUVNormalMap.shader" />
     <None Include="Assets\BXRenderPipline\Bakery\ftFarSphereRenderBase.cginc" />
-    <None Include="Assets\BXRenderPipline\Bakery\shader\BakeryStandardSpecular.shader" />
     <None Include="Assets\BXRenderPipline\Bakery\ftMultiply.shader" />
     <None Include="Assets\BXRenderPipline\Bakery\ftFarSphereRender.shader" />
-    <None Include="Assets\BXRenderPipline\Bakery\BakeryMetaPass.cginc" />
     <None Include="Assets\BXRenderPipline\Bakery\ftSkybox.shader" />
-    <None Include="Assets\BXRenderPipline\Bakery\shader\Bakery.cginc" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">
@@ -359,14 +355,8 @@
     <Reference Include="Unity.Burst.Cecil.Mdb">
       <HintPath>Library\PackageCache\com.unity.burst@1.6.5\Unity.Burst.CodeGen\Unity.Burst.Cecil.Mdb.dll</HintPath>
     </Reference>
-    <Reference Include="Unity.VisualScripting.TextureAssets">
-      <HintPath>Library\PackageCache\com.unity.visualscripting@1.8.0\Editor\VisualScripting.Core\EditorAssetResources\Unity.VisualScripting.TextureAssets.dll</HintPath>
-    </Reference>
     <Reference Include="Unity.VisualScripting.IonicZip">
       <HintPath>Library\PackageCache\com.unity.visualscripting@1.8.0\Editor\VisualScripting.Core\Dependencies\DotNetZip\Unity.VisualScripting.IonicZip.dll</HintPath>
-    </Reference>
-    <Reference Include="unityplastic">
-      <HintPath>Library\PackageCache\com.unity.collab-proxy@2.0.0\Lib\Editor\PlasticSCM\unityplastic.dll</HintPath>
     </Reference>
     <Reference Include="Unity.Burst.Cecil.Pdb">
       <HintPath>Library\PackageCache\com.unity.burst@1.6.5\Unity.Burst.CodeGen\Unity.Burst.Cecil.Pdb.dll</HintPath>
@@ -379,6 +369,12 @@
     </Reference>
     <Reference Include="Unity.Burst.Cecil.Rocks">
       <HintPath>Library\PackageCache\com.unity.burst@1.6.5\Unity.Burst.CodeGen\Unity.Burst.Cecil.Rocks.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.VisualScripting.TextureAssets">
+      <HintPath>Library\PackageCache\com.unity.visualscripting@1.8.0\Editor\VisualScripting.Core\EditorAssetResources\Unity.VisualScripting.TextureAssets.dll</HintPath>
+    </Reference>
+    <Reference Include="unityplastic">
+      <HintPath>Library\PackageCache\com.unity.collab-proxy@2.0.0\Lib\Editor\PlasticSCM\unityplastic.dll</HintPath>
     </Reference>
     <Reference Include="Unity.VisualScripting.Antlr3.Runtime">
       <HintPath>Library\PackageCache\com.unity.visualscripting@1.8.0\Runtime\VisualScripting.Flow\Dependencies\NCalc\Unity.VisualScripting.Antlr3.Runtime.dll</HintPath>

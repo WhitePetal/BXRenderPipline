@@ -27,6 +27,10 @@ public class Shadows
 		"_CASCADE_BLEND_SOFT",
 		"_CASCADE_BLEND_DITHER"
 	};
+	private static string[] shadowMaskKeywords = {
+		"_SHADOW_MASK_ALWAYS",
+		"_SHADOW_MASK_DISTANCE"
+	};
 
 	private static int shadowsColorId = Shader.PropertyToID("_BXShadowsColor");
 	private static int shadowMapSizeId = Shader.PropertyToID("_ShadowMapSize");
@@ -73,8 +77,8 @@ public class Shadows
 	{
 		Vector2 shadowData;
 		if(shadowedDirectionalLightCount < maxShadowedDirectionalLightCount
-			&& light.shadows != LightShadows.None && light.shadowStrength > 0f
-			&& cullingResults.GetShadowCasterBounds(visibleLightIndex, out Bounds bound))
+			&& light.shadows != LightShadows.None && light.shadowStrength > 0f && 
+			cullingResults.GetShadowCasterBounds(visibleLightIndex, out Bounds bound))
 		{
 			shadowDirectionalLights[shadowedDirectionalLightCount] = new ShadowedDirectionalLight()
 			{
@@ -91,8 +95,11 @@ public class Shadows
 		return shadowData;
 	}
 
-	public void Render()
+	public void Render(bool useShadowMask)
 	{
+		SetKeywords(shadowMaskKeywords, useShadowMask ? 
+			QualitySettings.shadowmaskMode == ShadowmaskMode.Shadowmask ? 0 : 1 :
+			-1);
 		commandBuffer.SetGlobalColor(shadowsColorId, shadowSettings.shadowsColor.linear);
 		if(shadowedDirectionalLightCount > 0)
 		{
