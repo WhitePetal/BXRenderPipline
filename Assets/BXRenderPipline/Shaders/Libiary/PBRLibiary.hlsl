@@ -26,9 +26,14 @@
 TEXTURE3D_FLOAT(unity_ProbeVolumeSH);
 SAMPLER(samplerunity_ProbeVolumeSH);
 
-#ifndef _PROBE_ONLY
+#ifndef _REFLECT_PROBE_ONLY
     Texture2D _SSRBuffer;
     SamplerState sampler_point_clamp;
+#endif
+
+#if defined(_REFLECT_PROBE_ONLY) || defined(_SSR_AND_RELFECT_PROBE)
+    TEXTURECUBE(unity_SpecCube0);
+    SAMPLER(samplerunity_SpecCube0);
 #endif
 
 half3 GetWorldNormalFromNormalMap(half4 normalMap, half normalScale, half3 tangent, half3 birnormal, half3 normal)
@@ -39,45 +44,6 @@ half3 GetWorldNormalFromNormalMap(half4 normalMap, half normalScale, half3 tange
         dot(half3(tangent.y, birnormal.y, normal.y), nor_tan),
         dot(half3(tangent.z, birnormal.z, normal.z), nor_tan)
         ));
-}
-
-half3 PBR_GetIndirectDiffuseSH(half3 n)
-{
-    half4 coefficients[7];
-    coefficients[0] = unity_SHAr;
-    coefficients[1] = unity_SHAg;
-    coefficients[2] = unity_SHAb;
-    coefficients[3] = unity_SHBr;
-    coefficients[4] = unity_SHBg;
-    coefficients[5] = unity_SHBb;
-    coefficients[6] = unity_SHC;
-    return max(0.0, SampleSH9(coefficients, n));
-}
-half3 PBR_GetIndirectDiffuseLLPV(float3 pos_world, half3 n)
-{
-    if (unity_ProbeVolumeParams.x) 
-    {
-        return SampleProbeVolumeSH4(
-            TEXTURE3D_ARGS(unity_ProbeVolumeSH, samplerunity_ProbeVolumeSH),
-            pos_world, n,
-            unity_ProbeVolumeWorldToObject,
-            unity_ProbeVolumeParams.y, unity_ProbeVolumeParams.z,
-            unity_ProbeVolumeMin.xyz, unity_ProbeVolumeSizeInv.xyz
-        );
-    }
-    else
-    {
-        return PBR_GetIndirectDiffuseSH(n);
-    }
-}
-
-half3 PBR_GetIndirectDiffuseFromProbe(float3 pos_world, half3 n)
-{
-    #if UNITY_LIGHT_PROBE_PROXY_VOLUME
-        return PBR_GetIndirectDiffuseLLPV(pos_world, n);
-    #else
-        return PBR_GetIndirectDiffuseSH(n);
-    #endif
 }
 
 half PBR_D(half roughness, half ndoth)
@@ -133,6 +99,62 @@ half3 PBR_F0_SSS(half3 ndotl_sss, half ndotv, half ldoth, half roughness)
     half fv = PBR_SchlickFresnel(ndotv);
     half fDiffuse90 = 0.5 + 2.0 * ldoth * ldoth * roughness;
     return lerp(1.0, fDiffuse90, fl) * lerp(1.0, fDiffuse90, fv);
+}
+
+half3 PBR_GetIndirectDiffuseSH(half3 n)
+{
+    half4 coefficients[7];
+    coefficients[0] = unity_SHAr;
+    coefficients[1] = unity_SHAg;
+    coefficients[2] = unity_SHAb;
+    coefficients[3] = unity_SHBr;
+    coefficients[4] = unity_SHBg;
+    coefficients[5] = unity_SHBb;
+    coefficients[6] = unity_SHC;
+    return max(0.0, SampleSH9(coefficients, n));
+}
+half3 PBR_GetIndirectDiffuseLLPV(float3 pos_world, half3 n)
+{
+    if (unity_ProbeVolumeParams.x) 
+    {
+        return SampleProbeVolumeSH4(
+            TEXTURE3D_ARGS(unity_ProbeVolumeSH, samplerunity_ProbeVolumeSH),
+            pos_world, n,
+            unity_ProbeVolumeWorldToObject,
+            unity_ProbeVolumeParams.y, unity_ProbeVolumeParams.z,
+            unity_ProbeVolumeMin.xyz, unity_ProbeVolumeSizeInv.xyz
+        );
+    }
+    else
+    {
+        return PBR_GetIndirectDiffuseSH(n);
+    }
+}
+half3 PBR_GetIndirectDiffuseFromProbe(float3 pos_world, half3 n)
+{
+    #if UNITY_LIGHT_PROBE_PROXY_VOLUME
+        return PBR_GetIndirectDiffuseLLPV(pos_world, n);
+    #else
+        return PBR_GetIndirectDiffuseSH(n);
+    #endif
+}
+
+half3 PBR_GetIndirectSpecular(half3 specCol, half3 r, float2 uv_screen, half ndotv, half roughness, half oneMinusMetallic)
+{
+    half3 indirectSpecular;
+    #ifdef _SSR_ONLY
+        indirectSpecular = _SSRBuffer.SampleLevel(sampler_point_clamp, uv_screen, roughness * 3).rgb;
+    #elif defined(_REFLECT_PROBE_ONLY)
+        half3 environment = DecodeHDREnvironment(SAMPLE_TEXTURECUBE_LOD(unity_SpecCube0, samplerunity_SpecCube0, r, roughness * 4), unity_SpecCube0_HDR);
+        indirectSpecular = environment;
+    #elif defined(_SSR_AND_RELFECT_PROBE)
+        half4 ssrData = _SSRBuffer.SampleLevel(sampler_point_clamp, uv_screen, roughness * 3);
+        half3 environment = DecodeHDREnvironment(SAMPLE_TEXTURECUBE_LOD(unity_SpecCube0, samplerunity_SpecCube0, r, roughness * 4), unity_SpecCube0_HDR);
+        indirectSpecular = ssrData.rgb + environment;
+    #else
+        return 0.0;
+    #endif
+    return indirectSpecular * 0.5 * lerp(specCol,saturate(2.0 - roughness - oneMinusMetallic), PBR_SchlickFresnel(ndotv)) / (1.0 + roughness * roughness);
 }
 
 #if BRDF_LIGHTING

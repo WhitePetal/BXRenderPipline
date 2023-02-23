@@ -55,11 +55,11 @@
 
 #include "Assets/BXRenderPipline/Shaders/Libiary/AllCommon.hlsl"
 
-void ClipLOD(float2 pos_clip, half fade)
+void ClipLOD(float2 pos_clip)
 {
     #if defined(LOD_FADE_CROSSFADE)
         half dither = InterleavedGradientNoise(pos_clip, 0.0);
-        clip(fade + (fade < 0.0 ? dither : -dither));
+        clip(unity_LODFade.x + (unity_LODFade.x < 0.0 ? dither : -dither));
     #endif
 }
 

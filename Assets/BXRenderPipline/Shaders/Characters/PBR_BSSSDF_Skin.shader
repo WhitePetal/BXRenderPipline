@@ -23,6 +23,7 @@ Shader "BXCharacters/PBR_BSSSDF_Skin"
             #pragma shader_feature_local _RECEIVE_SHADOWS_OFF
             #pragma multi_compile _ _DIRECTIONAL_PCF3 _DIRECTIONAL_PCF5 _DIRECTIONAL_PCF7
             #pragma multi_compile _ _CASCADE_BLEND_SOFT _CASCADE_BLEND_DITHER
+            #pragma multi_compile _SSR_ONLY _REFLECT_PROBE_ONLY _SSR_AND_RELFECT_PROBE
             #pragma multi_compile_instancing
 
             #define BSSSDFSKIN_LIGHTING 1
@@ -95,6 +96,7 @@ Shader "BXCharacters/PBR_BSSSDF_Skin"
             FragOutput frag (v2f i)
             {
                 UNITY_SETUP_INSTANCE_ID(i);
+                ClipLOD(i.vertex.xy);
                 FragOutput output = (FragOutput)0;
                 half4 normalMap = _NormalMap.Sample(sampler_MainTex, i.uv);
                 half4 mra = _MRATex.Sample(sampler_MainTex, i.uv);
@@ -102,6 +104,7 @@ Shader "BXCharacters/PBR_BSSSDF_Skin"
 
                 half3 v = normalize(_WorldSpaceCameraPos.xyz - i.pos_world.xyz);
                 half3 n = GetWorldNormalFromNormalMap(normalMap, GET_PROP(_NormalScale), i.tangent_world, i.binormal_world, i.normal_world);
+                half3 rDir = reflect(-v, n);
                 half r = saturate(dot(1, fwidth(n) / fwidth(i.pos_world.xyz)) * 0.333);
                 half ndotv_source = dot(n, v);
                 half ndotv = max(0.001, ndotv_source);
@@ -118,21 +121,16 @@ Shader "BXCharacters/PBR_BSSSDF_Skin"
                 half3 ndotl_sss_avg = _LUTSSS.Sample(sampler_bilinear_clamp, float2(ndotv_source * 0.5 + 0.5, r)).rgb;
 
                 half3 indirectDiffuse = PBR_GetIndirectDiffuseFromProbe(i.pos_world.xyz, n);
+                half3 indirectSpecular = PBR_GetIndirectSpecular(specCol, rDir, i.uv_screen, ndotv, roughness, oneMinusMetallic);
                 half3 diffuseColor = 0.0;
                 half3 specularColor = 0.0;
 
                 PBR_BSSSDFSkin_DirectionalLighting(specCol, i.pos_world.xyz, n, v, i.uv_screen, ndotv, r, roughness, depthEye, diffuseColor, specularColor);
                 PBR_BSSSDFSkin_PointLighting(specCol, ndotl_sss_avg, i.pos_world.xyz, n, v, i.uv_screen, ndotv, roughness, diffuseColor, specularColor);
 
-                half3 indirectSpecular = 0.0;
-                #ifndef _PROBE_ONLY
-                    half4 ssrData = _SSRBuffer.SampleLevel(sampler_point_clamp, i.uv_screen, roughness * 3);
-                    indirectSpecular = 0.5 * ssrData.rgb * lerp(specCol, saturate(2.0 - roughness - oneMinusMetallic), PBR_SchlickFresnel(ndotv)) / (1.0 + roughness * roughness);
-                #endif
-
-                diffuseColor = (diffuseColor + indirectDiffuse * ao) * albedo;
+                diffuseColor = diffuseColor * albedo;
                 specularColor *= 0.25 / ndotv;
-                half3 lighting = diffuseColor + specularColor + indirectSpecular;
+                half3 lighting = diffuseColor + specularColor + indirectSpecular + (indirectDiffuse * albedo + indirectSpecular) * ao;
                 output.lightingBuffer = half4(lighting, 1.0);
 
                 output.depthNormalBuffer = (i.pos_world.w < (1.0-1.0/65025.0)) ? EncodeDepthNormal(i.pos_world.w, normalize(i.normal_view)) : float4(0.5,0.5,1.0,1.0);
@@ -187,6 +185,7 @@ Shader "BXCharacters/PBR_BSSSDF_Skin"
             void frag (v2f i)
             {
                 UNITY_SETUP_INSTANCE_ID(i);
+                ClipLOD(i.vertex.xy);
             }
 			ENDHLSL
 		}

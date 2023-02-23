@@ -30,7 +30,7 @@ Shader "BXScenes/Scene_Opaque"
             #pragma multi_compile _ _SHADOW_MASK_ALWAYS _SHADOW_MASK_DISTANCE
             #pragma multi_compile _ _DIRECTIONAL_PCF3 _DIRECTIONAL_PCF5 _DIRECTIONAL_PCF7
             #pragma multi_compile _ _CASCADE_BLEND_SOFT _CASCADE_BLEND_DITHER
-            #pragma multi_compile _SSR_ONLY _PROBE_ONLY _SSR_AND_PROBE
+            #pragma multi_compile _SSR_ONLY _REFLECT_PROBE_ONLY _SSR_AND_RELFECT_PROBE
             #pragma multi_compile_instancing
 
             #define BRDF_LIGHTING 1
@@ -118,6 +118,7 @@ Shader "BXScenes/Scene_Opaque"
             FragOutput frag (v2f i)
             {
                 UNITY_SETUP_INSTANCE_ID(i);
+                ClipLOD(i.vertex.xy);
                 FragOutput output = (FragOutput)0;
                 half4 normalMap = _NormalMap.Sample(sampler_MainTex, i.uv.xy);
                 half4 mra = _MRATex.Sample(sampler_MainTex, i.uv.xy);
@@ -127,6 +128,7 @@ Shader "BXScenes/Scene_Opaque"
                 #endif
                 half3 v = normalize(_WorldSpaceCameraPos.xyz - i.pos_world.xyz);
                 half3 n = GetWorldNormalFromNormalMap(normalMap, GET_PROP(_NormalScale), i.tangent_world, i.binormal_world, i.normal_world);
+                half3 r = reflect(-v, n);
                 half ndotv = max(0.001, dot(n, v));
 
                 half metallic = mra.r * GET_PROP(_Metallic_Roughness_AOOffset).x;
@@ -152,17 +154,11 @@ Shader "BXScenes/Scene_Opaque"
                 #else
                     indirectDiffuse = PBR_GetIndirectDiffuseFromProbe(i.pos_world.xyz, n);
                 #endif
-                indirectDiffuse *= ao;
+                half3 indirectSpecular = PBR_GetIndirectSpecular(specCol, r, i.uv_screen, ndotv, roughness, oneMinusMetallic);
 
-                half3 indirectSpecular = 0.0;
-                #ifndef _PROBE_ONLY
-                    half4 ssrData = _SSRBuffer.SampleLevel(sampler_point_clamp, i.uv_screen, roughness * 3);
-                    indirectSpecular = 0.5 * ssrData.rgb * lerp(specCol, saturate(2.0 - roughness - oneMinusMetallic), PBR_SchlickFresnel(ndotv)) / (1.0 + roughness * roughness);
-                #endif
-
-                diffuseColor = (diffuseColor + indirectDiffuse * ao) * albedo;
+                diffuseColor = diffuseColor * albedo;
                 specularColor *= 0.25 / ndotv;
-                half3 lighting = diffuseColor + specularColor + indirectSpecular;
+                half3 lighting = diffuseColor + specularColor + (indirectDiffuse * albedo + indirectSpecular) * ao;
                 #ifdef _EMISSION_ON
                     lighting += emissionMap.rgb * GET_PROP(_EmissionColor).rgb * emissionMap.a;
                 #endif
@@ -221,6 +217,7 @@ Shader "BXScenes/Scene_Opaque"
             void frag (v2f i)
             {
                 UNITY_SETUP_INSTANCE_ID(i);
+                ClipLOD(i.vertex.xy);
             }
 			ENDHLSL
 		}

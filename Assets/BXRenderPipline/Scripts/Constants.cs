@@ -65,7 +65,7 @@ public class Constants
 
 	public static string[] reflectTypeKeywords = new string[3]
 	{
-		"_SSR_ONLY", "_PROBE_ONLY", "_SSR_AND_PROBE"
+		"_SSR_ONLY", "_REFLECT_PROBE_ONLY", "_SSR_AND_RELFECT_PROBE"
 	};
 
 	public const int maxBloomPyramidLevels = 4;
