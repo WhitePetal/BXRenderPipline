@@ -20,7 +20,7 @@ public enum ReflectType
 public class BXRenderPiplineAsset : RenderPipelineAsset
 {
 	public bool editorMode = true;
-	public bool useDynamicBatching = true, useGPUInstancing = true, useSRPBatching = true, useLightsPerObject = true;
+	public bool useDynamicBatching = true, useGPUInstancing = true, useSRPBatching = true;
 	public FrameRate frameRate = FrameRate.FPS60;
 	public ReflectType reflectType = ReflectType.OnlySSR;
 	[SerializeField]
@@ -32,7 +32,7 @@ public class BXRenderPiplineAsset : RenderPipelineAsset
 
 	protected override RenderPipeline CreatePipeline()
 	{
-		return new BXRenderPipline(editorMode, useDynamicBatching, useGPUInstancing, useSRPBatching, useLightsPerObject, frameRate,
+		return new BXRenderPipline(editorMode, useDynamicBatching, useGPUInstancing, useSRPBatching, frameRate,
 			reflectType, deferredComputeSettings, processSettings, shadowSettings);
 	}
 }

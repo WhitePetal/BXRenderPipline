@@ -22,21 +22,20 @@ public class BXRenderPipline : RenderPipeline
 		new ShaderTagId("VertexLM")
 	};
 
-	private bool useDynamicBatching, useGPUInstancing, useLightsPerObject, editorMode;
+	private bool useDynamicBatching, useGPUInstancing, editorMode;
 	private ReflectType reflectType;
 	private MainCameraRender mainCameraRenderer = new MainCameraRender();
 	private DeferredComputeSettings deferredComputeSettings;
 	private PostProcessSettings postprocessSettings;
 	private ShadowSettings shadowSettings;
 
-	public BXRenderPipline(bool editorMode, bool useDynamicBatching, bool useGPUInstancing, bool useSRPBatching, bool useLightsPerObject,
+	public BXRenderPipline(bool editorMode, bool useDynamicBatching, bool useGPUInstancing, bool useSRPBatching,
 		FrameRate frameRate, ReflectType reflectType,
 		DeferredComputeSettings deferredComputeSettings, PostProcessSettings postprocessSettings, ShadowSettings shadowSettings)
 	{
 		this.editorMode = editorMode;
 		this.useDynamicBatching = useDynamicBatching;
 		this.useGPUInstancing = useGPUInstancing;
-		this.useLightsPerObject = useLightsPerObject;
 		this.deferredComputeSettings = deferredComputeSettings;
 		this.postprocessSettings = postprocessSettings;
 		this.shadowSettings = shadowSettings;
@@ -54,7 +53,7 @@ public class BXRenderPipline : RenderPipeline
 	{
 		for (int i = 0; i < cameras.Length; ++i)
 		{
-			mainCameraRenderer.Render(context, cameras[i], editorMode, useDynamicBatching, useGPUInstancing, useLightsPerObject,
+			mainCameraRenderer.Render(context, cameras[i], editorMode, useDynamicBatching, useGPUInstancing,
 				reflectType,
 				deferredComputeSettings, postprocessSettings, shadowSettings);
 		}

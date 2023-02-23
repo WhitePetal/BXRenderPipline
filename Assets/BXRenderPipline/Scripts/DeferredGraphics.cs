@@ -16,7 +16,7 @@ public class DeferredGraphics
 
 	private PostProcess postProcess = new PostProcess();
 
-	private bool editorMode, useDynamicBatching, useGPUInstancing, useLightsPerObject;
+	private bool editorMode, useDynamicBatching, useGPUInstancing;
 	private int width, height, aa;
 
 
@@ -26,7 +26,7 @@ public class DeferredGraphics
 
 	public void Setup(ScriptableRenderContext context, CullingResults cullingResults, CommandBuffer commandBuffer, Camera camera,
 		int width, int height, int aa,
-		 bool editorMode, bool useDynamicBatching, bool useGPUInstancing, bool useLightsPerObject,
+		 bool editorMode, bool useDynamicBatching, bool useGPUInstancing,
 		 PostProcessSettings postProcessSettings)
 	{
 		this.context = context;
@@ -36,7 +36,6 @@ public class DeferredGraphics
 		this.editorMode = editorMode;
 		this.useDynamicBatching = useDynamicBatching;
 		this.useGPUInstancing = useGPUInstancing;
-		this.useLightsPerObject = useLightsPerObject;
 		this.width = width;
 		this.height = height;
 		this.aa = aa;
@@ -49,7 +48,7 @@ public class DeferredGraphics
 		commandBuffer.BeginSample(commandBuffer.name);
 		GenerateBuffers();
 
-		DrawGeometryGBuffer(useDynamicBatching, useGPUInstancing, useLightsPerObject);
+		DrawGeometryGBuffer(useDynamicBatching, useGPUInstancing);
 		DrawSkyboxAndTransparent();
 #if UNITY_EDITOR
 		DrawUnsupportShader();
@@ -96,15 +95,14 @@ public class DeferredGraphics
 		ExecuteBuffer();
 	}
 
-	private void DrawGeometryGBuffer(bool useDynamicBatching, bool useGPUInstancing, bool useLightsPerObject)
+	private void DrawGeometryGBuffer(bool useDynamicBatching, bool useGPUInstancing)
 	{
 		commandBuffer.SetRenderTarget(Constants.shadingBinding);
 		CameraClearFlags clearFlags = camera.clearFlags;
 		commandBuffer.ClearRenderTarget(clearFlags <= CameraClearFlags.Depth, clearFlags <= CameraClearFlags.Color, clearFlags == CameraClearFlags.SolidColor ? camera.backgroundColor.linear : Color.clear);
 		ExecuteBuffer();
 
-		PerObjectData lightsPerObjectFlags = useLightsPerObject ? PerObjectData.LightData | PerObjectData.LightIndices : PerObjectData.None;
-		// 不透明：主光渲染、GBuffer (baseColor mul shadow, and a is specular)
+		PerObjectData lightsPerObjectFlags = PerObjectData.None;
 		SortingSettings sortingSettings = new SortingSettings(camera)
 		{
 			criteria = SortingCriteria.CommonOpaque

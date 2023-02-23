@@ -34,7 +34,7 @@ public partial class MainCameraRender
 
 	private DeferredComputeSettings deferredComputeSettings;
 
-	public void Render(ScriptableRenderContext context, Camera camera, bool editorMode, bool useDynamicBatching, bool useGPUInstancing, bool useLightsPerObject, 
+	public void Render(ScriptableRenderContext context, Camera camera, bool editorMode, bool useDynamicBatching, bool useGPUInstancing, 
 		ReflectType reflectType,
 		DeferredComputeSettings deferredComputeSettings, PostProcessSettings postprocessSettings, ShadowSettings shadowSettings)
 	{
@@ -61,7 +61,7 @@ public partial class MainCameraRender
 
 		graphicsPipline.Setup(context, cullingResults, commandBufferGraphics, camera,
 			width, height, aa,
-			editorMode, useDynamicBatching, useGPUInstancing, useLightsPerObject,
+			editorMode, useDynamicBatching, useGPUInstancing,
 			postprocessSettings);
 		computePipline.Setup(context, commandBufferCompute, camera, reflectType, deferredComputeSettings, 
 			width, height, lights.pointLightCount, lights.pointLightSpheres);
