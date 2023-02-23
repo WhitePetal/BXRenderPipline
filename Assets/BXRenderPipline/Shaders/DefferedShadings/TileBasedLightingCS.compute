@@ -98,14 +98,14 @@ void CSMain (uint3 id : SV_DispatchThreadID, uint groupIndex : SV_GROUPINDEX, ui
     }
     GroupMemoryBarrierWithGroupSync();
 
-    float2 uv = id.xy / _ScreenParams.xy;
+    // float2 uv = id.xy / _ScreenParams.xy;
     // uv.y = _ProjectionParams.x > 0 ? uv.y : 1.0 - uv.y;
-    float4 depthNormalData = _BXDepthNormalBuffer.Load(int3(id.xy, 0));
+    float4 depthNormalData = _BXDepthNormalBuffer.Load(id);
     float3 n;
-    float depth01 = dot(depthNormalData, 0.25);
-    DecodeDepthNormal(depthNormalData, depth01, n);
-    float depth = depth01;
-    uint udepth = asuint(depth01);
+    float depth;
+    DecodeDepthNormal(depthNormalData, depth, n);
+    float depthEye = LinearEyeDepth(depth);
+    uint udepth = asuint(depth);
     InterlockedMin(tileMinDepthInt, udepth);
     InterlockedMax(tileMaxDepthInt, udepth);
     GroupMemoryBarrierWithGroupSync();
@@ -114,7 +114,7 @@ void CSMain (uint3 id : SV_DispatchThreadID, uint groupIndex : SV_GROUPINDEX, ui
     float tileDepthMax = LinearEyeDepth(asfloat(tileMaxDepthInt));
     float depthSliceInterval = max(0.0001,(tileDepthMax - tileDepthMin) / 32.0);
     
-    uint depthSliceIndex = floor((depth -  tileDepthMin) / depthSliceInterval);
+    uint depthSliceIndex = floor((depthEye -  tileDepthMin) / depthSliceInterval);
     InterlockedOr(geoDepthMask,1 << depthSliceIndex);
     GroupMemoryBarrierWithGroupSync();
 

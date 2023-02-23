@@ -130,7 +130,7 @@ Shader "BXCharacters/PBR_BSSSDF_Skin"
 
                 diffuseColor = diffuseColor * albedo;
                 specularColor *= 0.25 / ndotv;
-                half3 lighting = diffuseColor + specularColor + indirectSpecular + (indirectDiffuse * albedo + indirectSpecular) * ao;
+                half3 lighting = diffuseColor + specularColor + (indirectDiffuse * albedo + indirectSpecular) * ao;
                 output.lightingBuffer = half4(lighting, 1.0);
 
                 output.depthNormalBuffer = (i.pos_world.w < (1.0-1.0/65025.0)) ? EncodeDepthNormal(i.pos_world.w, normalize(i.normal_view)) : float4(0.5,0.5,1.0,1.0);

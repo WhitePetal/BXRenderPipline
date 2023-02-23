@@ -6,10 +6,14 @@ using UnityEngine.Rendering;
 
 public class BXRenderPipline : RenderPipeline
 {
-	public static ShaderTagId[] bxShaderTagIds = new ShaderTagId[3]
+	public static ShaderTagId[] bxShaderTagIds = new ShaderTagId[7]
 	{
 			new ShaderTagId("BXCharacter"),
 			new ShaderTagId("BXScene"),
+			new ShaderTagId("BXCharacterAlphaDepth"),
+			new ShaderTagId("BXCharacterAlpha"),
+			new ShaderTagId("BXSceneAlphaDepth"),
+			new ShaderTagId("BXSceneAlpha"),
 			new ShaderTagId("BXEffect")
 	};
 	public static ShaderTagId[] legacyShaderTagIds = new ShaderTagId[]

@@ -170,6 +170,7 @@
     <None Include="Assets\Picola\Toon\Shader\Toon_ShadingGradeMap_StencilMask.shader" />
     <None Include="Assets\Picola\Toon\Shader\Toon_ShadingGradeMap.shader" />
     <None Include="Assets\BXRenderPipline\Shaders\Libiary\PBRLibiary.hlsl" />
+    <None Include="Assets\BXRenderPipline\Shaders\Characters\PBR_BRDF_Alpha.shader" />
     <None Include="Assets\BXRenderPipline\Shaders\PostProcess\ColorManager.shader" />
     <None Include="Assets\Picola\Toon\Shader\ToonColor_DoubleShadeWithFeather_Transparent_StencilOut.shader" />
     <None Include="Assets\Picola\Toon\Shader\Tess\ToonColor_DoubleShadeWithFeather_Clipping_Tess.shader" />

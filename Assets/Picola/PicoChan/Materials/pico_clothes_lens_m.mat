@@ -322,7 +322,7 @@ Material:
     - _Emissive_Color: {r: 0, g: 0, b: 0, a: 1}
     - _HighColor: {r: 1, g: 0.972549, b: 0.8784314, a: 1}
     - _MatCapColor: {r: 1, g: 1, b: 1, a: 1}
-    - _Metallic_Roughness_AOOffset: {r: 1, g: 0.046, b: 0, a: 1}
+    - _Metallic_Roughness_AOOffset: {r: 1, g: 0.106, b: 0, a: 1}
     - _Outline_Color: {r: 0.15686275, g: 0.14509805, b: 0.12941177, a: 1}
     - _RimLightColor: {r: 1, g: 1, b: 1, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}

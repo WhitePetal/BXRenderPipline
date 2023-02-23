@@ -145,16 +145,16 @@ half3 PBR_GetIndirectSpecular(half3 specCol, half3 r, float2 uv_screen, half ndo
     #ifdef _SSR_ONLY
         indirectSpecular = _SSRBuffer.SampleLevel(sampler_point_clamp, uv_screen, roughness * 3).rgb;
     #elif defined(_REFLECT_PROBE_ONLY)
-        half3 environment = DecodeHDREnvironment(SAMPLE_TEXTURECUBE_LOD(unity_SpecCube0, samplerunity_SpecCube0, r, roughness * 4), unity_SpecCube0_HDR);
+        half3 environment = DecodeHDREnvironment(SAMPLE_TEXTURECUBE_LOD(unity_SpecCube0, samplerunity_SpecCube0, r, roughness * 6), unity_SpecCube0_HDR);
         indirectSpecular = environment;
     #elif defined(_SSR_AND_RELFECT_PROBE)
         half4 ssrData = _SSRBuffer.SampleLevel(sampler_point_clamp, uv_screen, roughness * 3);
-        half3 environment = DecodeHDREnvironment(SAMPLE_TEXTURECUBE_LOD(unity_SpecCube0, samplerunity_SpecCube0, r, roughness * 4), unity_SpecCube0_HDR);
+        half3 environment = DecodeHDREnvironment(SAMPLE_TEXTURECUBE_LOD(unity_SpecCube0, samplerunity_SpecCube0, r, roughness * 6), unity_SpecCube0_HDR);
         indirectSpecular = ssrData.rgb + environment;
     #else
         return 0.0;
     #endif
-    return indirectSpecular * 0.5 * lerp(specCol,saturate(2.0 - roughness - oneMinusMetallic), PBR_SchlickFresnel(ndotv)) / (1.0 + roughness * roughness);
+    return indirectSpecular * lerp(specCol,saturate(2.0 - roughness - oneMinusMetallic), PBR_SchlickFresnel(ndotv)) / (1.0 + roughness * roughness);
 }
 
 #if BRDF_LIGHTING
