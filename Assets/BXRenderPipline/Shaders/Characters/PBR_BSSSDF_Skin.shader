@@ -46,8 +46,7 @@ Shader "BXCharacters/PBR_BSSSDF_Skin"
             {
                 float4 vertex : SV_POSITION;
                 float2 uv : TEXCOORD0;
-                float2 uv_screen : TEXCOORD1;
-                float4 pos_world : TEXCOORD2;
+                float3 pos_world : TEXCOORD2;
                 half3 normal_world : TEXCOORD3;
                 half3 tangent_world : TEXCOORD4;
                 half3 binormal_world : TEXCOORD5;
@@ -75,10 +74,7 @@ Shader "BXCharacters/PBR_BSSSDF_Skin"
                 UNITY_TRANSFER_INSTANCE_ID(v, o);
                 o.pos_world.xyz = TransformObjectToWorld(v.vertex.xyz);
                 o.vertex = TransformWorldToHClip(o.pos_world.xyz);
-                float4 posH = o.vertex / o.vertex.w;
-                o.pos_world.w = posH.z;
                 o.uv = v.uv * GET_PROP(_MainTex_ST).xy + GET_PROP(_MainTex_ST).zw;
-                o.uv_screen = GetScreenUV(posH).xy;
                 o.normal_world = TransformObjectToWorldNormal(v.normal);
                 o.tangent_world = TransformObjectToWorldDir(v.tangent.xyz);
                 o.binormal_world = cross(o.normal_world, o.tangent_world) * v.tangent.w * unity_WorldTransformParams.w;
@@ -116,24 +112,25 @@ Shader "BXCharacters/PBR_BSSSDF_Skin"
                 baseColor *= GET_PROP(_Color);
                 half3 albedo = baseColor.rgb * (1.0 - metallic);
                 half3 specCol = lerp(0.04, baseColor.rgb, metallic * 0.5);
-                float depthEye = LinearEyeDepth(i.pos_world.w);
+                float depthEye = LinearEyeDepth(i.vertex.z);
 
                 half3 ndotl_sss_avg = _LUTSSS.Sample(sampler_bilinear_clamp, float2(ndotv_source * 0.5 + 0.5, r)).rgb;
 
+                float2 uv_screen = i.vertex.xy * (_ScreenParams.zw - 1.0);
                 half3 indirectDiffuse = PBR_GetIndirectDiffuseFromProbe(i.pos_world.xyz, n);
-                half3 indirectSpecular = PBR_GetIndirectSpecular(specCol, rDir, i.uv_screen, ndotv, roughness, oneMinusMetallic);
+                half3 indirectSpecular = PBR_GetIndirectSpecular(specCol, rDir, uv_screen, ndotv, roughness, oneMinusMetallic);
                 half3 diffuseColor = 0.0;
                 half3 specularColor = 0.0;
 
-                PBR_BSSSDFSkin_DirectionalLighting(specCol, i.pos_world.xyz, n, v, i.uv_screen, ndotv, r, roughness, depthEye, diffuseColor, specularColor);
-                PBR_BSSSDFSkin_PointLighting(specCol, ndotl_sss_avg, i.pos_world.xyz, n, v, i.uv_screen, ndotv, roughness, diffuseColor, specularColor);
+                PBR_BSSSDFSkin_DirectionalLighting(specCol, i.pos_world.xyz, n, v, i.vertex.xy, ndotv, r, roughness, depthEye, diffuseColor, specularColor);
+                PBR_BSSSDFSkin_PointLighting(specCol, ndotl_sss_avg, i.pos_world.xyz, n, v, i.vertex.xy, ndotv, roughness, diffuseColor, specularColor);
 
                 diffuseColor = diffuseColor * albedo;
                 specularColor *= 0.25 / ndotv;
                 half3 lighting = diffuseColor + specularColor + (indirectDiffuse * albedo + indirectSpecular) * ao;
                 output.lightingBuffer = half4(lighting, 1.0);
 
-                output.depthNormalBuffer = (i.pos_world.w < (1.0-1.0/65025.0)) ? EncodeDepthNormal(i.pos_world.w, normalize(i.normal_view)) : float4(0.5,0.5,1.0,1.0);
+                output.depthNormalBuffer = (i.vertex.z < (1.0-1.0/65025.0)) ? EncodeDepthNormal(i.vertex.z, normalize(i.normal_view)) : float4(0.5,0.5,1.0,1.0);
                 return output;
             }
             ENDHLSL

@@ -2902,3 +2902,125 @@ Running halffloat2hdr "C:\Users\86156\AppData\Local\Temp\frender/BXSampleScene_L
 Running halffloat2hdr "C:\Users\86156\AppData\Local\Temp\frender/BXSampleScene_LMA1_final_HDR.lz4" "D:/Project/BXRenderPipline/Assets/Scenes/BXSampleScene/BXSampleScene_LMA1_final.hdr" 1024
 Running halffloat2hdr "C:\Users\86156\AppData\Local\Temp\frender/BXSampleScene_LMA3_final_HDR.lz4" "D:/Project/BXRenderPipline/Assets/Scenes/BXSampleScene/BXSampleScene_LMA3_final.hdr" 1024
 Running halffloat2hdr "C:\Users\86156\AppData\Local\Temp\frender/BXSampleScene_LMA2_final_HDR.lz4" "D:/Project/BXRenderPipline/Assets/Scenes/BXSampleScene/BXSampleScene_LMA2_final.hdr" 1024
+2023-2-23
+Rendering UV GBuffer for BXSampleScene_LM0 51
+RGBA32F...RGBA8...RGBA8_SRGB...RGBA16F...states...
+Rendering UV normal...
+Rendering faceted UV normal...
+Rendering UV pos...
+Rendering smooth UV pos...
+Rendering UV GBuffer for BXSampleScene_LMA1 51
+RGBA32F...RGBA8...RGBA8_SRGB...RGBA16F...states...
+Rendering UV normal...
+Rendering faceted UV normal...
+Rendering UV pos...
+Rendering smooth UV pos...
+Rendering UV GBuffer for BXSampleScene_LMA2 51
+RGBA32F...RGBA8...RGBA8_SRGB...RGBA16F...states...
+Rendering UV normal...
+Rendering faceted UV normal...
+Rendering UV pos...
+Rendering smooth UV pos...
+Rendering UV GBuffer for BXSampleScene_LMA3 51
+RGBA32F...RGBA8...RGBA8_SRGB...RGBA16F...states...
+Rendering UV normal...
+Rendering faceted UV normal...
+Rendering UV pos...
+Rendering smooth UV pos...
+Rendering UV GBuffer for probes 256
+RGBA32F...RGBA8...RGBA8_SRGB...RGBA16F...states...
+Done
+Done
+Running ftraceRTX fixpos12 "C:\Users\86156\AppData\Local\Temp\frender" "uvpos_BXSampleScene_LM0.lz4" 2 0 0 0
+Running ftraceRTX fixpos12 "C:\Users\86156\AppData\Local\Temp\frender" "uvpos_BXSampleScene_LMA1.lz4" 2 0 1 0
+Running ftraceRTX fixpos12 "C:\Users\86156\AppData\Local\Temp\frender" "uvpos_BXSampleScene_LMA3.lz4" 2 0 3 0
+Running ftraceRTX fixpos12 "C:\Users\86156\AppData\Local\Temp\frender" "uvpos_BXSampleScene_LMA2.lz4" 2 0 2 0
+Running ftraceRTX batchpointlightprobeshlegacy "C:\Users\86156\AppData\Local\Temp\frender" "PointBatch_4_0_12" 1924 0 4 batchpointlight_4_0_12.bin
+Running ftraceRTX skyprobesh "C:\Users\86156\AppData\Local\Temp\frender" "light_1_4" 1924 0 4 sky0.bin
+Running ftraceRTX sun "C:\Users\86156\AppData\Local\Temp\frender" "light_2_4" 4 0 4 direct0.bin
+Running ftraceRTX sun "C:\Users\86156\AppData\Local\Temp\frender" "light_3_4" 4 0 4 direct1.bin
+Running ftraceRTX sun "C:\Users\86156\AppData\Local\Temp\frender" "light_4_4" 12 0 4 direct2.bin
+Running ftraceRTX sun "C:\Users\86156\AppData\Local\Temp\frender" "light_5_4" 4 0 4 direct3.bin
+Running ftraceRTX addmul "C:\Users\86156\AppData\Local\Temp\frender" "probes" 4 0 4 comp_4.bin
+Running ftraceRTX batchpointlightlegacy "C:\Users\86156\AppData\Local\Temp\frender" "PointBatch_0_0_12" 4 0 0 batchpointlight_0_0_12.bin
+Running ftraceRTX sky "C:\Users\86156\AppData\Local\Temp\frender" "light_1_0" 4 0 0 sky0.bin
+Running ftraceRTX sun "C:\Users\86156\AppData\Local\Temp\frender" "light_2_0" 4 0 0 direct0.bin
+Running ftraceRTX sun "C:\Users\86156\AppData\Local\Temp\frender" "light_3_0" 4 0 0 direct1.bin
+Running ftraceRTX sun "C:\Users\86156\AppData\Local\Temp\frender" "light_4_0" 12 0 0 direct2.bin
+Running ftraceRTX sun "C:\Users\86156\AppData\Local\Temp\frender" "light_5_0" 4 0 0 direct3.bin
+Running ftraceRTX addmul "C:\Users\86156\AppData\Local\Temp\frender" "BXSampleScene_LM0" 4 0 0 comp_0.bin
+Running ftraceRTX batchpointlightlegacy "C:\Users\86156\AppData\Local\Temp\frender" "PointBatch_1_0_12" 4 0 1 batchpointlight_1_0_12.bin
+Running ftraceRTX sky "C:\Users\86156\AppData\Local\Temp\frender" "light_1_1" 4 0 1 sky0.bin
+Running ftraceRTX sun "C:\Users\86156\AppData\Local\Temp\frender" "light_2_1" 4 0 1 direct0.bin
+Running ftraceRTX sun "C:\Users\86156\AppData\Local\Temp\frender" "light_3_1" 4 0 1 direct1.bin
+Running ftraceRTX sun "C:\Users\86156\AppData\Local\Temp\frender" "light_4_1" 12 0 1 direct2.bin
+Running ftraceRTX sun "C:\Users\86156\AppData\Local\Temp\frender" "light_5_1" 4 0 1 direct3.bin
+Running ftraceRTX addmul "C:\Users\86156\AppData\Local\Temp\frender" "BXSampleScene_LMA1" 4 0 1 comp_1.bin
+Running ftraceRTX batchpointlightlegacy "C:\Users\86156\AppData\Local\Temp\frender" "PointBatch_3_0_12" 4 0 3 batchpointlight_3_0_12.bin
+Running ftraceRTX sky "C:\Users\86156\AppData\Local\Temp\frender" "light_1_3" 4 0 3 sky0.bin
+Running ftraceRTX sun "C:\Users\86156\AppData\Local\Temp\frender" "light_2_3" 4 0 3 direct0.bin
+Running ftraceRTX sun "C:\Users\86156\AppData\Local\Temp\frender" "light_3_3" 4 0 3 direct1.bin
+Running ftraceRTX sun "C:\Users\86156\AppData\Local\Temp\frender" "light_4_3" 12 0 3 direct2.bin
+Running ftraceRTX sun "C:\Users\86156\AppData\Local\Temp\frender" "light_5_3" 4 0 3 direct3.bin
+Running ftraceRTX addmul "C:\Users\86156\AppData\Local\Temp\frender" "BXSampleScene_LMA3" 4 0 3 comp_3.bin
+Running ftraceRTX batchpointlightlegacy "C:\Users\86156\AppData\Local\Temp\frender" "PointBatch_2_0_12" 4 0 2 batchpointlight_2_0_12.bin
+Running ftraceRTX sky "C:\Users\86156\AppData\Local\Temp\frender" "light_1_2" 4 0 2 sky0.bin
+Running ftraceRTX sun "C:\Users\86156\AppData\Local\Temp\frender" "light_2_2" 4 0 2 direct0.bin
+Running ftraceRTX sun "C:\Users\86156\AppData\Local\Temp\frender" "light_3_2" 4 0 2 direct1.bin
+Running ftraceRTX sun "C:\Users\86156\AppData\Local\Temp\frender" "light_4_2" 12 0 2 direct2.bin
+Running ftraceRTX sun "C:\Users\86156\AppData\Local\Temp\frender" "light_5_2" 4 0 2 direct3.bin
+Running ftraceRTX addmul "C:\Users\86156\AppData\Local\Temp\frender" "BXSampleScene_LMA2" 4 0 2 comp_2.bin
+Running ftraceRTX texgi "C:\Users\86156\AppData\Local\Temp\frender" "BXSampleScene_LM0_diffuse" 4 16 0 "gi_BXSampleScene_LM00.bin" "BXSampleScene_LM0_diffuse0_HDR.lz4" vbTraceTex.bin
+Running ftraceRTX texgi "C:\Users\86156\AppData\Local\Temp\frender" "BXSampleScene_LMA1_diffuse" 4 16 1 "gi_BXSampleScene_LMA10.bin" "BXSampleScene_LMA1_diffuse0_HDR.lz4" vbTraceTex.bin
+Running ftraceRTX texgi "C:\Users\86156\AppData\Local\Temp\frender" "BXSampleScene_LMA3_diffuse" 4 16 3 "gi_BXSampleScene_LMA30.bin" "BXSampleScene_LMA3_diffuse0_HDR.lz4" vbTraceTex.bin
+Running ftraceRTX texgi "C:\Users\86156\AppData\Local\Temp\frender" "BXSampleScene_LMA2_diffuse" 4 16 2 "gi_BXSampleScene_LMA20.bin" "BXSampleScene_LMA2_diffuse0_HDR.lz4" vbTraceTex.bin
+Running ftraceRTX texgi "C:\Users\86156\AppData\Local\Temp\frender" "BXSampleScene_LM0_diffuse" 4 16 0 "gi_BXSampleScene_LM01.bin" "BXSampleScene_LM0_diffuse0_HDR.lz4" vbTraceTex.bin
+Running ftraceRTX texgi "C:\Users\86156\AppData\Local\Temp\frender" "BXSampleScene_LMA1_diffuse" 4 16 1 "gi_BXSampleScene_LMA11.bin" "BXSampleScene_LMA1_diffuse0_HDR.lz4" vbTraceTex.bin
+Running ftraceRTX texgi "C:\Users\86156\AppData\Local\Temp\frender" "BXSampleScene_LMA3_diffuse" 4 16 3 "gi_BXSampleScene_LMA31.bin" "BXSampleScene_LMA3_diffuse0_HDR.lz4" vbTraceTex.bin
+Running ftraceRTX texgi "C:\Users\86156\AppData\Local\Temp\frender" "BXSampleScene_LMA2_diffuse" 4 16 2 "gi_BXSampleScene_LMA21.bin" "BXSampleScene_LMA2_diffuse0_HDR.lz4" vbTraceTex.bin
+Running ftraceRTX texgi "C:\Users\86156\AppData\Local\Temp\frender" "BXSampleScene_LM0_diffuse" 4 16 0 "gi_BXSampleScene_LM02.bin" "BXSampleScene_LM0_diffuse0_HDR.lz4" vbTraceTex.bin
+Running ftraceRTX texgi "C:\Users\86156\AppData\Local\Temp\frender" "BXSampleScene_LMA1_diffuse" 4 16 1 "gi_BXSampleScene_LMA12.bin" "BXSampleScene_LMA1_diffuse0_HDR.lz4" vbTraceTex.bin
+Running ftraceRTX texgi "C:\Users\86156\AppData\Local\Temp\frender" "BXSampleScene_LMA3_diffuse" 4 16 3 "gi_BXSampleScene_LMA32.bin" "BXSampleScene_LMA3_diffuse0_HDR.lz4" vbTraceTex.bin
+Running ftraceRTX texgi "C:\Users\86156\AppData\Local\Temp\frender" "BXSampleScene_LMA2_diffuse" 4 16 2 "gi_BXSampleScene_LMA22.bin" "BXSampleScene_LMA2_diffuse0_HDR.lz4" vbTraceTex.bin
+Running ftraceRTX texgi "C:\Users\86156\AppData\Local\Temp\frender" "BXSampleScene_LM0_diffuse" 4 16 0 "gi_BXSampleScene_LM03.bin" "BXSampleScene_LM0_diffuse0_HDR.lz4" vbTraceTex.bin
+Running ftraceRTX texgi "C:\Users\86156\AppData\Local\Temp\frender" "BXSampleScene_LMA1_diffuse" 4 16 1 "gi_BXSampleScene_LMA13.bin" "BXSampleScene_LMA1_diffuse0_HDR.lz4" vbTraceTex.bin
+Running ftraceRTX texgi "C:\Users\86156\AppData\Local\Temp\frender" "BXSampleScene_LMA3_diffuse" 4 16 3 "gi_BXSampleScene_LMA33.bin" "BXSampleScene_LMA3_diffuse0_HDR.lz4" vbTraceTex.bin
+Running ftraceRTX texgi "C:\Users\86156\AppData\Local\Temp\frender" "BXSampleScene_LMA2_diffuse" 4 16 2 "gi_BXSampleScene_LMA23.bin" "BXSampleScene_LMA2_diffuse0_HDR.lz4" vbTraceTex.bin
+Running ftraceRTX texgiprobesh "C:\Users\86156\AppData\Local\Temp\frender" "probes_final" 1940 16 4 "gi_probes4.bin" "probes_lights_HDR.lz4" vbTraceTex.bin
+Running ftraceRTX texgi "C:\Users\86156\AppData\Local\Temp\frender" "BXSampleScene_LM0_final" 20 16 0 "gi_BXSampleScene_LM04.bin" "BXSampleScene_LM0_lights_HDR.lz4" vbTraceTex.bin
+Running ftraceRTX texgi "C:\Users\86156\AppData\Local\Temp\frender" "BXSampleScene_LMA1_final" 20 16 1 "gi_BXSampleScene_LMA14.bin" "BXSampleScene_LMA1_lights_HDR.lz4" vbTraceTex.bin
+Running ftraceRTX texgi "C:\Users\86156\AppData\Local\Temp\frender" "BXSampleScene_LMA3_final" 20 16 3 "gi_BXSampleScene_LMA34.bin" "BXSampleScene_LMA3_lights_HDR.lz4" vbTraceTex.bin
+Running ftraceRTX texgi "C:\Users\86156\AppData\Local\Temp\frender" "BXSampleScene_LMA2_final" 20 16 2 "gi_BXSampleScene_LMA24.bin" "BXSampleScene_LMA2_lights_HDR.lz4" vbTraceTex.bin
+Running ftraceRTX add "C:\Users\86156\AppData\Local\Temp\frender" "probes_final_HDR.lz4" 4 0 4 comp_indirect4.bin
+Running ftraceRTX add "C:\Users\86156\AppData\Local\Temp\frender" "BXSampleScene_LM0_final_HDR.lz4" 4 0 0 comp_indirect0.bin
+Running ftraceRTX add "C:\Users\86156\AppData\Local\Temp\frender" "BXSampleScene_LMA1_final_HDR.lz4" 4 0 1 comp_indirect1.bin
+Running ftraceRTX add "C:\Users\86156\AppData\Local\Temp\frender" "BXSampleScene_LMA3_final_HDR.lz4" 4 0 3 comp_indirect3.bin
+Running ftraceRTX add "C:\Users\86156\AppData\Local\Temp\frender" "BXSampleScene_LMA2_final_HDR.lz4" 4 0 2 comp_indirect2.bin
+Running ftraceRTX addsh "C:\Users\86156\AppData\Local\Temp\frender" "probes_final_" 4 0 4 shcomp_4.bin
+Running denoiserOIDN c "C:\Users\86156\AppData\Local\Temp\frender/BXSampleScene_LM0_final_HDR.lz4" "C:\Users\86156\AppData\Local\Temp\frender/BXSampleScene_LM0_final_HDR.lz4" 1024 0
+Running seamfixer "C:\Users\86156\AppData\Local\Temp\frender" "0" "BXSampleScene_LM0_final_HDR.lz4"
+Running denoiserOIDN c "C:\Users\86156\AppData\Local\Temp\frender/BXSampleScene_LMA1_final_HDR.lz4" "C:\Users\86156\AppData\Local\Temp\frender/BXSampleScene_LMA1_final_HDR.lz4" 128 0
+Running seamfixer "C:\Users\86156\AppData\Local\Temp\frender" "1" "BXSampleScene_LMA1_final_HDR.lz4"
+Running denoiserOIDN c "C:\Users\86156\AppData\Local\Temp\frender/BXSampleScene_LMA3_final_HDR.lz4" "C:\Users\86156\AppData\Local\Temp\frender/BXSampleScene_LMA3_final_HDR.lz4" 64 0
+Running seamfixer "C:\Users\86156\AppData\Local\Temp\frender" "3" "BXSampleScene_LMA3_final_HDR.lz4"
+Running denoiserOIDN c "C:\Users\86156\AppData\Local\Temp\frender/BXSampleScene_LMA2_final_HDR.lz4" "C:\Users\86156\AppData\Local\Temp\frender/BXSampleScene_LMA2_final_HDR.lz4" 64 0
+Running seamfixer "C:\Users\86156\AppData\Local\Temp\frender" "2" "BXSampleScene_LMA2_final_HDR.lz4"
+Running combineMasks "C:\Users\86156\AppData\Local\Temp\frender/probes_mask.lz4" "C:\Users\86156\AppData\Local\Temp\frender/masks_4.bin" "C:\Users\86156\AppData\Local\Temp\frender/"
+Running combineMasks "D:/Project/BXRenderPipline/Assets/Scenes/BXSampleScene/BXSampleScene_LM0_mask.tga" "C:\Users\86156\AppData\Local\Temp\frender/masks_0.bin" "C:\Users\86156\AppData\Local\Temp\frender/"
+Running combineMasks "D:/Project/BXRenderPipline/Assets/Scenes/BXSampleScene/BXSampleScene_LMA1_mask.tga" "C:\Users\86156\AppData\Local\Temp\frender/masks_1.bin" "C:\Users\86156\AppData\Local\Temp\frender/"
+Running combineMasks "D:/Project/BXRenderPipline/Assets/Scenes/BXSampleScene/BXSampleScene_LMA3_mask.tga" "C:\Users\86156\AppData\Local\Temp\frender/masks_3.bin" "C:\Users\86156\AppData\Local\Temp\frender/"
+Running combineMasks "D:/Project/BXRenderPipline/Assets/Scenes/BXSampleScene/BXSampleScene_LMA2_mask.tga" "C:\Users\86156\AppData\Local\Temp\frender/masks_2.bin" "C:\Users\86156\AppData\Local\Temp\frender/"
+Running halffloat2hdr "C:\Users\86156\AppData\Local\Temp\frender/BXSampleScene_LM0_final_HDR.lz4" "D:/Project/BXRenderPipline/Assets/Scenes/BXSampleScene/BXSampleScene_LM0_final.hdr" 1024
+Running halffloat2hdr "C:\Users\86156\AppData\Local\Temp\frender/BXSampleScene_LMA1_final_HDR.lz4" "D:/Project/BXRenderPipline/Assets/Scenes/BXSampleScene/BXSampleScene_LMA1_final.hdr" 1024
+Running halffloat2hdr "C:\Users\86156\AppData\Local\Temp\frender/BXSampleScene_LMA3_final_HDR.lz4" "D:/Project/BXRenderPipline/Assets/Scenes/BXSampleScene/BXSampleScene_LMA3_final.hdr" 1024
+Running halffloat2hdr "C:\Users\86156\AppData\Local\Temp\frender/BXSampleScene_LMA2_final_HDR.lz4" "D:/Project/BXRenderPipline/Assets/Scenes/BXSampleScene/BXSampleScene_LMA2_final.hdr" 1024
+Symbol file LoadedFromMemory doesn't match image D:\Project\BXRenderPipline\Library\PackageCache\com.unity.visualscripting@1.8.0\Editor\VisualScripting.Core\Dependencies\YamlDotNet\Unity.VisualScripting.YamlDotNet.dll
+Symbol file LoadedFromMemory doesn't match image D:\Project\BXRenderPipline\Library\PackageCache\com.unity.visualscripting@1.8.0\Editor\VisualScripting.Core\Dependencies\DotNetZip\Unity.VisualScripting.IonicZip.dll
+Symbol file LoadedFromMemory doesn't match image D:\Project\BXRenderPipline\Library\PackageCache\com.unity.visualscripting@1.8.0\Editor\VisualScripting.Core\Dependencies\YamlDotNet\Unity.VisualScripting.YamlDotNet.dll
+Symbol file LoadedFromMemory doesn't match image D:\Project\BXRenderPipline\Library\PackageCache\com.unity.visualscripting@1.8.0\Editor\VisualScripting.Core\Dependencies\DotNetZip\Unity.VisualScripting.IonicZip.dll
+Symbol file LoadedFromMemory doesn't match image D:\Project\BXRenderPipline\Library\PackageCache\com.unity.visualscripting@1.8.0\Editor\VisualScripting.Core\Dependencies\YamlDotNet\Unity.VisualScripting.YamlDotNet.dll
+Symbol file LoadedFromMemory doesn't match image D:\Project\BXRenderPipline\Library\PackageCache\com.unity.visualscripting@1.8.0\Editor\VisualScripting.Core\Dependencies\DotNetZip\Unity.VisualScripting.IonicZip.dll
+Done
+Done
+Done
+Done

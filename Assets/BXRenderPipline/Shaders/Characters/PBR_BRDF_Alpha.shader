@@ -96,12 +96,11 @@ Shader "BXCharacters/PBR_BRDF_Alpha"
             {
                 float4 vertex : SV_POSITION;
                 float2 uv : TEXCOORD0;
-                float2 uv_screen : TEXCOORD1;
-                float4 pos_world : TEXCOORD2;
-                half3 normal_world : TEXCOORD3;
-                half3 tangent_world : TEXCOORD4;
-                half3 binormal_world : TEXCOORD5;
-                float3 normal_view : TEXCOORD6;
+                float3 pos_world : TEXCOORD1;
+                half3 normal_world : TEXCOORD2;
+                half3 tangent_world : TEXCOORD3;
+                half3 binormal_world : TEXCOORD4;
+                float3 normal_view : TEXCOORD5;
                 UNITY_VERTEX_INPUT_INSTANCE_ID
             };
 
@@ -130,10 +129,7 @@ Shader "BXCharacters/PBR_BRDF_Alpha"
                 UNITY_TRANSFER_INSTANCE_ID(v, o);
                 o.pos_world.xyz = TransformObjectToWorld(v.vertex.xyz);
                 o.vertex = TransformWorldToHClip(o.pos_world.xyz);
-                float4 posH = o.vertex / o.vertex.w;
-                o.pos_world.w = posH.z;
                 o.uv = v.uv * GET_PROP(_MainTex_ST).xy + GET_PROP(_MainTex_ST).zw;
-                o.uv_screen = GetScreenUV(posH).xy;
                 o.normal_world = TransformObjectToWorldNormal(v.normal);
                 o.tangent_world = TransformObjectToWorldDir(v.tangent.xyz);
                 o.binormal_world = cross(o.normal_world, o.tangent_world) * v.tangent.w * unity_WorldTransformParams.w;
@@ -171,15 +167,16 @@ Shader "BXCharacters/PBR_BRDF_Alpha"
                 baseColor *= GET_PROP(_Color);
                 half3 albedo = baseColor.rgb * (1.0 - metallic);
                 half3 specCol = lerp(0.04, baseColor.rgb, metallic * 0.5);
-                float depthEye = LinearEyeDepth(i.pos_world.w);
+                float depthEye = LinearEyeDepth(i.vertex.z);
 
+                float2 uv_screen = i.vertex.xy * (_ScreenParams.zw - 1.0);
                 half3 indirectDiffuse = PBR_GetIndirectDiffuseFromProbe(i.pos_world.xyz, n);
-                half3 indirectSpecular = PBR_GetIndirectSpecular(specCol, r, i.uv_screen, ndotv, roughness, oneMinusMetallic);
+                half3 indirectSpecular = PBR_GetIndirectSpecular(specCol, r, uv_screen, ndotv, roughness, oneMinusMetallic);
                 half3 diffuseColor = 0.0;
                 half3 specularColor = 0.0;
 
-                PBR_BRDF_DirectionalLighting(specCol, i.pos_world.xyz, n, v, i.uv_screen, ndotv, roughness, depthEye, diffuseColor, specularColor);
-                PBR_BRDF_PointLighting(specCol, i.pos_world.xyz, n, v, i.uv_screen, ndotv, roughness, diffuseColor, specularColor);
+                PBR_BRDF_DirectionalLighting(specCol, i.pos_world.xyz, n, v, i.vertex.xy, ndotv, roughness, depthEye, diffuseColor, specularColor);
+                PBR_BRDF_PointLighting(specCol, i.pos_world.xyz, n, v, i.vertex.xy, ndotv, roughness, diffuseColor, specularColor);
 
                 diffuseColor = diffuseColor * albedo;
                 specularColor *= 0.25 / ndotv;
@@ -187,9 +184,9 @@ Shader "BXCharacters/PBR_BRDF_Alpha"
                 #ifdef _EMISSION_ON
                     lighting += emissionMap.rgb * GET_PROP(_EmissionColor).rgb * emissionMap.a;
                 #endif
-                output.lightingBuffer = half4(lighting, baseColor.a);
 
-                output.depthNormalBuffer = (i.pos_world.w < (1.0-1.0/65025.0)) ? EncodeDepthNormal(i.pos_world.w, normalize(i.normal_view)) : float4(0.5,0.5,1.0,1.0);
+                output.lightingBuffer = half4(lighting, baseColor.a);
+                output.depthNormalBuffer = (i.vertex.z < (1.0-1.0/65025.0)) ? EncodeDepthNormal(i.vertex.z, normalize(i.normal_view)) : float4(0.5,0.5,1.0,1.0);
                 return output;
             }
             ENDHLSL

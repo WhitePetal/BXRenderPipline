@@ -158,7 +158,7 @@ half3 PBR_GetIndirectSpecular(half3 specCol, half3 r, float2 uv_screen, half ndo
 }
 
 #if BRDF_LIGHTING
-void PBR_BRDF_DirectionalLighting(half3 specCol, float3 pos_world, half3 n, half3 v, float2 uv_screen, half ndotv, half roughness, half depthEye, inout half3 diffuseColor, inout half3 specularColor)
+void PBR_BRDF_DirectionalLighting(half3 specCol, float3 pos_world, half3 n, half3 v, float2 pos_clip, half ndotv, half roughness, half depthEye, inout half3 diffuseColor, inout half3 specularColor)
 {
     half shadowDistanceStrength = GetShadowDistanceStrength(depthEye);
     #if defined(_SHADOW_MASK_ALWAYS) || defined(_SHADOW_MASK_DISTANCE)
@@ -179,7 +179,7 @@ void PBR_BRDF_DirectionalLighting(half3 specCol, float3 pos_world, half3 n, half
         half f0 = PBR_F0(ndotl, ndotv, ldoth, roughness);
         half3 fgd = PBR_SchlickFresnelFunction(specCol, ldoth) * PBR_G(ndotl, ndotv, roughness) * PBR_D(roughness, ndoth);
         #ifndef _SHADOW_MASK_ALWAYS
-            half shadowAtten = GetDirectionalShadow(lightIndex, uv_screen, pos_world, n, shadowDistanceStrength);
+            half shadowAtten = GetDirectionalShadow(lightIndex, pos_clip, pos_world, n, shadowDistanceStrength);
             #if defined(_SHADOW_MASK_DISTANCE)
                 shadowAtten = lerp(baked, shadowAtten, shadowDistanceStrength);
             #endif
@@ -192,9 +192,9 @@ void PBR_BRDF_DirectionalLighting(half3 specCol, float3 pos_world, half3 n, half
     }
 }
 
-void PBR_BRDF_PointLighting(half3 specCol, float3 pos_world, half3 n, half3 v, float2 uv_screen, half ndotv, half roughness, inout half3 diffuseColor, inout half3 specularColor)
+void PBR_BRDF_PointLighting(half3 specCol, float3 pos_world, half3 n, half3 v, float2 pos_clip, half ndotv, half roughness, inout half3 diffuseColor, inout half3 specularColor)
 {
-    uint2 screenXY = uv_screen * _ScreenParams.xy / 16.0;
+    uint2 screenXY = pos_clip / 16.0;
     uint tileIndex = screenXY.y * _ScreenParams.x / 16.0 + screenXY.x;
     uint tileData = _TileLightingDatas[tileIndex];
     for(uint tileLightOffset = 0; tileLightOffset < min(tileData, _PointLightCount); ++tileLightOffset)
@@ -225,7 +225,7 @@ void PBR_BRDF_PointLighting(half3 specCol, float3 pos_world, half3 n, half3 v, f
 #endif
 
 #if BSSSDFSKIN_LIGHTING
-void PBR_BSSSDFSkin_DirectionalLighting(half3 specCol, float3 pos_world, half3 n, half3 v, float2 uv_screen, half ndotv, half r, half roughness, half depthEye, inout half3 diffuseColor, inout half3 specularColor)
+void PBR_BSSSDFSkin_DirectionalLighting(half3 specCol, float3 pos_world, half3 n, half3 v, float2 pos_clip, half ndotv, half r, half roughness, half depthEye, inout half3 diffuseColor, inout half3 specularColor)
 {
     half shadowDistanceStrength = GetShadowDistanceStrength(depthEye);
     #if defined(_SHADOW_MASK_ALWAYS) || defined(_SHADOW_MASK_DISTANCE)
@@ -248,7 +248,7 @@ void PBR_BSSSDFSkin_DirectionalLighting(half3 specCol, float3 pos_world, half3 n
         half f0 = PBR_F0(ndotl, ndotv, ldoth, roughness);
         half3 fgd = PBR_SchlickFresnelFunction(specCol, ldoth) * PBR_G(ndotl, ndotv, roughness) * PBR_D(roughness, ndoth);
         #ifndef _SHADOW_MASK_ALWAYS
-            half shadowAtten = GetDirectionalShadow(lightIndex, uv_screen, pos_world, n, shadowDistanceStrength);
+            half shadowAtten = GetDirectionalShadow(lightIndex, pos_clip, pos_world, n, shadowDistanceStrength);
             #if defined(_SHADOW_MASK_DISTANCE)
                 shadowAtten = lerp(baked, shadowAtten, shadowDistanceStrength);
             #endif
@@ -261,9 +261,9 @@ void PBR_BSSSDFSkin_DirectionalLighting(half3 specCol, float3 pos_world, half3 n
     }
 }
 
-void PBR_BSSSDFSkin_PointLighting(half3 specCol, half3 ndotl_sss_avg, float3 pos_world, half3 n, half3 v, float2 uv_screen, half ndotv, half roughness, inout half3 diffuseColor, inout half3 specularColor)
+void PBR_BSSSDFSkin_PointLighting(half3 specCol, half3 ndotl_sss_avg, float3 pos_world, half3 n, half3 v, float2 pos_clip, half ndotv, half roughness, inout half3 diffuseColor, inout half3 specularColor)
 {
-    uint2 screenXY = uv_screen * _ScreenParams.xy / 16.0;
+    uint2 screenXY = pos_clip / 16.0;
     uint tileIndex = screenXY.y * _ScreenParams.x / 16.0 + screenXY.x;
     uint tileData = _TileLightingDatas[tileIndex];
 

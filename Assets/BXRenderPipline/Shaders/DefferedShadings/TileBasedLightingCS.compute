@@ -35,52 +35,54 @@ bool IntersectTileAndPointLight(float zMin, float zMax, uint3 groupId, float4 li
     {
         lightDepthMask |= (1 << i);
     }
+    bool result = false;
     [branch]
-    if((lightDepthMask & geoDepthMask) == 0) return false;
-        return true;
-    
-    float3 bextent = lightSphere.www;
-
-    float4 frustume[6];
-
-    frustume[0] = float4(0, 0, 1, -zMax);
-    frustume[1] = float4(0, 0, -1, zMin);
-
-    float3 v0 = _TileLBStart.xyz + _TileRVec.xyz * groupId.x + _TileUVec.xyz * groupId.y;
-    float3 v1 = v0 + _TileUVec.xyz;
-
-    float3 n2 = normalize(cross(v1, v0));
-    frustume[2] = float4(n2, 0);
-
-    float3 v2 = v0 +_TileRVec.xyz;
-    float3 v3 = v0 + _TileRVec.xyz + _TileUVec.xyz;
-
-    float3 n3 = normalize(cross(v2, v3));
-    frustume[3] = float4(n3, 0);
-    float3 n4 = normalize(cross(v3, v1));
-    frustume[4] = float4(n4, 0);
-    float3 n5 = normalize(cross(v0, v2));
-    frustume[5] = float4(n5, 0);
-
-    [unroll(6)]
-    for(int k = 0; k < 6; k++)
+    if((lightDepthMask & geoDepthMask) != 0)
     {
-        // https://gdbooks.gitbooks.io/3dcollisions/content/Chapter2/static_aabb_plane.html AABB-平面相交
-        float4 plane = frustume[k];
-        float3 n = plane.xyz;
-        float3 n_abs = abs(n);
-        float d = plane.w;
-        float r = dot(bextent, n_abs);
-        float s = dot(n, lightSphere.xyz) + d;
+        result = true;
+        float3 bextent = lightSphere.www;
 
-        [branch]    
-        if((-r - s) > 0)
+        float4 frustume[6];
+
+        frustume[0] = float4(0, 0, 1, -zMax);
+        frustume[1] = float4(0, 0, -1, zMin);
+
+        float3 v0 = _TileLBStart.xyz + _TileRVec.xyz * groupId.x + _TileUVec.xyz * groupId.y;
+        float3 v1 = v0 + _TileUVec.xyz;
+
+        float3 n2 = normalize(cross(v1, v0));
+        frustume[2] = float4(n2, 0);
+
+        float3 v2 = v0 +_TileRVec.xyz;
+        float3 v3 = v0 + _TileRVec.xyz + _TileUVec.xyz;
+
+        float3 n3 = normalize(cross(v2, v3));
+        frustume[3] = float4(n3, 0);
+        float3 n4 = normalize(cross(v3, v1));
+        frustume[4] = float4(n4, 0);
+        float3 n5 = normalize(cross(v0, v2));
+        frustume[5] = float4(n5, 0);
+
+        [unroll(6)]
+        for(int k = 0; k < 6; k++)
         {
-            return false;
+            // https://gdbooks.gitbooks.io/3dcollisions/content/Chapter2/static_aabb_plane.html AABB-平面相交
+            float4 plane = frustume[k];
+            float3 n = plane.xyz;
+            float3 n_abs = abs(n);
+            float d = plane.w;
+            float r = dot(bextent, n_abs);
+            float s = dot(n, lightSphere.xyz) + d;
+
+            [branch]    
+            if((-r - s) > 0)
+            {
+                result = false;
+            }
         }
     }
-    // result = true;
-    return true;
+    return result;
+    
 }
 
 [numthreads(16,16,1)]
@@ -105,13 +107,13 @@ void CSMain (uint3 id : SV_DispatchThreadID, uint groupIndex : SV_GROUPINDEX, ui
     float depth;
     DecodeDepthNormal(depthNormalData, depth, n);
     float depthEye = LinearEyeDepth(depth);
-    uint udepth = asuint(depth);
+    uint udepth = asuint(depthEye);
     InterlockedMin(tileMinDepthInt, udepth);
     InterlockedMax(tileMaxDepthInt, udepth);
     GroupMemoryBarrierWithGroupSync();
 
-    float tileDepthMin = LinearEyeDepth(asfloat(tileMinDepthInt));
-    float tileDepthMax = LinearEyeDepth(asfloat(tileMaxDepthInt));
+    float tileDepthMin = asfloat(tileMinDepthInt);
+    float tileDepthMax = asfloat(tileMaxDepthInt);
     float depthSliceInterval = max(0.0001,(tileDepthMax - tileDepthMin) / 32.0);
     
     uint depthSliceIndex = floor((depthEye -  tileDepthMin) / depthSliceInterval);
@@ -135,5 +137,4 @@ void CSMain (uint3 id : SV_DispatchThreadID, uint groupIndex : SV_GROUPINDEX, ui
     {
         _TileLightingDatas[tileIndex] = tileVisibleLightCount;
     }
-    GroupMemoryBarrierWithGroupSync();
 }
