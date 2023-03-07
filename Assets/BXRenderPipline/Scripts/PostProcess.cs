@@ -123,10 +123,11 @@ public class PostProcess
 		commandBuffer.SetRenderTarget(Constants.fogLightingBufferTargetId);
 		commandBuffer.ClearRenderTarget(true, true, Color.clear);
 		commandBuffer.DrawProcedural(Matrix4x4.identity, FogMaterial, 0, MeshTopology.Quads, 4);
-		commandBuffer.ReleaseTemporaryRT(Constants.fogLightingBufferId);
 		commandBuffer.SetRenderTarget(Constants.fogFinalBufferTargetId);
 		commandBuffer.ClearRenderTarget(true, true, Color.clear);
 		commandBuffer.DrawProcedural(Matrix4x4.identity, FogMaterial, 1, MeshTopology.Triangles, 3);
+		commandBuffer.ReleaseTemporaryRT(Constants.fogLightingBufferId);
+		commandBuffer.ReleaseTemporaryRT(Constants.fogFinalBufferId);
 	}
 
 	private void BloomBlur(RenderTargetIdentifier from, RenderTargetIdentifier to, int pass, bool clear = false)
