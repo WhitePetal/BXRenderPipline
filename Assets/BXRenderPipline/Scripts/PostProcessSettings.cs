@@ -104,6 +104,13 @@ public struct FXAASettings
 }
 
 [System.Serializable]
+public struct FogSettings
+{
+	[SerializeField]
+	public Shader fogShader;
+}
+
+[System.Serializable]
 public class PostProcessSettings
 {
 	[SerializeField]
@@ -112,6 +119,7 @@ public class PostProcessSettings
 	public Shader colorGradeShader;
 	[SerializeField]
 	public Shader colorGradeShaderEditor;
+
 	public BloomSettings bloomSettings = new BloomSettings
 	{
 		maxIterations = 4,
@@ -158,5 +166,10 @@ public class PostProcessSettings
 		fixedThreshold = 0.0833f,
 		relativeThreshold = 0.166f,
 		subpixelBlending = 0.75f
+	};
+
+	public FogSettings fogSettings = new FogSettings
+	{
+
 	};
 }

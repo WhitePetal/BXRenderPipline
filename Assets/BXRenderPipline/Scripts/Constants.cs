@@ -63,6 +63,16 @@ public class Constants
 	public static int smhHighlightsId = Shader.PropertyToID("_SMHHighlights");
 	public static int smhRangeId = Shader.PropertyToID("_SMHRange");
 
+	public static int postprocessInputId = Shader.PropertyToID("_PostProcessInput");
+	public static int copyInputId = Shader.PropertyToID("_CopyInput");
+	public static int bloomInput0Id = Shader.PropertyToID("_BloomInput0");
+	public static int bloomInput1Id = Shader.PropertyToID("_BloomInput1");
+	public static int bloomThresholdId = Shader.PropertyToID("_BloomThreshold");
+	public static int bloomIntensityId = Shader.PropertyToID("_BloomIntensity");
+
+	public static int fogLightingBufferId = Shader.PropertyToID("_FogLightingBuffer");
+	public static int fogFinalBufferId = Shader.PropertyToID("_FogFinalBuffer");
+
 	public static string[] reflectTypeKeywords = new string[3]
 	{
 		"_SSR_ONLY", "_REFLECT_PROBE_ONLY", "_SSR_AND_RELFECT_PROBE"
@@ -99,10 +109,6 @@ public class Constants
 	};
 	public static RenderTargetIdentifier bloomPrefilterTargetId = new RenderTargetIdentifier(bloomPrefilterId);
 
-	public static int postprocessInputId = Shader.PropertyToID("_PostProcessInput");
-	public static int copyInputId = Shader.PropertyToID("_CopyInput");
-	public static int bloomInput0Id = Shader.PropertyToID("_BloomInput0");
-	public static int bloomInput1Id = Shader.PropertyToID("_BloomInput1");
-	public static int bloomThresholdId = Shader.PropertyToID("_BloomThreshold");
-	public static int bloomIntensityId = Shader.PropertyToID("_BloomIntensity");
+	public static RenderTargetIdentifier fogLightingBufferTargetId = new RenderTargetIdentifier(fogLightingBufferId);
+	public static RenderTargetIdentifier fogFinalBufferTargetId = new RenderTargetIdentifier(fogFinalBufferId);
 }

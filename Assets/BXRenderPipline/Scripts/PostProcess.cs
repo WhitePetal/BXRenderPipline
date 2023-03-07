@@ -66,6 +66,20 @@ public class PostProcess
 		}
 	}
 
+	private Material fogMaterial;
+	private Material FogMaterial
+    {
+        get
+        {
+			if(fogMaterial == null && settings.fogSettings.fogShader != null)
+            {
+				fogMaterial = new Material(settings.fogSettings.fogShader);
+				fogMaterial.hideFlags = HideFlags.HideAndDontSave;
+            }
+			return fogMaterial;
+        }
+    }
+
 	private CommandBuffer commandBuffer;
 
 	private string[] tonemappingKeywords = new string[]
@@ -100,6 +114,19 @@ public class PostProcess
 		commandBuffer.ClearRenderTarget(true, true, Color.clear);
 		commandBuffer.SetGlobalTexture(Constants.copyInputId, from);
 		commandBuffer.DrawProcedural(Matrix4x4.identity, CopyTexMaterial, 0, MeshTopology.Triangles, 3);
+	}
+
+	public void Fog()
+    {
+		commandBuffer.GetTemporaryRT(Constants.fogLightingBufferId, width >> 1, height >> 1, 0, FilterMode.Bilinear, RenderTextureFormat.ARGBHalf, RenderTextureReadWrite.Linear, 1, false, RenderTextureMemoryless.None);
+		commandBuffer.GetTemporaryRT(Constants.fogFinalBufferId, width, height, 0, FilterMode.Bilinear, RenderTextureFormat.ARGBHalf, RenderTextureReadWrite.Linear, 1, false, RenderTextureMemoryless.None);
+		commandBuffer.SetRenderTarget(Constants.fogLightingBufferTargetId);
+		commandBuffer.ClearRenderTarget(true, true, Color.clear);
+		commandBuffer.DrawProcedural(Matrix4x4.identity, FogMaterial, 0, MeshTopology.Quads, 4);
+		commandBuffer.ReleaseTemporaryRT(Constants.fogLightingBufferId);
+		commandBuffer.SetRenderTarget(Constants.fogFinalBufferTargetId);
+		commandBuffer.ClearRenderTarget(true, true, Color.clear);
+		commandBuffer.DrawProcedural(Matrix4x4.identity, FogMaterial, 1, MeshTopology.Triangles, 3);
 	}
 
 	private void BloomBlur(RenderTargetIdentifier from, RenderTargetIdentifier to, int pass, bool clear = false)

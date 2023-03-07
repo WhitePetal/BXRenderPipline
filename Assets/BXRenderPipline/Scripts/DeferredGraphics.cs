@@ -54,7 +54,6 @@ public class DeferredGraphics
 		DrawGizmosBeforePostProcess();
 #endif
 		DrawPostProcess();
-		FXAA();
 #if UNITY_EDITOR
 		DrawGizmosAfterPostProcess();
 #endif
@@ -141,12 +140,9 @@ public class DeferredGraphics
 
 	private void DrawPostProcess()
 	{
+		postProcess.Fog();
 		postProcess.Bloom();
 		postProcess.ColorGrade();
-	}
-
-	private void FXAA()
-	{
 		commandBuffer.SetRenderTarget(BuiltinRenderTextureType.CameraTarget);
 		commandBuffer.ClearRenderTarget(true, true, Color.clear);
 		postProcess.FXAA();

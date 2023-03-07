@@ -160,7 +160,9 @@ half3 PBR_GetIndirectSpecular(half3 specCol, half3 r, float2 uv_screen, half ndo
 #if BRDF_LIGHTING
 void PBR_BRDF_DirectionalLighting(half3 specCol, float3 pos_world, half3 n, half3 v, float2 pos_clip, half ndotv, half roughness, half depthEye, inout half3 diffuseColor, inout half3 specularColor)
 {
-    half shadowDistanceStrength = GetShadowDistanceStrength(depthEye);
+    #ifndef _SHADOW_MASK_ALWAYS
+        half shadowDistanceStrength = GetShadowDistanceStrength(depthEye);
+    #endif
     #if defined(_SHADOW_MASK_ALWAYS) || defined(_SHADOW_MASK_DISTANCE)
         half baked = SampleBakedShadows(pos_world, lightmapUV);
 	#endif

@@ -83,3 +83,5 @@ MonoBehaviour:
       fixedThreshold: 0.07
       relativeThreshold: 0.15
       subpixelBlending: 0.75
+    fogSettings:
+      fogShader: {fileID: 4800000, guid: 04c90dd40eaa845089cd65548b01e80b, type: 3}

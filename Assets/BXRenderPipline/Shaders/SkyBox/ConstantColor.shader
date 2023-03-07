@@ -50,7 +50,7 @@ Shader "BXSkyBox/ConstantColor"
             {
                 FragOutput output;
                 output.lightingBuffer = half4(_BaseColor.rgb, 1.0);
-                output.depthNormalBuffer = float4(EncodeViewNormalStereo(i.normal_view), 1.0, 1.0);
+                output.depthNormalBuffer = float4(EncodeViewNormalStereo(i.normal_view), 0.0, 0.0);
                 return output;
             }
             ENDHLSL
