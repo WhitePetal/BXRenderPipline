@@ -171,7 +171,7 @@ public class DeferredGraphics
 
 	private void DrawPostProcess()
 	{
-        postProcess.Fog();
+        //postProcess.Fog();
         postProcess.Bloom();
         postProcess.ColorGrade();
         commandBuffer.SetRenderTarget(BuiltinRenderTextureType.CameraTarget);

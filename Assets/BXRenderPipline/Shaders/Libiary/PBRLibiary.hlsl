@@ -169,6 +169,7 @@ void PBR_BRDF_DirectionalLighting(half3 specCol, float3 pos_world, half3 n, half
     #if defined(_SHADOW_MASK_ALWAYS)
         half3 shadowCol = lerp(_BXShadowsColor.xyz, 1.0, baked);
     #endif
+    [loop]
     for(uint lightIndex = 0; lightIndex < _DirectionalLightCount; ++lightIndex)
     {
         half3 l = _DirectionalLightDirections[lightIndex].xyz;
@@ -176,7 +177,6 @@ void PBR_BRDF_DirectionalLighting(half3 specCol, float3 pos_world, half3 n, half
         half3 h = SafeNormalize(l + v);
         half ndotl = max(0.0, dot(n, l));
         half ndoth = max(0.0, dot(n, h));
-        half vdoth = max(0.0, dot(v, h));
         half ldoth = max(0.0, dot(l, h));
         half f0 = PBR_F0(ndotl, ndotv, ldoth, roughness);
         half3 fgd = PBR_SchlickFresnelFunction(specCol, ldoth) * PBR_G(ndotl, ndotv, roughness) * PBR_D(roughness, ndoth);
@@ -199,7 +199,8 @@ void PBR_BRDF_PointLighting(half3 specCol, float3 pos_world, half3 n, half3 v, f
     uint2 screenXY = pos_clip / 16.0;
     uint tileIndex = screenXY.y * _ScreenParams.x / 16.0 + screenXY.x;
     uint tileData = _TileLightingDatas[tileIndex];
-    for(uint tileLightOffset = 0; tileLightOffset < min(tileData, _PointLightCount); ++tileLightOffset)
+    [loop]
+    for(uint tileLightOffset = 0; tileLightOffset < tileData; ++tileLightOffset)
     {
         uint tileLightIndex = tileIndex * 256 + tileLightOffset;
         uint pointLightIndex = _TileLightingIndices[tileLightIndex];
@@ -211,9 +212,9 @@ void PBR_BRDF_PointLighting(half3 specCol, float3 pos_world, half3 n, half3 v, f
         half3 l = lenV * rsqrt(lenSqr);
         half3 h = SafeNormalize(l + v);
 
-        half ndotl = max(0.0, dot(n, l));
-        half ndoth = max(0.0, dot(n, h));
-        half ldoth = max(0.0, dot(l, h));
+        half ndotl = max(0.001, dot(n, l));
+        half ndoth = max(0.001, dot(n, h));
+        half ldoth = max(0.001, dot(l, h));
         half atten =  saturate(1.0 - lenSqr / (lightSphere.w * lightSphere.w));
 
         lightColor *= atten;
@@ -236,6 +237,7 @@ void PBR_BSSSDFSkin_DirectionalLighting(half3 specCol, float3 pos_world, half3 n
     #if defined(_SHADOW_MASK_ALWAYS)
         half3 shadowCol = lerp(_BXShadowsColor.xyz, 1.0, baked);
     #endif
+    [loop]
     for(uint lightIndex = 0; lightIndex < _DirectionalLightCount; ++lightIndex)
     {
         half3 l = _DirectionalLightDirections[lightIndex].xyz;
@@ -245,7 +247,6 @@ void PBR_BSSSDFSkin_DirectionalLighting(half3 specCol, float3 pos_world, half3 n
         half ndotl = max(0.0, ndotl_source);
         half3 ndotl_sss = _LUTSSS.Sample(sampler_bilinear_clamp, float2(ndotl_source * 0.5 + 0.5, r)).rgb;
         half ndoth = max(0.0, dot(n, h));
-        half vdoth = max(0.0, dot(v, h));
         half ldoth = max(0.0, dot(l, h));
         half f0 = PBR_F0(ndotl, ndotv, ldoth, roughness);
         half3 fgd = PBR_SchlickFresnelFunction(specCol, ldoth) * PBR_G(ndotl, ndotv, roughness) * PBR_D(roughness, ndoth);
@@ -268,7 +269,7 @@ void PBR_BSSSDFSkin_PointLighting(half3 specCol, half3 ndotl_sss_avg, float3 pos
     uint2 screenXY = pos_clip / 16.0;
     uint tileIndex = screenXY.y * _ScreenParams.x / 16.0 + screenXY.x;
     uint tileData = _TileLightingDatas[tileIndex];
-
+    [loop]
     for(uint tileLightOffset = 0; tileLightOffset < min(tileData, _PointLightCount); ++tileLightOffset)
     {
         uint tileLightIndex = tileIndex * 256 + tileLightOffset;

@@ -42,12 +42,11 @@ bool IntersectTileAndPointLight(float zMin, float zMax, uint3 groupId, float4 li
     uint lightSliceStart = max(0, floor((lightMinDepth + zMin) / depthSliceInterval));
     uint lightSliceEnd = min(32, floor((lightMaxDepth + zMin) / depthSliceInterval));
     uint lightDepthMask = 0;
-    for(uint i = lightSliceStart; i <= lightSliceEnd; i++)
+    [loop]
+    for(uint i = lightSliceStart; i <= lightSliceEnd; ++i)
     {
         lightDepthMask |= (1 << i);
     }
-
-    bool result = false;
 
     if((lightDepthMask & geoDepthMask) != 0)
     {
@@ -58,24 +57,24 @@ bool IntersectTileAndPointLight(float zMin, float zMax, uint3 groupId, float4 li
         frustume[0] = float4(0, 0, 1, -zMax);
         frustume[1] = float4(0, 0, -1, zMin);
 
-        float3 v0 = _TileLBStart.xyz + _TileRVec.xyz * groupId.x + _TileUVec.xyz * groupId.y;
-        float3 v1 = v0 + _TileUVec.xyz;
+        float3 v0 = normalize(_TileLBStart.xyz + _TileRVec.xyz * groupId.x + _TileUVec.xyz * groupId.y);
+        float3 v1 = normalize(v0 + _TileUVec.xyz);
 
-        float3 n2 = normalize(cross(v1, v0));
+        float3 n2 = cross(v1, v0);
         frustume[2] = float4(n2, 0);
 
-        float3 v2 = v0 +_TileRVec.xyz;
-        float3 v3 = v0 + _TileRVec.xyz + _TileUVec.xyz;
+        float3 v2 = normalize(v0 +_TileRVec.xyz);
+        float3 v3 = normalize(v0 + _TileRVec.xyz + _TileUVec.xyz);
 
-        float3 n3 = normalize(cross(v2, v3));
+        float3 n3 = cross(v2, v3);
         frustume[3] = float4(n3, 0);
-        float3 n4 = normalize(cross(v3, v1));
+        float3 n4 = cross(v3, v1);
         frustume[4] = float4(n4, 0);
-        float3 n5 = normalize(cross(v0, v2));
+        float3 n5 = cross(v0, v2);
         frustume[5] = float4(n5, 0);
 
         [unroll(6)]
-        for(int k = 0; k < 6; k++)
+        for(uint k = 0; k < 6; ++k)
         {
             // https://gdbooks.gitbooks.io/3dcollisions/content/Chapter2/static_aabb_plane.html AABB-平面相交
             float4 plane = frustume[k];
@@ -87,12 +86,12 @@ bool IntersectTileAndPointLight(float zMin, float zMax, uint3 groupId, float4 li
 
             if((-r - s) > 0)
             {
-                result = false;
+                return false;
             }
         }
-        result = true;
+        return true;
     }
-    return result;
+    return false;
 }
 
 [numthreads(16,16,1)]
@@ -110,8 +109,6 @@ void CSMain (uint3 id : SV_DispatchThreadID, uint groupIndex : SV_GROUPINDEX, ui
     }
     GroupMemoryBarrierWithGroupSync();
 
-    // float2 uv = id.xy / _ScreenParams.xy;
-    // uv.y = _ProjectionParams.x > 0 ? uv.y : 1.0 - uv.y;
     float4 depthNormalData = _BXDepthNormalBuffer.Load(id);
     float3 n;
     float depth;
