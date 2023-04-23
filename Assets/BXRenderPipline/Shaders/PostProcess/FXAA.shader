@@ -35,7 +35,7 @@ Shader "BXPostProcess/FXAA"
                     vertexID <= 1 ? 0.0 : 2.0,
                     vertexID == 1 ? 2.0 : 0.0
                 );
-                if(_ProjectionParams.x > 0.0) o.uv_screen.y = 1.0 - o.uv_screen.y;
+                if(_ProjectionParams.x < 0.0) o.uv_screen.y = 1.0 - o.uv_screen.y;
                 return o;
             }
 

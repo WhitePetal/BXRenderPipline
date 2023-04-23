@@ -11,11 +11,11 @@ public partial class MainCameraRender
 	private ScriptableRenderContext context;
 	private CullingResults cullingResults;
 
-	private const string graphicsCommandBufferName = "Graphics Render";
+	private const string graphicsCommandBufferName = "Graphics_Render";
 #if !UNITY_EDITOR
 	private string SampleName = graphicsCommandBufferName;
 #endif
-	private const string computesCommandBufferName = "Compute Caclute";
+	private const string computesCommandBufferName = "Compute_Caclute";
 	private CommandBuffer commandBufferGraphics = new CommandBuffer
 	{
 		name = graphicsCommandBufferName
@@ -26,22 +26,18 @@ public partial class MainCameraRender
 	};
 
 	private int width, height;
-	private ReflectType reflectType;
 
 	public Lights lights = new Lights();
 	private DeferredGraphics graphicsPipline = new DeferredGraphics();
 	private DeferredCompute computePipline = new DeferredCompute();
+	public ComputeBuffer tileLightingIndicesBuffer = new ComputeBuffer(2048 * 2048, sizeof(uint));
+	public ComputeBuffer tileLightingDatasBuffer = new ComputeBuffer(2048 * 2048 / 256, sizeof(uint));
 
-	private DeferredComputeSettings deferredComputeSettings;
-
-	public void Render(ScriptableRenderContext context, Camera camera, bool editorMode, bool useDynamicBatching, bool useGPUInstancing, 
-		ReflectType reflectType,
+	public void Render(ScriptableRenderContext context, Camera camera, bool editorMode, bool useDynamicBatching, bool useGPUInstancing,
 		DeferredComputeSettings deferredComputeSettings, PostProcessSettings postprocessSettings, ShadowSettings shadowSettings)
 	{
 		this.context = context;
 		this.camera = camera;
-		this.reflectType = reflectType;
-		this.deferredComputeSettings = deferredComputeSettings;
 
 #if UNITY_EDITOR
 		PreparBuffer();
@@ -53,25 +49,29 @@ public partial class MainCameraRender
 		commandBufferGraphics.BeginSample(SampleName);
 		ExecuteGraphicsCommand();
 		lights.Setup(context, cullingResults, shadowSettings);
-		commandBufferGraphics.EndSample(SampleName);
 
-		width = camera.pixelWidth;
-		height = camera.pixelHeight;
-		int aa = 1;
+        width = camera.pixelWidth;
+        height = camera.pixelHeight;
 
-		graphicsPipline.Setup(context, cullingResults, commandBufferGraphics, camera,
-			width, height, aa,
-			editorMode, useDynamicBatching, useGPUInstancing,
-			postprocessSettings);
-		computePipline.Setup(context, commandBufferCompute, camera, reflectType, deferredComputeSettings, 
-			width, height, lights.pointLightCount, lights.pointLightSpheres);
-		SetupForRender();
+        graphicsPipline.Setup(context, cullingResults, commandBufferGraphics, camera,
+            width, height, 1,
+            editorMode, useDynamicBatching, useGPUInstancing,
+            postprocessSettings);
+        SetupForRender();
 
+		commandBufferGraphics.SetGlobalBuffer(Constants.tileLightingDatasId, tileLightingDatasBuffer);
+		commandBufferGraphics.SetGlobalBuffer(Constants.tileLightingIndicesId, tileLightingIndicesBuffer);
 		graphicsPipline.Render();
+
+        computePipline.Setup(context, commandBufferCompute, camera, lights, deferredComputeSettings,
+            width, height, lights.pointLightCount, lights.pointLightSpheres);
+		commandBufferCompute.SetGlobalBuffer(Constants.tileLightingDatasId, tileLightingDatasBuffer);
+		commandBufferCompute.SetGlobalBuffer(Constants.tileLightingIndicesId, tileLightingIndicesBuffer);
 		computePipline.CaculateAftRender();
-		CleanUp();
+
+        CleanUp();
 		Submit();
-	}
+    }
 
 	private void ExecuteGraphicsCommand()
 	{
@@ -116,51 +116,52 @@ public partial class MainCameraRender
 		viewPortRays.SetRow(2, rb);
 		viewPortRays.SetRow(3, ru);
 
-		float tileCountX = width / 32.0f;
-		float tileCountY = height / 32.0f;
+		float tileCountX = Mathf.Ceil(width / 16.0f);
+		float tileCountY = Mathf.Ceil(height / 16.0f);
 		Vector4 tileLRStart = new Vector4(-w_half, -h_half, -1);
-		Vector4 tileRVec = new Vector4(w_half / tileCountX, 0, 0);
-		Vector4 tileUVec = new Vector4(0, h_half / tileCountY, 0);
+		Vector4 tileRVec = new Vector4(w_half * 2f / tileCountX, 0, 0);
+		Vector4 tileUVec = new Vector4(0, h_half * 2f / tileCountY, 0);
 
 		commandBufferGraphics.SetGlobalMatrix(Constants.viewPortRaysId, viewPortRays);
 		commandBufferGraphics.SetGlobalVector(Constants.tileLBStartId, tileLRStart);
 		commandBufferGraphics.SetGlobalVector(Constants.tileRVecId, tileRVec);
 		commandBufferGraphics.SetGlobalVector(Constants.tileUVecId, tileUVec);
 
-		for(int i = 0; i < Constants.reflectTypeKeywords.Length; ++i)
-		{
-			if(i == (int)reflectType)
-			{
-				commandBufferGraphics.EnableShaderKeyword(Constants.reflectTypeKeywords[i]);
-			}
-			else
-			{
-				commandBufferGraphics.DisableShaderKeyword(Constants.reflectTypeKeywords[i]);
-			}
-		}
+		commandBufferGraphics.EnableShaderKeyword(Constants.reflectTypeKeywords[1]);
 
+		//for (int i = 0; i < Constants.reflectTypeKeywords.Length; ++i)
+		//{
+		//	if (i == (int)reflectType)
+		//	{
+		//commandBufferGraphics.EnableShaderKeyword(Constants.reflectTypeKeywords[i]);
+		//	}
+		//	else
+		//	{
+		//		commandBufferGraphics.DisableShaderKeyword(Constants.reflectTypeKeywords[i]);
+		//	}
+		//}
 		context.SetupCameraProperties(camera);
 		ExecuteGraphicsCommand();
 	}
 
 	private void CleanUp()
 	{
-		graphicsPipline.CleanUp();
-		computePipline.CleanUp();
-	}
+		commandBufferGraphics.EndSample(SampleName);
+		ExecuteGraphicsCommand();
+        lights.Cleanup();
+        graphicsPipline.CleanUp();
+        computePipline.CleanUp();
+    }
 
 	private void Submit()
 	{
-		commandBufferGraphics.EndSample(SampleName);
-		lights.Cleanup();
-		ExecuteGraphicsCommand();
-		context.Submit();
+        context.Submit();
 	}
 
-	public void Dispose()
-	{
-		computePipline.Dispose();
-		commandBufferGraphics.Dispose();
-		commandBufferCompute.Dispose();
-	}
+	//public void Dispose()
+	//{
+	//	computePipline.Dispose();
+ //       commandBufferGraphics.Dispose();
+	//	commandBufferCompute.Dispose();
+	//}
 }

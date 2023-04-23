@@ -33,6 +33,6 @@ public class BXRenderPiplineAsset : RenderPipelineAsset
 	protected override RenderPipeline CreatePipeline()
 	{
 		return new BXRenderPipline(editorMode, useDynamicBatching, useGPUInstancing, useSRPBatching, frameRate,
-			reflectType, deferredComputeSettings, processSettings, shadowSettings);
+			deferredComputeSettings, processSettings, shadowSettings);
 	}
 }

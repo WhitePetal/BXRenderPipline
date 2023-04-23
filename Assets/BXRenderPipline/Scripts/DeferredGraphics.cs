@@ -46,17 +46,20 @@ public class DeferredGraphics
 	public void Render()
 	{
 		commandBuffer.BeginSample(commandBuffer.name);
-		GenerateBuffers();
+		ExecuteBuffer();
+        GenerateBuffers();
 
-		DrawGeometryGBuffer(useDynamicBatching, useGPUInstancing);
+        DrawGeometryGBuffer(useDynamicBatching, useGPUInstancing);
 #if UNITY_EDITOR
-		DrawUnsupportShader();
+        DrawUnsupportShader();
 		DrawGizmosBeforePostProcess();
 #endif
 		DrawPostProcess();
 #if UNITY_EDITOR
 		DrawGizmosAfterPostProcess();
 #endif
+		commandBuffer.EndSample(commandBuffer.name);
+		ExecuteBuffer();
 	}
 
 	public void CleanUp()
@@ -65,7 +68,7 @@ public class DeferredGraphics
 		commandBuffer.ReleaseTemporaryRT(Constants.lightingBufferId);
 		commandBuffer.ReleaseTemporaryRT(Constants.depthNormalBufferId);
 		commandBuffer.ReleaseTemporaryRT(Constants.fxaaInputBufferId);
-		commandBuffer.ReleaseTemporaryRT(Constants.ssrBufferId);
+		//commandBuffer.ReleaseTemporaryRT(Constants.ssrBufferId);
 
 		postProcess.CleanUp();
 	}
@@ -80,25 +83,49 @@ public class DeferredGraphics
 		commandBuffer.GetTemporaryRT(Constants.lightingBufferId, width, height, 0, FilterMode.Point, RenderTextureFormat.ARGBHalf, RenderTextureReadWrite.Linear, 1, false, RenderTextureMemoryless.None);
 		commandBuffer.GetTemporaryRT(Constants.depthNormalBufferId, width, height, 0, FilterMode.Point, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear, 1, false, RenderTextureMemoryless.None);
 		commandBuffer.GetTemporaryRT(Constants.fxaaInputBufferId, width, height, 0, FilterMode.Point, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear, 1, false, RenderTextureMemoryless.None);
-		var ssrDescriptor = new RenderTextureDescriptor(width >> 2, height >> 2, RenderTextureFormat.ARGBHalf, 0);
-		ssrDescriptor.memoryless = RenderTextureMemoryless.None;
-		ssrDescriptor.msaaSamples = 1;
-		ssrDescriptor.sRGB = false;
-		ssrDescriptor.autoGenerateMips = false;
-		ssrDescriptor.enableRandomWrite = true;
-		ssrDescriptor.useMipMap = true;
-		ssrDescriptor.mipCount = 4;
-		commandBuffer.GetTemporaryRT(Constants.ssrBufferId, ssrDescriptor, FilterMode.Bilinear);
+		//var ssrDescriptor = new RenderTextureDescriptor(width >> 2, height >> 2, RenderTextureFormat.ARGBHalf, 0);
+		//ssrDescriptor.memoryless = RenderTextureMemoryless.None;
+		//ssrDescriptor.msaaSamples = 1;
+		//ssrDescriptor.sRGB = false;
+		//ssrDescriptor.autoGenerateMips = false;
+		//ssrDescriptor.enableRandomWrite = true;
+		//ssrDescriptor.useMipMap = true;
+		//ssrDescriptor.mipCount = 4;
+		//commandBuffer.GetTemporaryRT(Constants.ssrBufferId, ssrDescriptor, FilterMode.Bilinear);
 
 		ExecuteBuffer();
 	}
 
 	private void DrawGeometryGBuffer(bool useDynamicBatching, bool useGPUInstancing)
 	{
-		commandBuffer.SetRenderTarget(Constants.shadingBinding);
+		//commandBuffer.SetRenderTarget(Constants.shadingBinding);
+
+		var lightingBuffer = new AttachmentDescriptor(RenderTextureFormat.ARGBHalf);
+		var depthNormalBuffer = new AttachmentDescriptor(RenderTextureFormat.ARGB32);
+		var depthBuffer = new AttachmentDescriptor(RenderTextureFormat.Depth);
+
 		CameraClearFlags clearFlags = camera.clearFlags;
-		commandBuffer.ClearRenderTarget(clearFlags <= CameraClearFlags.Depth, clearFlags <= CameraClearFlags.Color, clearFlags == CameraClearFlags.SolidColor ? camera.backgroundColor.linear : Color.clear);
-		ExecuteBuffer();
+		lightingBuffer.ConfigureClear(clearFlags == CameraClearFlags.SolidColor ? camera.backgroundColor.linear : Color.clear, 1f, 0);
+		depthNormalBuffer.ConfigureClear(Color.clear);
+		depthBuffer.ConfigureClear(Color.clear, 1f, 0);
+
+		lightingBuffer.ConfigureTarget(Constants.lightingBufferTargetId, false, true);
+		depthNormalBuffer.ConfigureTarget(Constants.depthNormalBufferTargetId, false, true);
+		depthBuffer.ConfigureTarget(Constants.depthBufferTargetId, false, false);
+
+		var attachments = new NativeArray<AttachmentDescriptor>(3, Allocator.Temp);
+		const int depthBufferIndex = 0, lightingBufferIndex = 1, depthNormalBufferIndex = 2;
+		attachments[depthBufferIndex] = depthBuffer;
+		attachments[lightingBufferIndex] = lightingBuffer;
+		attachments[depthNormalBufferIndex] = depthNormalBuffer;
+		context.BeginRenderPass(width, height, 1, attachments, depthBufferIndex);
+		attachments.Dispose();
+
+		var gBufferColors = new NativeArray<int>(2, Allocator.Temp);
+		gBufferColors[0] = lightingBufferIndex;
+		gBufferColors[1] = depthNormalBufferIndex;
+		context.BeginSubPass(gBufferColors);
+		gBufferColors.Dispose();
 
 		PerObjectData lightsPerObjectFlags = PerObjectData.None;
 		SortingSettings sortingSettings = new SortingSettings(camera)
@@ -136,17 +163,21 @@ public class DeferredGraphics
 		drawingSettings.SetShaderPassName(4, BXRenderPipline.bxShaderTagIds[6]);
 		filteringSettings = new FilteringSettings(RenderQueueRange.transparent);
 		context.DrawRenderers(cullingResults, ref drawingSettings, ref filteringSettings);
+
+
+		context.EndSubPass();
+		context.EndRenderPass();
 	}
 
 	private void DrawPostProcess()
 	{
-		postProcess.Fog();
-		postProcess.Bloom();
-		postProcess.ColorGrade();
-		commandBuffer.SetRenderTarget(BuiltinRenderTextureType.CameraTarget);
+        postProcess.Fog();
+        postProcess.Bloom();
+        postProcess.ColorGrade();
+        commandBuffer.SetRenderTarget(BuiltinRenderTextureType.CameraTarget);
 		commandBuffer.ClearRenderTarget(true, true, Color.clear);
-		postProcess.FXAA();
-		ExecuteBuffer();
+        postProcess.FXAA();
+        ExecuteBuffer();
 	}
 
 #if UNITY_EDITOR

@@ -9,7 +9,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 513ca69b0a374b34f9de89dc6c22e014, type: 3}
+  m_Script: {fileID: 11500000, guid: 0b8d8ebd19e644a74875705ed60382f9, type: 3}
   m_Name: New BX Render Pipline Asset
   m_EditorClassIdentifier: 
   editorMode: 0
@@ -19,12 +19,12 @@ MonoBehaviour:
   frameRate: 60
   reflectType: 1
   shadowSettings:
-    maxShadowDistance: 50
+    maxShadowDistance: 100
     distanceFade: 0.1
-    shadowsColor: {r: 0.1978996, g: 0.31454667, b: 0.3207547, a: 1}
-    shadowMapBits: 16
+    shadowsColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+    shadowMapBits: 24
     shadowMapSize: 2048
-    shadowFilter: 1
+    shadowFilter: 0
     cascadeBlendMode: 2
     cascadeCount: 4
     cascadeRatio1: 0.1
@@ -37,15 +37,15 @@ MonoBehaviour:
   processSettings:
     copTexShader: {fileID: 4800000, guid: 83f9d710d6f3ca84d96a5a4671c475a5, type: 3}
     colorGradeShader: {fileID: 4800000, guid: 1b2ac288a9d63c44180f84199e0f52e9, type: 3}
-    colorGradeShaderEditor: {fileID: 4800000, guid: 519a99c47de08774891234bdf8eeba8b,
+    colorGradeShaderEditor: {fileID: 4800000, guid: 1b2ac288a9d63c44180f84199e0f52e9,
       type: 3}
     bloomSettings:
       bloomShader: {fileID: 4800000, guid: 5d4e85e969e10884ea76036b976ecb0f, type: 3}
       maxIterations: 3
       downScaleLimit: 2
       threshold: 1
-      thresholdKnee: 0
-      intensity: 1
+      thresholdKnee: 0.5
+      intensity: 0.5
     toneMappingType: 2
     colorGradingSettings:
       enable: 0
@@ -60,28 +60,28 @@ MonoBehaviour:
       tint: 0
     splitToningSettings:
       enable: 0
-      shadows: {r: 0.42217872, g: 0.53740025, b: 0.5566038, a: 1}
-      highlights: {r: 0.9811321, g: 0.9220682, b: 0.7719473, a: 1}
-      balance: 5.2
+      shadows: {r: 0.36, g: 0.49, b: 0.5, a: 1}
+      highlights: {r: 0.92, g: 0.83, b: 0.59, a: 1}
+      balance: 30
     chanelMixerSettings:
       enable: 0
       red: {x: 1, y: 0, z: 0}
       green: {x: 0, y: 1, z: 0}
       blue: {x: 0, y: 0, z: 1}
     shadowsMidtoneHighlightSettings:
-      enable: 1
-      shadows: {r: 0.6234959, g: 0.77928734, b: 0.7924528, a: 1}
-      midtone: {r: 0.9245283, g: 0.8669633, b: 0.9045057, a: 1}
-      highlights: {r: 0.9811321, g: 0.9811321, b: 0.9811321, a: 1}
+      enable: 0
+      shadows: {r: 0.62, g: 0.77, b: 0.79, a: 1}
+      midtone: {r: 0.93, g: 0.78, b: 0.86, a: 1}
+      highlights: {r: 1, g: 0.9, b: 0.79, a: 1}
       shadowStart: 0
-      shadowEnd: 0.112
-      highlightsStart: 0.436
-      highlightsEnd: 1.31
+      shadowEnd: 0.46
+      highlightsStart: 0.586
+      highlightsEnd: 1.439
     fxaaSettings:
       qualitys: 1
       fxaaShader: {fileID: 4800000, guid: 046ec18a6e565410eadaee35bea0344b, type: 3}
-      fixedThreshold: 0.07
-      relativeThreshold: 0.15
+      fixedThreshold: 0.0833
+      relativeThreshold: 0.166
       subpixelBlending: 0.75
     fogSettings:
       fogShader: {fileID: 4800000, guid: 04c90dd40eaa845089cd65548b01e80b, type: 3}

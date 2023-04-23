@@ -15,7 +15,7 @@ public class PostProcess
 	{
 		get
 		{
-			if(copyTexMaterial == null && settings.copTexShader != null)
+			if (copyTexMaterial == null && settings.copTexShader != null)
 			{
 				copyTexMaterial = new Material(settings.copTexShader);
 				copyTexMaterial.hideFlags = HideFlags.HideAndDontSave;
@@ -57,7 +57,7 @@ public class PostProcess
 	{
 		get
 		{
-			if(fxaaMaterial == null && settings.fxaaSettings.fxaaShader != null)
+			if (fxaaMaterial == null && settings.fxaaSettings.fxaaShader != null)
 			{
 				fxaaMaterial = new Material(settings.fxaaSettings.fxaaShader);
 				fxaaMaterial.hideFlags = HideFlags.HideAndDontSave;
@@ -68,17 +68,17 @@ public class PostProcess
 
 	private Material fogMaterial;
 	private Material FogMaterial
-    {
-        get
-        {
-			if(fogMaterial == null && settings.fogSettings.fogShader != null)
-            {
+	{
+		get
+		{
+			if (fogMaterial == null && settings.fogSettings.fogShader != null)
+			{
 				fogMaterial = new Material(settings.fogSettings.fogShader);
 				fogMaterial.hideFlags = HideFlags.HideAndDontSave;
-            }
+			}
 			return fogMaterial;
-        }
-    }
+		}
+	}
 
 	private CommandBuffer commandBuffer;
 
@@ -117,7 +117,7 @@ public class PostProcess
 	}
 
 	public void Fog()
-    {
+	{
 		commandBuffer.GetTemporaryRT(Constants.fogLightingBufferId, width >> 1, height >> 1, 0, FilterMode.Bilinear, RenderTextureFormat.ARGBHalf, RenderTextureReadWrite.Linear, 1, false, RenderTextureMemoryless.None);
 		commandBuffer.GetTemporaryRT(Constants.fogFinalBufferId, width, height, 0, FilterMode.Bilinear, RenderTextureFormat.ARGBHalf, RenderTextureReadWrite.Linear, 1, false, RenderTextureMemoryless.None);
 		commandBuffer.SetRenderTarget(Constants.fogLightingBufferTargetId);
@@ -133,7 +133,7 @@ public class PostProcess
 	private void BloomBlur(RenderTargetIdentifier from, RenderTargetIdentifier to, int pass, bool clear = false)
 	{
 		commandBuffer.SetRenderTarget(to);
-		if(clear) commandBuffer.ClearRenderTarget(true, true, Color.clear);
+		if (clear) commandBuffer.ClearRenderTarget(true, true, Color.clear);
 		commandBuffer.SetGlobalTexture(Constants.bloomInput0Id, from);
 		commandBuffer.DrawProcedural(Matrix4x4.identity, BloomMaterial, pass, MeshTopology.Triangles, 3);
 	}
@@ -291,9 +291,9 @@ public class PostProcess
 
 	public void FXAA()
 	{
-		for(int i = 0; i < fxaaKeywords.Length; ++i)
+		for (int i = 0; i < fxaaKeywords.Length; ++i)
 		{
-			if(i == (int)settings.fxaaSettings.qualitys)
+			if (i == (int)settings.fxaaSettings.qualitys)
 			{
 				FXAAMaterial.EnableKeyword(fxaaKeywords[i]);
 			}
@@ -304,7 +304,7 @@ public class PostProcess
 		}
 
 		commandBuffer.SetGlobalVector(Constants.fxaaConfigId, new Vector4(
-			settings.fxaaSettings.fixedThreshold, 
+			settings.fxaaSettings.fixedThreshold,
 			settings.fxaaSettings.relativeThreshold,
 			settings.fxaaSettings.subpixelBlending
 			));

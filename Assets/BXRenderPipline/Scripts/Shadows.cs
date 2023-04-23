@@ -61,9 +61,8 @@ public class Shadows
 		this.context = context;
 		this.cullingResults = cullingResults;
 		this.shadowSettings = shadowSettings;
-		commandBuffer.BeginSample(bufferName);
-		shadowedDirectionalLightCount = 0;
-		commandBuffer.EndSample(bufferName);
+		this.shadowedDirectionalLightCount = 0;
+        commandBuffer.BeginSample(bufferName);
 		ExecuteCommandBuffer();
 	}
 
@@ -76,8 +75,8 @@ public class Shadows
 	public Vector4 SaveDirectionalShadows(Light light, int visibleLightIndex)
 	{
 		Vector2 shadowData;
-		if(shadowedDirectionalLightCount < maxShadowedDirectionalLightCount
-			&& light.shadows != LightShadows.None && light.shadowStrength > 0f && 
+		if (shadowedDirectionalLightCount < maxShadowedDirectionalLightCount
+			&& light.shadows != LightShadows.None && light.shadowStrength > 0f &&
 			cullingResults.GetShadowCasterBounds(visibleLightIndex, out Bounds bound))
 		{
 			shadowDirectionalLights[shadowedDirectionalLightCount] = new ShadowedDirectionalLight()
@@ -97,11 +96,11 @@ public class Shadows
 
 	public void Render(bool useShadowMask)
 	{
-		SetKeywords(shadowMaskKeywords, useShadowMask ? 
+		SetKeywords(shadowMaskKeywords, useShadowMask ?
 			QualitySettings.shadowmaskMode == ShadowmaskMode.Shadowmask ? 0 : 1 :
 			-1);
 		commandBuffer.SetGlobalColor(shadowsColorId, shadowSettings.shadowsColor.linear);
-		if(shadowedDirectionalLightCount > 0)
+		if (shadowedDirectionalLightCount > 0)
 		{
 			SetKeywords(directionalFilterKeywords, (int)shadowSettings.shadowFilter - 1);
 			SetKeywords(cascadeBlendKeywords, (int)shadowSettings.cascadeBlendMode - 1);
@@ -113,14 +112,14 @@ public class Shadows
 		}
 
 		float f = 1.0f - shadowSettings.cascadeFade;
-		commandBuffer.SetGlobalVector(shadowsDistanceFadeId, new Vector4(1.0f/shadowSettings.maxShadowDistance, 1.0f/shadowSettings.distanceFade, 
-			1.0f/(1.0f-f*f)));
+		commandBuffer.SetGlobalVector(shadowsDistanceFadeId, new Vector4(1.0f / shadowSettings.maxShadowDistance, 1.0f / shadowSettings.distanceFade,
+			1.0f / (1.0f - f * f)));
 		commandBuffer.SetGlobalMatrixArray(directionalShadowMatrixsId, directionalShadowMatrixs);
 		commandBuffer.SetGlobalInt(cascadeCountId, shadowSettings.cascadeCount);
 		commandBuffer.SetGlobalVectorArray(cascadeCullingSpheresId, cascadeCullingSpheres);
 		commandBuffer.SetGlobalVectorArray(cascadeDatasId, cascadeDatas);
 		commandBuffer.EndSample(bufferName);
-		ExecuteCommandBuffer();
+        ExecuteCommandBuffer();
 	}
 
 	private void SetKeywords(string[] keywords, int enabledIndex)
@@ -144,8 +143,6 @@ public class Shadows
 		commandBuffer.GetTemporaryRT(directionalShadowMapId, shadowMapSize, shadowMapSize, (int)shadowSettings.shadowMapBits, FilterMode.Bilinear, RenderTextureFormat.Shadowmap, RenderTextureReadWrite.Linear, 1, false, RenderTextureMemoryless.Color);
 		commandBuffer.SetRenderTarget(directionalShadowMapTargetId, RenderBufferLoadAction.DontCare, RenderBufferStoreAction.Store);
 		commandBuffer.ClearRenderTarget(true, false, Color.clear);
-		commandBuffer.BeginSample(bufferName);
-		ExecuteCommandBuffer();
 
 		commandBuffer.SetGlobalVector(shadowMapSizeId, new Vector4(shadowMapSize, 1.0f / shadowMapSize));
 
@@ -155,7 +152,7 @@ public class Shadows
 		int split = tileCount <= 1 ? 1 : tileCount <= 4 ? 2 : 4;
 		int tileSize = shadowMapSize / split;
 		float cullingFactor = Mathf.Max(0f, 0.8f - shadowSettings.cascadeFade);
-		for(int i = 0; i < shadowedDirectionalLightCount; ++i)
+		for (int i = 0; i < shadowedDirectionalLightCount; ++i)
 		{
 			int tileIndexOffset = i * cascadeCount;
 			ShadowedDirectionalLight light = shadowDirectionalLights[i];
@@ -166,7 +163,7 @@ public class Shadows
 					out Matrix4x4 viewMatrix, out Matrix4x4 projMatrix, out ShadowSplitData shadowSplitData);
 				shadowSplitData.shadowCascadeBlendCullingFactor = cullingFactor;
 				dirShadowSettings.splitData = shadowSplitData;
-				if(i == 0) // 所有方向光的级联都使用同一个级联球体，因此我们只需要存储第一个光源的即可
+				if (i == 0) // 鎵�鏈夋柟鍚戝厜鐨勭骇鑱旈兘浣跨敤鍚屼竴涓骇鑱旂悆浣擄紝鍥犳鎴戜滑鍙渶瑕佸瓨鍌ㄧ涓�涓厜婧愮殑鍗冲彲
 				{
 					SetCascadeData(cascadeIndex, shadowSplitData.cullingSphere, tileSize);
 				}
@@ -179,6 +176,7 @@ public class Shadows
 				commandBuffer.SetGlobalDepthBias(0f, 0f);
 			}
 		}
+		ExecuteCommandBuffer();
 	}
 
 	private Vector2 SetTileViewport(int index, int split, int tileSize)
