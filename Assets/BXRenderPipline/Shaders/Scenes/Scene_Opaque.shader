@@ -27,10 +27,10 @@ Shader "BXScenes/Scene_Opaque"
             #pragma shader_feature_local _EMISSION_ON
             #pragma shader_feature_local _REALTIME_LIGHTING_ON
             #pragma multi_compile __ LIGHTMAP_ON
-            #pragma multi_compile _ _SHADOW_MASK_ALWAYS _SHADOW_MASK_DISTANCE
-            #pragma multi_compile _ _DIRECTIONAL_PCF3 _DIRECTIONAL_PCF5 _DIRECTIONAL_PCF7
-            #pragma multi_compile _ _CASCADE_BLEND_SOFT _CASCADE_BLEND_DITHER
-            #pragma multi_compile _SSR_ONLY _REFLECT_PROBE_ONLY _SSR_AND_RELFECT_PROBE
+            #pragma multi_compile __ _SHADOW_MASK_ALWAYS _SHADOW_MASK_DISTANCE
+            #pragma multi_compile __ _DIRECTIONAL_PCF3 _DIRECTIONAL_PCF5 _DIRECTIONAL_PCF7
+            #pragma multi_compile __ _CASCADE_BLEND_SOFT _CASCADE_BLEND_DITHER
+            #pragma multi_compile __ _REFLECT_PROBE_ONLY
             #pragma multi_compile_instancing
 
             #define BRDF_LIGHTING 1
@@ -140,7 +140,11 @@ Shader "BXScenes/Scene_Opaque"
                 half3 specularColor = 0.0;
 
                 #ifdef _REALTIME_LIGHTING_ON
-                    PBR_BRDF_DirectionalLighting(specCol, i.pos_world.xyz, n, v, i.vertex.xy, ndotv, roughness, depthEye, diffuseColor, specularColor);
+                    #ifdef LIGHTMAP_ON
+                        PBR_BRDF_DirectionalLighting(specCol, i.pos_world.xyz, i.uv.zw, n, v, i.vertex.xy, ndotv, roughness, depthEye, diffuseColor, specularColor);
+                    #else
+                        PBR_BRDF_DirectionalLighting(specCol, i.pos_world.xyz, 0.0, n, v, i.vertex.xy, ndotv, roughness, depthEye, diffuseColor, specularColor);
+                    #endif
                     PBR_BRDF_PointLighting(specCol, i.pos_world.xyz, n, v, i.vertex.xy, ndotv, roughness, diffuseColor, specularColor);
                 #endif
 

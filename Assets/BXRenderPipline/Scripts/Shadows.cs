@@ -170,7 +170,7 @@ public class Shadows
 				int tileInex = cascadeIndex + tileIndexOffset;
 				directionalShadowMatrixs[tileInex] = ConvertToShadowMapTileMatrix(projMatrix * viewMatrix, SetTileViewport(tileInex, split, tileSize), split);
 				commandBuffer.SetViewProjectionMatrices(viewMatrix, projMatrix);
-				commandBuffer.SetGlobalDepthBias(100f, light.slopeScaleBias);
+				commandBuffer.SetGlobalDepthBias(1f, 2.5f + light.slopeScaleBias);
 				ExecuteCommandBuffer();
 				context.DrawShadows(ref dirShadowSettings);
 				commandBuffer.SetGlobalDepthBias(0f, 0f);

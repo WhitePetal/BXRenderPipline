@@ -158,7 +158,7 @@ half3 PBR_GetIndirectSpecular(half3 specCol, half3 r, float2 uv_screen, half ndo
 }
 
 #if BRDF_LIGHTING
-void PBR_BRDF_DirectionalLighting(half3 specCol, float3 pos_world, half3 n, half3 v, float2 pos_clip, half ndotv, half roughness, half depthEye, inout half3 diffuseColor, inout half3 specularColor)
+void PBR_BRDF_DirectionalLighting(half3 specCol, float3 pos_world, float2 lightmapUV, half3 n, half3 v, float2 pos_clip, half ndotv, half roughness, half depthEye, inout half3 diffuseColor, inout half3 specularColor)
 {
     #ifndef _SHADOW_MASK_ALWAYS
         half shadowDistanceStrength = GetShadowDistanceStrength(depthEye);
@@ -175,9 +175,9 @@ void PBR_BRDF_DirectionalLighting(half3 specCol, float3 pos_world, half3 n, half
         half3 l = _DirectionalLightDirections[lightIndex].xyz;
         half3 lightColor = _DirectionalLightColors[lightIndex].xyz;
         half3 h = SafeNormalize(l + v);
-        half ndotl = max(0.0, dot(n, l));
-        half ndoth = max(0.0, dot(n, h));
-        half ldoth = max(0.0, dot(l, h));
+        half ndotl = max(0.001, dot(n, l));
+        half ndoth = max(0.001, dot(n, h));
+        half ldoth = max(0.001, dot(l, h));
         half f0 = PBR_F0(ndotl, ndotv, ldoth, roughness);
         half3 fgd = PBR_SchlickFresnelFunction(specCol, ldoth) * PBR_G(ndotl, ndotv, roughness) * PBR_D(roughness, ndoth);
         #ifndef _SHADOW_MASK_ALWAYS
@@ -209,7 +209,7 @@ void PBR_BRDF_PointLighting(half3 specCol, float3 pos_world, half3 n, half3 v, f
 
         float3 lenV = lightSphere.xyz - pos_world.xyz;
         half lenSqr = max(0.001, dot(lenV, lenV));
-        half3 l = lenV * rsqrt(lenSqr);
+        half3 l = SafeNormalize(lenV);
         half3 h = SafeNormalize(l + v);
 
         half ndotl = max(0.001, dot(n, l));
@@ -244,10 +244,10 @@ void PBR_BSSSDFSkin_DirectionalLighting(half3 specCol, float3 pos_world, half3 n
         half3 lightColor = _DirectionalLightColors[lightIndex].xyz;
         half3 h = SafeNormalize(l + v);
         half ndotl_source = dot(n, l);
-        half ndotl = max(0.0, ndotl_source);
+        half ndotl = max(0.001, ndotl_source);
         half3 ndotl_sss = _LUTSSS.Sample(sampler_bilinear_clamp, float2(ndotl_source * 0.5 + 0.5, r)).rgb;
-        half ndoth = max(0.0, dot(n, h));
-        half ldoth = max(0.0, dot(l, h));
+        half ndoth = max(0.001, dot(n, h));
+        half ldoth = max(0.001, dot(l, h));
         half f0 = PBR_F0(ndotl, ndotv, ldoth, roughness);
         half3 fgd = PBR_SchlickFresnelFunction(specCol, ldoth) * PBR_G(ndotl, ndotv, roughness) * PBR_D(roughness, ndoth);
         #ifndef _SHADOW_MASK_ALWAYS
@@ -279,12 +279,12 @@ void PBR_BSSSDFSkin_PointLighting(half3 specCol, half3 ndotl_sss_avg, float3 pos
 
         float3 lenV = lightSphere.xyz - pos_world.xyz;
         half lenSqr = max(0.001, dot(lenV, lenV));
-        half3 l = lenV * rsqrt(lenSqr);
+        half3 l = SafeNormalize(lenV);
         half3 h = SafeNormalize(l + v);
 
-        half ndotl = max(0.0, dot(n, l));
-        half ndoth = max(0.0, dot(n, h));
-        half ldoth = max(0.0, dot(l, h));
+        half ndotl = max(0.001, dot(n, l));
+        half ndoth = max(0.001, dot(n, h));
+        half ldoth = max(0.001, dot(l, h));
         half atten =  saturate(1.0 - lenSqr / (lightSphere.w * lightSphere.w));
 
         lightColor *= atten;

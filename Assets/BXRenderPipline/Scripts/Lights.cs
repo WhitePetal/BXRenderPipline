@@ -64,7 +64,7 @@ public class Lights
 			{
 				useShadowMask = true;
 			}
-			//if (visibleLight.light.lightmapBakeType == LightmapBakeType.Baked) continue;
+			if (lightBaking.lightmapBakeType == LightmapBakeType.Baked) continue;
 			switch (visibleLight.lightType)
 			{
 				case LightType.Directional:

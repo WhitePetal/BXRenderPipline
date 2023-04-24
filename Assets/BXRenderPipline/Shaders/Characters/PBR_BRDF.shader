@@ -129,7 +129,7 @@ Shader "BXCharacters/PBR_BRDF"
                 half3 diffuseColor = 0.0;
                 half3 specularColor = 0.0;
 
-                PBR_BRDF_DirectionalLighting(specCol, i.pos_world.xyz, n, v, i.vertex.xy, ndotv, roughness, depthEye, diffuseColor, specularColor);
+                PBR_BRDF_DirectionalLighting(specCol, i.pos_world.xyz, 0.0, n, v, i.vertex.xy, ndotv, roughness, depthEye, diffuseColor, specularColor);
                 PBR_BRDF_PointLighting(specCol, i.pos_world.xyz, n, v, i.vertex.xy, ndotv, roughness, diffuseColor, specularColor);
 
                 diffuseColor = diffuseColor * albedo;
