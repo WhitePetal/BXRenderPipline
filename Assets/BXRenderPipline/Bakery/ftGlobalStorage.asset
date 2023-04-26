@@ -431,7 +431,10 @@ MonoBehaviour:
   - Assets/Bakery/examples/content/sponza/bush.FBX
   - Assets/Bakery/examples/content/floor_lamp.FBX
   - Assets/BXRenderPipline/ArtResources/ProducalCity/ProceduralTinyCity.fbx
-  uvOverlapAssetList: 00000000ffffffff01010000
+  - Assets/BXRenderPipline/ArtResources/ProducalCity/Models/Procedural Tiny City
+    - Geometry Nodes.blend
+  - Assets/BXRenderPipline/ArtResources/ProducalTerrain/ProceduralTerrain.fbx
+  uvOverlapAssetList: 00000000ffffffff0101000001010000ffffffff
   xatlasWarningShown: 0
   foundCompatibleSetup: 1
   gpuName: NVIDIA GeForce RTX 2060
