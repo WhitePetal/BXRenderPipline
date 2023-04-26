@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 349453141}
-  m_IndirectSpecularColor: {r: 0, g: 0, b: 0, a: 1}
+  m_IndirectSpecularColor: {r: 0.5195297, g: 0.9165052, b: 0.8657184, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -671,7 +671,8 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 7909573654493854136, guid: bcaa1650c18aef643963fc0f48366198, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: bcaa1650c18aef643963fc0f48366198, type: 3}
 --- !u!4 &62242530 stripped
 Transform:
@@ -2131,7 +2132,8 @@ PrefabInstance:
       propertyPath: m_StaticEditorFlags
       value: 123
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: -5167561777836346066, guid: ba1180cbdffd6e842b52e0af24f51aac, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: ba1180cbdffd6e842b52e0af24f51aac, type: 3}
 --- !u!4 &217641379 stripped
 Transform:
@@ -2947,7 +2949,8 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0.69
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 7909573654493854136, guid: bcaa1650c18aef643963fc0f48366198, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: bcaa1650c18aef643963fc0f48366198, type: 3}
 --- !u!4 &341004831 stripped
 Transform:
@@ -3058,8 +3061,8 @@ Light:
     m_Resolution: -1
     m_CustomResolution: -1
     m_Strength: 1
-    m_Bias: 0.6
-    m_NormalBias: 0.6
+    m_Bias: 0
+    m_NormalBias: 1
     m_NearPlane: 0.2
     m_CullingMatrixOverride:
       e00: 1
@@ -3422,7 +3425,8 @@ PrefabInstance:
       propertyPath: m_StaticEditorFlags
       value: 123
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: -5167561777836346066, guid: ba1180cbdffd6e842b52e0af24f51aac, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: ba1180cbdffd6e842b52e0af24f51aac, type: 3}
 --- !u!4 &400589418 stripped
 Transform:
@@ -4430,7 +4434,8 @@ PrefabInstance:
       propertyPath: m_StaticEditorFlags
       value: 123
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: -5167561777836346066, guid: ba1180cbdffd6e842b52e0af24f51aac, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: ba1180cbdffd6e842b52e0af24f51aac, type: 3}
 --- !u!4 &504816702 stripped
 Transform:
@@ -4935,7 +4940,8 @@ PrefabInstance:
       propertyPath: m_StaticEditorFlags
       value: 123
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 6583159243831519828, guid: f9f4ad5831f55b74182e1c5c32c2cc69, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: f9f4ad5831f55b74182e1c5c32c2cc69, type: 3}
 --- !u!23 &569363570 stripped
 MeshRenderer:
@@ -7931,7 +7937,7 @@ Camera:
   m_AllowMSAA: 0
   m_AllowDynamicResolution: 0
   m_ForceIntoRT: 0
-  m_OcclusionCulling: 1
+  m_OcclusionCulling: 0
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
 --- !u!4 &1023701072
@@ -7941,7 +7947,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1023701069}
-  m_LocalRotation: {x: -0.0017998706, y: 0.99816555, z: 0.038428225, w: 0.04675129}
+  m_LocalRotation: {x: -0.0017998707, y: 0.99816555, z: 0.038428206, w: 0.046751313}
   m_LocalPosition: {x: 0.84504807, y: 0.9059155, z: 2.7313404}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -8313,8 +8319,8 @@ Light:
     m_Resolution: -1
     m_CustomResolution: -1
     m_Strength: 1
-    m_Bias: 0.6
-    m_NormalBias: 0.4
+    m_Bias: 0
+    m_NormalBias: 1
     m_NearPlane: 0.2
     m_CullingMatrixOverride:
       e00: 1
@@ -9498,7 +9504,8 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 7909573654493854136, guid: bcaa1650c18aef643963fc0f48366198, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: bcaa1650c18aef643963fc0f48366198, type: 3}
 --- !u!4 &1248493522 stripped
 Transform:
@@ -9958,6 +9965,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4f231c4fb786f3946a6b90b886c48677, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_SendPointerHoverToParent: 1
   m_HorizontalAxis: Horizontal
   m_VerticalAxis: Vertical
   m_SubmitButton: Submit
@@ -10338,8 +10346,8 @@ Light:
     m_Resolution: -1
     m_CustomResolution: -1
     m_Strength: 1
-    m_Bias: 0.05
-    m_NormalBias: 0.4
+    m_Bias: 0
+    m_NormalBias: 1
     m_NearPlane: 0.2
     m_CullingMatrixOverride:
       e00: 1
@@ -11836,7 +11844,8 @@ PrefabInstance:
       propertyPath: m_StaticEditorFlags
       value: 123
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: -5167561777836346066, guid: ba1180cbdffd6e842b52e0af24f51aac, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: ba1180cbdffd6e842b52e0af24f51aac, type: 3}
 --- !u!4 &1632973315 stripped
 Transform:
@@ -12341,7 +12350,8 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 7909573654493854136, guid: bcaa1650c18aef643963fc0f48366198, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: bcaa1650c18aef643963fc0f48366198, type: 3}
 --- !u!4 &1686541004 stripped
 Transform:
@@ -12638,7 +12648,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1822562532}
-  m_LocalRotation: {x: -0.0017998706, y: 0.99816555, z: 0.038428225, w: 0.04675129}
+  m_LocalRotation: {x: -0.0017998707, y: 0.99816555, z: 0.038428206, w: 0.046751313}
   m_LocalPosition: {x: 0.84504807, y: 0.9059155, z: 2.7313404}
   m_LocalScale: {x: 1.0000008, y: 1, z: 1.0000008}
   m_ConstrainProportionsScale: 0
@@ -12827,7 +12837,8 @@ PrefabInstance:
       propertyPath: m_StaticEditorFlags
       value: 123
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: -5167561777836346066, guid: ba1180cbdffd6e842b52e0af24f51aac, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: ba1180cbdffd6e842b52e0af24f51aac, type: 3}
 --- !u!4 &1851267461 stripped
 Transform:
@@ -13961,8 +13972,8 @@ Light:
     m_Resolution: -1
     m_CustomResolution: -1
     m_Strength: 0.8
-    m_Bias: 0.6
-    m_NormalBias: 0.4
+    m_Bias: 0
+    m_NormalBias: 1
     m_NearPlane: 0.2
     m_CullingMatrixOverride:
       e00: 1
@@ -14346,7 +14357,8 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: -4.023
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 7909573654493854136, guid: bcaa1650c18aef643963fc0f48366198, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: bcaa1650c18aef643963fc0f48366198, type: 3}
 --- !u!4 &2104325014 stripped
 Transform:

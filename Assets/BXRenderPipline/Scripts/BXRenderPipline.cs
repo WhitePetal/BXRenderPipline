@@ -8,8 +8,8 @@ public class BXRenderPipline : RenderPipeline
 {
 	public static ShaderTagId[] bxShaderTagIds = new ShaderTagId[7]
 	{
-			new ShaderTagId("BXCharacter"),
-			new ShaderTagId("BXScene"),
+			new ShaderTagId("BXDepthNormal"),
+			new ShaderTagId("BXOpaque"),
 			new ShaderTagId("BXCharacterAlphaDepth"),
 			new ShaderTagId("BXCharacterAlpha"),
 			new ShaderTagId("BXSceneAlphaDepth"),

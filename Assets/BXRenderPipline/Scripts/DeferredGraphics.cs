@@ -13,6 +13,8 @@ public class DeferredGraphics
 	private CullingResults cullingResults;
 	private CommandBuffer commandBuffer;
 	private Camera camera;
+	private DeferredComputeSettings deferredComputeSettings;
+	private Lights lights;
 
 	private PostProcess postProcess = new PostProcess();
 
@@ -25,6 +27,7 @@ public class DeferredGraphics
 #endif
 
 	public void Setup(ScriptableRenderContext context, CullingResults cullingResults, CommandBuffer commandBuffer, Camera camera,
+		DeferredComputeSettings deferredComputeSettings, Lights lights,
 		int width, int height, int aa,
 		 bool editorMode, bool useDynamicBatching, bool useGPUInstancing,
 		 PostProcessSettings postProcessSettings)
@@ -33,6 +36,8 @@ public class DeferredGraphics
 		this.cullingResults = cullingResults;
 		this.commandBuffer = commandBuffer;
 		this.camera = camera;
+		this.deferredComputeSettings = deferredComputeSettings;
+		this.lights = lights;
 		this.editorMode = editorMode;
 		this.useDynamicBatching = useDynamicBatching;
 		this.useGPUInstancing = useGPUInstancing;
@@ -100,32 +105,14 @@ public class DeferredGraphics
 	{
 		//commandBuffer.SetRenderTarget(Constants.shadingBinding);
 
-		var lightingBuffer = new AttachmentDescriptor(RenderTextureFormat.ARGBHalf);
+		CameraClearFlags clearFlags = camera.clearFlags;
 		var depthNormalBuffer = new AttachmentDescriptor(RenderTextureFormat.ARGB32);
 		var depthBuffer = new AttachmentDescriptor(RenderTextureFormat.Depth);
 
-		CameraClearFlags clearFlags = camera.clearFlags;
-		lightingBuffer.ConfigureClear(clearFlags == CameraClearFlags.SolidColor ? camera.backgroundColor.linear : Color.clear, 1f, 0);
 		depthNormalBuffer.ConfigureClear(Color.clear);
 		depthBuffer.ConfigureClear(Color.clear, 1f, 0);
-
-		lightingBuffer.ConfigureTarget(Constants.lightingBufferTargetId, false, true);
 		depthNormalBuffer.ConfigureTarget(Constants.depthNormalBufferTargetId, false, true);
-		depthBuffer.ConfigureTarget(Constants.depthBufferTargetId, false, false);
-
-		var attachments = new NativeArray<AttachmentDescriptor>(3, Allocator.Temp);
-		const int depthBufferIndex = 0, lightingBufferIndex = 1, depthNormalBufferIndex = 2;
-		attachments[depthBufferIndex] = depthBuffer;
-		attachments[lightingBufferIndex] = lightingBuffer;
-		attachments[depthNormalBufferIndex] = depthNormalBuffer;
-		context.BeginRenderPass(width, height, 1, attachments, depthBufferIndex);
-		attachments.Dispose();
-
-		var gBufferColors = new NativeArray<int>(2, Allocator.Temp);
-		gBufferColors[0] = lightingBufferIndex;
-		gBufferColors[1] = depthNormalBufferIndex;
-		context.BeginSubPass(gBufferColors);
-		gBufferColors.Dispose();
+		depthBuffer.ConfigureTarget(Constants.depthBufferTargetId, false, true);
 
 		PerObjectData lightsPerObjectFlags = PerObjectData.None;
 		SortingSettings sortingSettings = new SortingSettings(camera)
@@ -139,7 +126,6 @@ public class DeferredGraphics
 		};
 		drawingSettings.sortingSettings = sortingSettings;
 		drawingSettings.SetShaderPassName(0, BXRenderPipline.bxShaderTagIds[0]);
-		drawingSettings.SetShaderPassName(1, BXRenderPipline.bxShaderTagIds[1]);
 		FilteringSettings filteringSettings = new FilteringSettings(RenderQueueRange.opaque);
 		drawingSettings.perObjectData = PerObjectData.ReflectionProbes |
 			PerObjectData.Lightmaps |
@@ -150,10 +136,48 @@ public class DeferredGraphics
 			PerObjectData.OcclusionProbeProxyVolume |
 			lightsPerObjectFlags;
 
+		var attachments = new NativeArray<AttachmentDescriptor>(2, Allocator.Temp);
+		const int depthBufferIndex = 0, depthNormalBufferIndex = 1;
+		attachments[depthBufferIndex] = depthBuffer;
+		attachments[depthNormalBufferIndex] = depthNormalBuffer;
+		context.BeginRenderPass(width, height, 1, attachments, depthBufferIndex);
+		attachments.Dispose();
+
+		var depthNormalTarget = new NativeArray<int>(1, Allocator.Temp);
+		depthNormalTarget[0] = depthNormalBufferIndex;
+		context.BeginSubPass(depthNormalTarget);
+		depthNormalTarget.Dispose();
 		context.DrawRenderers(cullingResults, ref drawingSettings, ref filteringSettings);
+		context.EndSubPass();
+		context.EndRenderPass();
 
+		ExecuteBuffer();
+		commandBuffer.SetComputeIntParam(deferredComputeSettings.tileLightingCS, "_PointLightCount", lights.pointLightCount);
+		commandBuffer.SetComputeVectorArrayParam(deferredComputeSettings.tileLightingCS, "_PointLightSpheres", lights.pointLightSpheres);
+		commandBuffer.SetComputeMatrixParam(deferredComputeSettings.tileLightingCS, "BX_MatrixV", camera.worldToCameraMatrix);
+		commandBuffer.SetComputeTextureParam(deferredComputeSettings.tileLightingCS, 0, Constants.depthNormalBufferId, Constants.depthNormalBufferTargetId);
+		commandBuffer.DispatchCompute(deferredComputeSettings.tileLightingCS, 0, Mathf.CeilToInt(width / 16f), Mathf.CeilToInt(height / 16f), 1);
+		ExecuteBuffer();
+
+		var lightingBuffer = new AttachmentDescriptor(RenderTextureFormat.ARGBHalf);
+		lightingBuffer.ConfigureClear(clearFlags == CameraClearFlags.SolidColor ? camera.backgroundColor.linear : Color.clear, 1f, 0);
+		lightingBuffer.ConfigureTarget(Constants.lightingBufferTargetId, false, true);
+		depthBuffer = new AttachmentDescriptor(RenderTextureFormat.Depth);
+		depthBuffer.ConfigureTarget(Constants.depthBufferTargetId, true, true);
+
+		attachments = new NativeArray<AttachmentDescriptor>(2, Allocator.Temp);
+		const int lightingBufferIndex = 1;
+		attachments[depthBufferIndex] = depthBuffer;
+		attachments[lightingBufferIndex] = lightingBuffer;
+		context.BeginRenderPass(width, height, 1, attachments, depthBufferIndex);
+		attachments.Dispose();
+		drawingSettings.SetShaderPassName(0, BXRenderPipline.bxShaderTagIds[1]);
+		var lightingBufferTarget = new NativeArray<int>(1, Allocator.Temp);
+		lightingBufferTarget[0] = lightingBufferIndex;
+		context.BeginSubPass(lightingBufferTarget);
+		lightingBufferTarget.Dispose();
+		context.DrawRenderers(cullingResults, ref drawingSettings, ref filteringSettings);
 		context.DrawSkybox(camera);
-
 		sortingSettings.criteria = SortingCriteria.CommonTransparent;
 		drawingSettings.sortingSettings = sortingSettings;
 		drawingSettings.SetShaderPassName(0, BXRenderPipline.bxShaderTagIds[2]);
@@ -163,10 +187,9 @@ public class DeferredGraphics
 		drawingSettings.SetShaderPassName(4, BXRenderPipline.bxShaderTagIds[6]);
 		filteringSettings = new FilteringSettings(RenderQueueRange.transparent);
 		context.DrawRenderers(cullingResults, ref drawingSettings, ref filteringSettings);
-
-
 		context.EndSubPass();
 		context.EndRenderPass();
+		ExecuteBuffer();
 	}
 
 	private void DrawPostProcess()

@@ -16,7 +16,7 @@ MonoBehaviour:
   useDynamicBatching: 1
   useGPUInstancing: 1
   useSRPBatching: 1
-  frameRate: 60
+  frameRate: 30
   reflectType: 1
   shadowSettings:
     maxShadowDistance: 100

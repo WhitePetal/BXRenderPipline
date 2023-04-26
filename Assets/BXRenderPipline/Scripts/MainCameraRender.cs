@@ -20,18 +20,13 @@ public partial class MainCameraRender
 	{
 		name = graphicsCommandBufferName
 	};
-	private CommandBuffer commandBufferCompute = new CommandBuffer
-	{
-		name = computesCommandBufferName
-	};
 
 	private int width, height;
 
 	public Lights lights = new Lights();
 	private DeferredGraphics graphicsPipline = new DeferredGraphics();
-	private DeferredCompute computePipline = new DeferredCompute();
-	public ComputeBuffer tileLightingIndicesBuffer = new ComputeBuffer(2048 * 2048, sizeof(uint));
-	public ComputeBuffer tileLightingDatasBuffer = new ComputeBuffer(2048 * 2048 / 256, sizeof(uint));
+	public ComputeBuffer tileLightingIndicesBuffer = new ComputeBuffer(2048 * 2048, sizeof(uint), ComputeBufferType.Structured, ComputeBufferMode.Dynamic);
+	public ComputeBuffer tileLightingDatasBuffer = new ComputeBuffer(2048 * 2048 / 256, sizeof(uint), ComputeBufferType.Structured, ComputeBufferMode.Dynamic);
 
 	public void Render(ScriptableRenderContext context, Camera camera, bool editorMode, bool useDynamicBatching, bool useGPUInstancing,
 		DeferredComputeSettings deferredComputeSettings, PostProcessSettings postprocessSettings, ShadowSettings shadowSettings)
@@ -54,6 +49,7 @@ public partial class MainCameraRender
         height = camera.pixelHeight;
 
         graphicsPipline.Setup(context, cullingResults, commandBufferGraphics, camera,
+			deferredComputeSettings, lights,
             width, height, 1,
             editorMode, useDynamicBatching, useGPUInstancing,
             postprocessSettings);
@@ -63,12 +59,6 @@ public partial class MainCameraRender
 		commandBufferGraphics.SetGlobalBuffer(Constants.tileLightingIndicesId, tileLightingIndicesBuffer);
 		graphicsPipline.Render();
 
-        computePipline.Setup(context, commandBufferCompute, camera, lights, deferredComputeSettings,
-            width, height, lights.pointLightCount, lights.pointLightSpheres);
-		commandBufferCompute.SetGlobalBuffer(Constants.tileLightingDatasId, tileLightingDatasBuffer);
-		commandBufferCompute.SetGlobalBuffer(Constants.tileLightingIndicesId, tileLightingIndicesBuffer);
-		computePipline.CaculateAftRender();
-
         CleanUp();
 		Submit();
     }
@@ -77,12 +67,6 @@ public partial class MainCameraRender
 	{
 		context.ExecuteCommandBuffer(commandBufferGraphics);
 		commandBufferGraphics.Clear();
-	}
-
-	private void ExecuteComputeCommand()
-	{
-		context.ExecuteCommandBuffer(commandBufferCompute);
-		commandBufferCompute.Clear();
 	}
 
 	private bool Cull(float maxShadowDistance)
@@ -150,18 +134,10 @@ public partial class MainCameraRender
 		ExecuteGraphicsCommand();
         lights.Cleanup();
         graphicsPipline.CleanUp();
-        computePipline.CleanUp();
     }
 
 	private void Submit()
 	{
         context.Submit();
 	}
-
-	//public void Dispose()
-	//{
-	//	computePipline.Dispose();
- //       commandBufferGraphics.Dispose();
-	//	commandBufferCompute.Dispose();
-	//}
 }

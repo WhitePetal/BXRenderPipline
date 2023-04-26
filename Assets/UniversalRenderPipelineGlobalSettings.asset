@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: UniversalRenderPipelineGlobalSettings
   m_EditorClassIdentifier: 
   k_AssetVersion: 2
-  lightLayerName0: BXCharacter
+  lightLayerName0: BXOpaque
   lightLayerName1: BXScene
   lightLayerName2: 
   lightLayerName3: 

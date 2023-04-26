@@ -203,6 +203,7 @@ Material:
     - _DetailAlbedoMapScale: 1
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
+    - _EMISSION: 0
     - _EMISSIVE: 0
     - _EnvironmentReflections: 1
     - _Farthest_Distance: 100

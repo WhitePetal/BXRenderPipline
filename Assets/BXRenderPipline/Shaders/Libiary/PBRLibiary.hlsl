@@ -208,13 +208,13 @@ void PBR_BRDF_PointLighting(half3 specCol, float3 pos_world, half3 n, half3 v, f
         half3 lightColor = _PointLightColors[pointLightIndex].xyz;
 
         float3 lenV = lightSphere.xyz - pos_world.xyz;
-        half lenSqr = max(0.001, dot(lenV, lenV));
-        half3 l = SafeNormalize(lenV);
-        half3 h = SafeNormalize(l + v);
+        float lenSqr = dot(lenV, lenV);
+        float3 l = SafeNormalize(lenV);
+        float3 h = SafeNormalize(l + v);
 
-        half ndotl = max(0.001, dot(n, l));
-        half ndoth = max(0.001, dot(n, h));
-        half ldoth = max(0.001, dot(l, h));
+        half ndotl = max(0.0, dot(n, l));
+        half ndoth = max(0.0, dot(n, h));
+        half ldoth = max(0.0, dot(l, h));
         half atten =  saturate(1.0 - lenSqr / (lightSphere.w * lightSphere.w));
 
         lightColor *= atten;
@@ -278,9 +278,9 @@ void PBR_BSSSDFSkin_PointLighting(half3 specCol, half3 ndotl_sss_avg, float3 pos
         half3 lightColor = _PointLightColors[pointLightIndex].xyz;
 
         float3 lenV = lightSphere.xyz - pos_world.xyz;
-        half lenSqr = max(0.001, dot(lenV, lenV));
-        half3 l = SafeNormalize(lenV);
-        half3 h = SafeNormalize(l + v);
+        float lenSqr = dot(lenV, lenV);
+        float3 l = SafeNormalize(lenV);
+        float3 h = SafeNormalize(l + v);
 
         half ndotl = max(0.001, dot(n, l));
         half ndoth = max(0.001, dot(n, h));
