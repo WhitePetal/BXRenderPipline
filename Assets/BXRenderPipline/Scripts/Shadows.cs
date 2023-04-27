@@ -45,6 +45,7 @@ public class Shadows
 	private ScriptableRenderContext context;
 	private CullingResults cullingResults;
 	private ShadowSettings shadowSettings;
+	private TerrainRenderer terrainRenderer;
 
 	private const int maxShadowedDirectionalLightCount = 4, maxCascadeCount = 4;
 
@@ -56,11 +57,12 @@ public class Shadows
 
 	private int shadowedDirectionalLightCount;
 
-	public void Setup(ScriptableRenderContext context, CullingResults cullingResults, ShadowSettings shadowSettings)
+	public void Setup(ScriptableRenderContext context, CullingResults cullingResults, ShadowSettings shadowSettings, TerrainRenderer terrainRenderer)
 	{
 		this.context = context;
 		this.cullingResults = cullingResults;
 		this.shadowSettings = shadowSettings;
+		this.terrainRenderer = terrainRenderer;
 		this.shadowedDirectionalLightCount = 0;
         commandBuffer.BeginSample(bufferName);
 		ExecuteCommandBuffer();
@@ -172,6 +174,7 @@ public class Shadows
 				commandBuffer.SetViewProjectionMatrices(viewMatrix, projMatrix);
 				commandBuffer.SetGlobalDepthBias(1f, 2.5f + light.slopeScaleBias);
 				ExecuteCommandBuffer();
+				//terrainRenderer.DrawShadows();
 				context.DrawShadows(ref dirShadowSettings);
 				commandBuffer.SetGlobalDepthBias(0f, 0f);
 			}

@@ -434,7 +434,8 @@ MonoBehaviour:
   - Assets/BXRenderPipline/ArtResources/ProducalCity/Models/Procedural Tiny City
     - Geometry Nodes.blend
   - Assets/BXRenderPipline/ArtResources/ProducalTerrain/ProceduralTerrain.fbx
-  uvOverlapAssetList: 00000000ffffffff0101000001010000ffffffff
+  - Assets/BXRenderPipline/ArtResources/ProducalTerrain/ProceduralGrass.fbx
+  uvOverlapAssetList: 00000000ffffffff0101000001010000ffffffffffffffff
   xatlasWarningShown: 0
   foundCompatibleSetup: 1
   gpuName: NVIDIA GeForce RTX 2060

@@ -1,0 +1,79 @@
+#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Common.hlsl"
+
+#pragma kernel GenerateDetilsData
+
+float4 _WorldSpaceCameraPos;
+float4 _FrustumPlanes[6];
+
+Texture2D _TerrainHeightmapTexture;
+SamplerState sampler_point_clamp;
+float4 _TerrainPosition;
+float4 _TerrainHeightmapScale;
+float4 _TerrainSize; // terrainWidth、terrainHeight、detilMapWidth、detilMapHeight
+float4 _DetilSize; // detilWidthMax、detilWidthMin、detilHeightMax、detilHeightMin
+
+StructuredBuffer<int> _DetilsDensity;
+AppendStructuredBuffer<float4> _DetilsPosition;
+
+float2 randVec(float2 value)
+{
+    float2 vec = float2(dot(value, float2(127.1, 337.1)), dot(value, float2(268.5, 183.3)));
+    vec = -1.0 + 2.0 * frac(sin(vec) * 43758.123);
+    return vec;
+}
+
+float random_nn(float2 pos)
+{
+    return frac(sin(dot(pos, float2(12.9898, 78.233))) * 43748.543);
+}
+
+[numthreads(8,8,1)]
+void GenerateDetilsData (uint3 id : SV_DispatchThreadID)
+{
+    float2 uv = id.xy / _TerrainSize.zw;
+    float height = UnpackHeightmap(_TerrainHeightmapTexture.SampleLevel(sampler_point_clamp, uv, 0)) * _TerrainHeightmapScale.y;
+    float4 pos = float4(uv.x * _TerrainSize.x, height * 2, uv.y * _TerrainSize.y, 0) + _TerrainPosition;
+    float3 center = pos.xyz;
+    float2 bextentGridSize = 0.5 * _TerrainSize.xy / _TerrainSize.zw;
+    float3 bextent = float3(bextentGridSize.x, _DetilSize.z, bextentGridSize.y);
+
+    [unroll(6)]
+    for(int i = 0; i < 6; i++)
+    {
+        // https://gdbooks.gitbooks.io/3dcollisions/content/Chapter2/static_aabb_plane.html AABB-平面相交
+        float4 plane = _FrustumPlanes[i];
+        float3 n = plane.xyz;
+        float3 n_abs = abs(n);
+        float d = plane.w;
+        float r = dot(bextent, n_abs);
+        float s = dot(n, center) + d;
+        
+        [branch]
+        if((-r - s) > 0)
+        {
+            return;
+        }
+        else
+        {
+            continue;
+        }
+    }
+
+    uint index = id.x + id.y * _TerrainSize.z;
+    int density = _DetilsDensity[index];
+    float2 rV = randVec(pos.xz);
+    float4 r = float4(rV.x, 0, rV.y, 0);
+
+    // lod
+    float2 v = pos.xz - _WorldSpaceCameraPos.xz;
+    float dst = length(v);
+    float densityF = lerp(1, 0.8, saturate((dst - 10.0) / 10.0));
+    densityF = lerp(densityF, 0.4, saturate((dst - 20.0) / 20.0));
+    densityF = lerp(densityF, 0, saturate((dst - 40) / 200.0));
+    density *= densityF;
+
+    for(int k = 0; k < density; k++)
+    {
+        _DetilsPosition.Append(pos + r * 0.065);
+    }
+}

@@ -15,6 +15,7 @@ public class DeferredGraphics
 	private Camera camera;
 	private DeferredComputeSettings deferredComputeSettings;
 	private Lights lights;
+	private TerrainRenderer terrainRenderer;
 
 	private PostProcess postProcess = new PostProcess();
 
@@ -27,7 +28,7 @@ public class DeferredGraphics
 #endif
 
 	public void Setup(ScriptableRenderContext context, CullingResults cullingResults, CommandBuffer commandBuffer, Camera camera,
-		DeferredComputeSettings deferredComputeSettings, Lights lights,
+		DeferredComputeSettings deferredComputeSettings, Lights lights, TerrainRenderer terrainRenderer,
 		int width, int height, int aa,
 		 bool editorMode, bool useDynamicBatching, bool useGPUInstancing,
 		 PostProcessSettings postProcessSettings)
@@ -38,6 +39,7 @@ public class DeferredGraphics
 		this.camera = camera;
 		this.deferredComputeSettings = deferredComputeSettings;
 		this.lights = lights;
+		this.terrainRenderer = terrainRenderer;
 		this.editorMode = editorMode;
 		this.useDynamicBatching = useDynamicBatching;
 		this.useGPUInstancing = useGPUInstancing;
@@ -54,7 +56,7 @@ public class DeferredGraphics
 		ExecuteBuffer();
         GenerateBuffers();
 
-        DrawGeometryGBuffer(useDynamicBatching, useGPUInstancing);
+        DrawGeometry(useDynamicBatching, useGPUInstancing);
 #if UNITY_EDITOR
         DrawUnsupportShader();
 		DrawGizmosBeforePostProcess();
@@ -101,7 +103,7 @@ public class DeferredGraphics
 		ExecuteBuffer();
 	}
 
-	private void DrawGeometryGBuffer(bool useDynamicBatching, bool useGPUInstancing)
+	private void DrawGeometry(bool useDynamicBatching, bool useGPUInstancing)
 	{
 		//commandBuffer.SetRenderTarget(Constants.shadingBinding);
 
@@ -148,7 +150,9 @@ public class DeferredGraphics
 		context.BeginSubPass(depthNormalTarget);
 		depthNormalTarget.Dispose();
 		context.DrawRenderers(cullingResults, ref drawingSettings, ref filteringSettings);
-		context.EndSubPass();
+		terrainRenderer.DrawDepthNormal();
+		ExecuteBuffer();
+        context.EndSubPass();
 		context.EndRenderPass();
 
 		ExecuteBuffer();
@@ -177,7 +181,9 @@ public class DeferredGraphics
 		context.BeginSubPass(lightingBufferTarget);
 		lightingBufferTarget.Dispose();
 		context.DrawRenderers(cullingResults, ref drawingSettings, ref filteringSettings);
-		context.DrawSkybox(camera);
+		terrainRenderer.Draw();
+        ExecuteBuffer();
+        context.DrawSkybox(camera);
 		sortingSettings.criteria = SortingCriteria.CommonTransparent;
 		drawingSettings.sortingSettings = sortingSettings;
 		drawingSettings.SetShaderPassName(0, BXRenderPipline.bxShaderTagIds[2]);

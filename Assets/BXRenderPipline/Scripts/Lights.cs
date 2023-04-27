@@ -28,13 +28,13 @@ public class Lights
 
 	private bool useShadowMask;
 
-	public void Setup(ScriptableRenderContext context, CullingResults cullingResults, ShadowSettings shadowSettings)
+	public void Setup(ScriptableRenderContext context, CullingResults cullingResults, ShadowSettings shadowSettings, TerrainRenderer terrainRenderer)
 	{
 		this.context = context;
 		this.cullingResults = cullingResults;
 		commandBuffer.BeginSample(bufferName);
 		ExecuteCommandBuffer();
-		shadows.Setup(context, cullingResults, shadowSettings);
+		shadows.Setup(context, cullingResults, shadowSettings, terrainRenderer);
 
 		SetupLights();
         shadows.Render(useShadowMask);

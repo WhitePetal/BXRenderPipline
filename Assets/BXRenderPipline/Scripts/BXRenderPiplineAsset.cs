@@ -29,10 +29,12 @@ public class BXRenderPiplineAsset : RenderPipelineAsset
 	public DeferredComputeSettings deferredComputeSettings;
 	[SerializeField]
 	public PostProcessSettings processSettings;
+	[SerializeField]
+	public TerrainSettings terrainSettings;
 
 	protected override RenderPipeline CreatePipeline()
 	{
 		return new BXRenderPipline(editorMode, useDynamicBatching, useGPUInstancing, useSRPBatching, frameRate,
-			deferredComputeSettings, processSettings, shadowSettings);
+			deferredComputeSettings, processSettings, shadowSettings, terrainSettings);
 	}
 }

@@ -270,10 +270,10 @@ Terrain:
   m_HeightmapPixelError: 5
   m_SplatMapDistance: 1000
   m_HeightmapMaximumLOD: 0
-  m_ShadowCastingMode: 2
+  m_ShadowCastingMode: 1
   m_DrawHeightmap: 1
   m_DrawInstanced: 1
-  m_DrawTreesAndFoliage: 1
+  m_DrawTreesAndFoliage: 0
   m_StaticShadowCaster: 0
   m_ReflectionProbeUsage: 1
   m_MaterialTemplate: {fileID: 2100000, guid: 0cc0761b7bc699a4393d8de0b5fd427c, type: 2}
@@ -687,6 +687,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1757612144}
   - component: {fileID: 1757612145}
+  - component: {fileID: 1757612146}
   m_Layer: 0
   m_Name: Point Light
   m_TagString: Untagged
@@ -771,6 +772,26 @@ Light:
   m_UseViewFrustumForShadowCasterCull: 1
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+--- !u!114 &1757612146
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1757612143}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 474bcb49853aa07438625e644c072ee6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Version: 1
+  m_UsePipelineSettings: 1
+  m_AdditionalLightsShadowResolutionTier: 2
+  m_LightLayerMask: 1
+  m_CustomShadowLayers: 0
+  m_ShadowLayerMask: 1
+  m_LightCookieSize: {x: 1, y: 1}
+  m_LightCookieOffset: {x: 0, y: 0}
 --- !u!1 &2005672405
 GameObject:
   m_ObjectHideFlags: 0
@@ -848,8 +869,8 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2005672405}
-  m_LocalRotation: {x: -0.055744275, y: 0.7463746, z: -0.06312254, w: -0.6601765}
-  m_LocalPosition: {x: 4.3437753, y: 10.176914, z: 1.5042998}
+  m_LocalRotation: {x: -0.114555135, y: 0.20477116, z: -0.024007354, w: -0.97178686}
+  m_LocalPosition: {x: 1.5515711, y: 9.917367, z: -2.803401}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

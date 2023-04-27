@@ -41,7 +41,7 @@ Shader "BXCharacters/PBR_BRDF"
             {
                 float4 vertex : SV_POSITION;
                 float3 normal_view : TEXCOORD0;
-                UNITY_VERTEX_OUTPUT_STEREO
+                UNITY_VERTEX_INPUT_INSTANCE_ID
             };
 
             v2f vert (appdata v)
@@ -105,7 +105,7 @@ Shader "BXCharacters/PBR_BRDF"
                 half3 normal_world : TEXCOORD2;
                 half3 tangent_world : TEXCOORD3;
                 half3 binormal_world : TEXCOORD4;
-                UNITY_VERTEX_OUTPUT_STEREO
+                UNITY_VERTEX_INPUT_INSTANCE_ID
             };
 
             Texture2D _MainTex, _MRATex, _NormalMap;

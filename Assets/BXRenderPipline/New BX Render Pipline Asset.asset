@@ -85,3 +85,7 @@ MonoBehaviour:
       subpixelBlending: 0.75
     fogSettings:
       fogShader: {fileID: 4800000, guid: 04c90dd40eaa845089cd65548b01e80b, type: 3}
+  terrainSettings:
+    grassDataCompute: {fileID: 7200000, guid: d65c72a9e648d4ff589cd921d86573ff, type: 3}
+    terrainData: {fileID: 15600000, guid: 31b78034619454a939c454551daf35b2, type: 2}
+    terrainPostion: {x: -128, y: 0, z: -128}

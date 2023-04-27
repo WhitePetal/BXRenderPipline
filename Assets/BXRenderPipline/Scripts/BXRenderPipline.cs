@@ -31,10 +31,12 @@ public class BXRenderPipline : RenderPipeline
 	private DeferredComputeSettings deferredComputeSettings;
 	private PostProcessSettings postprocessSettings;
 	private ShadowSettings shadowSettings;
+	private TerrainSettings terrainSettings;
 
 	public BXRenderPipline(bool editorMode, bool useDynamicBatching, bool useGPUInstancing, bool useSRPBatching,
 		FrameRate frameRate,
-		DeferredComputeSettings deferredComputeSettings, PostProcessSettings postprocessSettings, ShadowSettings shadowSettings)
+		DeferredComputeSettings deferredComputeSettings, PostProcessSettings postprocessSettings, ShadowSettings shadowSettings,
+		TerrainSettings terrainSettings)
 	{
 		this.editorMode = editorMode;
 		this.useDynamicBatching = useDynamicBatching;
@@ -42,6 +44,7 @@ public class BXRenderPipline : RenderPipeline
 		this.deferredComputeSettings = deferredComputeSettings;
 		this.postprocessSettings = postprocessSettings;
 		this.shadowSettings = shadowSettings;
+		this.terrainSettings = terrainSettings;
 		GraphicsSettings.useScriptableRenderPipelineBatching = useSRPBatching;
 		GraphicsSettings.lightsUseLinearIntensity = true;
 		QualitySettings.antiAliasing = 1;
@@ -53,14 +56,13 @@ public class BXRenderPipline : RenderPipeline
 		for (int i = 0; i < cameras.Length; ++i)
 		{
 			mainCameraRenderer.Render(context, cameras[i], editorMode, useDynamicBatching, useGPUInstancing,
-				deferredComputeSettings, postprocessSettings, shadowSettings);
+				deferredComputeSettings, postprocessSettings, shadowSettings, terrainSettings);
 		}
 	}
 
     protected override void Dispose(bool disposing)
     {
         base.Dispose(disposing);
-		mainCameraRenderer.tileLightingDatasBuffer.Release();
-		mainCameraRenderer.tileLightingIndicesBuffer.Release();
+		mainCameraRenderer.OnDispose();
     }
 }

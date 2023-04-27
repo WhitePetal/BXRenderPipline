@@ -30,6 +30,7 @@ public class Constants
 	};
 	public static RenderTargetBinding shadingBinding = new RenderTargetBinding(shadingTargestsId, shadingTargetLoads, shadingTargetStores, depthBufferTargetId, RenderBufferLoadAction.DontCare, RenderBufferStoreAction.Store);
 
+	public static int frustumPlanesId = Shader.PropertyToID("_FrustumPlanes");
 	public static int viewPortRaysId = Shader.PropertyToID("_ViewPortRays");
 
 	public const int maxDirLightCount = 4;
