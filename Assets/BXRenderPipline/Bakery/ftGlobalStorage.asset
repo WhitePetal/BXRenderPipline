@@ -435,7 +435,8 @@ MonoBehaviour:
     - Geometry Nodes.blend
   - Assets/BXRenderPipline/ArtResources/ProducalTerrain/ProceduralTerrain.fbx
   - Assets/BXRenderPipline/ArtResources/ProducalTerrain/ProceduralGrass.fbx
-  uvOverlapAssetList: 00000000ffffffff0101000001010000ffffffffffffffff
+  - Assets/BXRenderPipline/ArtResources/ProducalTerrain/ProceduralGrassGrid.blend
+  uvOverlapAssetList: 00000000ffffffff0101000001010000ffffffffffffffffffffffff
   xatlasWarningShown: 0
   foundCompatibleSetup: 1
   gpuName: NVIDIA GeForce RTX 2060
