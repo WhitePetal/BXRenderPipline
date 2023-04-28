@@ -6,9 +6,9 @@ using UnityEngine;
 public class TerrainSettings
 {
     [SerializeField]
+    public bool updateAlways;
+    [SerializeField]
     public ComputeShader grassDataCompute;
     [SerializeField]
     public TerrainData terrainData;
-    [SerializeField]
-    public Vector3 terrainPostion;
 }

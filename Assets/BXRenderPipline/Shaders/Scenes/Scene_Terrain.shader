@@ -16,7 +16,7 @@ Shader "BXScenes/Scene_Terrain"
         {
             Tags { "LightMode"="BXDepthNormal" }
             HLSLPROGRAM
-            #pragma target 3.5
+            #pragma target 4.5
             #pragma multi_compile_instancing
             #pragma instancing_options assumeuniformscaling nomatrices nolightprobe nolightmap
 
@@ -84,10 +84,10 @@ Shader "BXScenes/Scene_Terrain"
         Pass
         {
             Tags {"LightMode"="BXOpaque"}
-            ZWrite Off
-            ZTest Equal
+            // ZWrite Off
+            // ZTest Equal
             HLSLPROGRAM
-            #pragma target 3.5
+            #pragma target 4.5
             #pragma shader_feature_local _RECEIVE_SHADOWS_OFF
             #pragma multi_compile _ _DIRECTIONAL_PCF3 _DIRECTIONAL_PCF5 _DIRECTIONAL_PCF7
             #pragma multi_compile _ _CASCADE_BLEND_SOFT _CASCADE_BLEND_DITHER

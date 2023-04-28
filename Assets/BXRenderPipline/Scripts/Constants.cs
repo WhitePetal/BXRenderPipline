@@ -29,6 +29,8 @@ public class Constants
 		RenderBufferStoreAction.Store, RenderBufferStoreAction.Store
 	};
 	public static RenderTargetBinding shadingBinding = new RenderTargetBinding(shadingTargestsId, shadingTargetLoads, shadingTargetStores, depthBufferTargetId, RenderBufferLoadAction.DontCare, RenderBufferStoreAction.Store);
+	public static RenderTargetBinding preDepthNormalBinding = new RenderTargetBinding(depthNormalBufferTargetId, RenderBufferLoadAction.DontCare, RenderBufferStoreAction.Store, depthBufferTargetId, RenderBufferLoadAction.DontCare, RenderBufferStoreAction.Store);
+	public static RenderTargetBinding lightingBinding = new RenderTargetBinding(lightingBufferTargetId, RenderBufferLoadAction.DontCare, RenderBufferStoreAction.Store, depthBufferTargetId, RenderBufferLoadAction.DontCare, RenderBufferStoreAction.Store);
 
 	public static int frustumPlanesId = Shader.PropertyToID("_FrustumPlanes");
 	public static int viewPortRaysId = Shader.PropertyToID("_ViewPortRays");

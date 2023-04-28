@@ -9,6 +9,7 @@ Shader "BXPostProcess/FXAA"
             ZTest Always
 
             HLSLPROGRAM
+            #pragma target 4.5
             #pragma multi_compile_local FXAA_QUALITY_LOW FXAA_QUALITY_MEDIUM FXAA_QUALITY_HIGH
 
             #pragma vertex vert

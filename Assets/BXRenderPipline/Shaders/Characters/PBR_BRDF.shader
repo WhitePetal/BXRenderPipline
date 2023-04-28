@@ -21,7 +21,7 @@ Shader "BXCharacters/PBR_BRDF"
         {
             Tags {"LightMode"="BXDepthNormal"}
             HLSLPROGRAM
-            #pragma target 3.5
+            #pragma target 4.5
             #pragma multi_compile _ LOD_FADE_CROSSFADE
             #pragma multi_compile_instancing
 
@@ -69,8 +69,8 @@ Shader "BXCharacters/PBR_BRDF"
         Pass
         {
             Tags {"LightMode"="BXOpaque"}
-            ZWrite Off
-            ZTest Equal
+            // ZWrite Off
+            // ZTest Equal
             HLSLPROGRAM
             #pragma target 3.5
             #pragma shader_feature_local _RECEIVE_SHADOWS_OFF

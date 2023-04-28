@@ -106,7 +106,6 @@ public class DeferredGraphics
 	private void DrawGeometry(bool useDynamicBatching, bool useGPUInstancing)
 	{
 		//commandBuffer.SetRenderTarget(Constants.shadingBinding);
-
 		CameraClearFlags clearFlags = camera.clearFlags;
 		var depthNormalBuffer = new AttachmentDescriptor(RenderTextureFormat.ARGB32);
 		var depthBuffer = new AttachmentDescriptor(RenderTextureFormat.Depth);
@@ -149,17 +148,18 @@ public class DeferredGraphics
 		depthNormalTarget[0] = depthNormalBufferIndex;
 		context.BeginSubPass(depthNormalTarget);
 		depthNormalTarget.Dispose();
-		context.DrawRenderers(cullingResults, ref drawingSettings, ref filteringSettings);
+
 		terrainRenderer.DrawDepthNormal();
 		ExecuteBuffer();
-        context.EndSubPass();
+        context.DrawRenderers(cullingResults, ref drawingSettings, ref filteringSettings);
+		ExecuteBuffer();
+		context.EndSubPass();
 		context.EndRenderPass();
 
-		ExecuteBuffer();
-		commandBuffer.SetComputeIntParam(deferredComputeSettings.tileLightingCS, "_PointLightCount", lights.pointLightCount);
-		commandBuffer.SetComputeVectorArrayParam(deferredComputeSettings.tileLightingCS, "_PointLightSpheres", lights.pointLightSpheres);
-		commandBuffer.SetComputeMatrixParam(deferredComputeSettings.tileLightingCS, "BX_MatrixV", camera.worldToCameraMatrix);
-		commandBuffer.SetComputeTextureParam(deferredComputeSettings.tileLightingCS, 0, Constants.depthNormalBufferId, Constants.depthNormalBufferTargetId);
+        commandBuffer.SetComputeIntParam(deferredComputeSettings.tileLightingCS, "_PointLightCount", lights.pointLightCount);
+        commandBuffer.SetComputeVectorArrayParam(deferredComputeSettings.tileLightingCS, "_PointLightSpheres", lights.pointLightSpheres);
+        commandBuffer.SetComputeMatrixParam(deferredComputeSettings.tileLightingCS, "BX_MatrixV", camera.worldToCameraMatrix);
+        commandBuffer.SetComputeTextureParam(deferredComputeSettings.tileLightingCS, 0, Constants.depthNormalBufferId, Constants.depthNormalBufferTargetId);
 		commandBuffer.DispatchCompute(deferredComputeSettings.tileLightingCS, 0, Mathf.CeilToInt(width / 16f), Mathf.CeilToInt(height / 16f), 1);
 		ExecuteBuffer();
 
@@ -167,7 +167,9 @@ public class DeferredGraphics
 		lightingBuffer.ConfigureClear(clearFlags == CameraClearFlags.SolidColor ? camera.backgroundColor.linear : Color.clear, 1f, 0);
 		lightingBuffer.ConfigureTarget(Constants.lightingBufferTargetId, false, true);
 		depthBuffer = new AttachmentDescriptor(RenderTextureFormat.Depth);
-		depthBuffer.ConfigureTarget(Constants.depthBufferTargetId, true, true);
+		depthBuffer.ConfigureClear(Color.clear, 1f, 0);
+		depthBuffer.ConfigureTarget(Constants.depthBufferTargetId, false, true);
+		Debug.Log("DepthBUffer LoadStoreTarget: " + depthBuffer.loadStoreTarget);
 
 		attachments = new NativeArray<AttachmentDescriptor>(2, Allocator.Temp);
 		const int lightingBufferIndex = 1;
@@ -180,22 +182,26 @@ public class DeferredGraphics
 		lightingBufferTarget[0] = lightingBufferIndex;
 		context.BeginSubPass(lightingBufferTarget);
 		lightingBufferTarget.Dispose();
-		context.DrawRenderers(cullingResults, ref drawingSettings, ref filteringSettings);
+
+		drawingSettings.SetShaderPassName(0, BXRenderPipline.bxShaderTagIds[1]);
+
 		terrainRenderer.Draw();
         ExecuteBuffer();
-        context.DrawSkybox(camera);
-		sortingSettings.criteria = SortingCriteria.CommonTransparent;
-		drawingSettings.sortingSettings = sortingSettings;
-		drawingSettings.SetShaderPassName(0, BXRenderPipline.bxShaderTagIds[2]);
-		drawingSettings.SetShaderPassName(1, BXRenderPipline.bxShaderTagIds[3]);
-		drawingSettings.SetShaderPassName(2, BXRenderPipline.bxShaderTagIds[4]);
-		drawingSettings.SetShaderPassName(3, BXRenderPipline.bxShaderTagIds[5]);
-		drawingSettings.SetShaderPassName(4, BXRenderPipline.bxShaderTagIds[6]);
-		filteringSettings = new FilteringSettings(RenderQueueRange.transparent);
+
 		context.DrawRenderers(cullingResults, ref drawingSettings, ref filteringSettings);
+        context.DrawSkybox(camera);
+        sortingSettings.criteria = SortingCriteria.CommonTransparent;
+        drawingSettings.sortingSettings = sortingSettings;
+        drawingSettings.SetShaderPassName(0, BXRenderPipline.bxShaderTagIds[2]);
+        drawingSettings.SetShaderPassName(1, BXRenderPipline.bxShaderTagIds[3]);
+        drawingSettings.SetShaderPassName(2, BXRenderPipline.bxShaderTagIds[4]);
+        drawingSettings.SetShaderPassName(3, BXRenderPipline.bxShaderTagIds[5]);
+        drawingSettings.SetShaderPassName(4, BXRenderPipline.bxShaderTagIds[6]);
+        filteringSettings = new FilteringSettings(RenderQueueRange.transparent);
+        context.DrawRenderers(cullingResults, ref drawingSettings, ref filteringSettings);
+        ExecuteBuffer();
 		context.EndSubPass();
 		context.EndRenderPass();
-		ExecuteBuffer();
 	}
 
 	private void DrawPostProcess()

@@ -9,6 +9,7 @@ Shader "BXPostProcess/Copy"
             ZTest Always
 
             HLSLPROGRAM
+            #pragma target 4.5
             #pragma vertex vert
             #pragma fragment frag
 

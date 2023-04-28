@@ -9,10 +9,13 @@ public class TerrainRenderer
     private CommandBuffer commandBuffer;
     private TerrainSettings settings;
     private TerrainData terrainData;
+    private Terrain terrain;
     private DetailPrototype detailPrototype;
     private Mesh grassMesh;
     private Material grassMat;
     private uint[] grassInstanceArgs = new uint[5];
+
+    private Vector3 terrainPosition;
 
     private ComputeBuffer grassDensity;
     private ComputeBuffer grassPosition;
@@ -22,12 +25,16 @@ public class TerrainRenderer
     {
         if (terrainSettings.terrainData == null) return;
         this.context = context;
-        this.commandBuffer = commandBuffer;
         this.settings = terrainSettings;
-        this.terrainData = terrainSettings.terrainData;
+        this.commandBuffer = commandBuffer;
 
-        if(detailPrototype != terrainData.detailPrototypes[0])
+        if (terrainSettings.updateAlways || this.terrainData != terrainSettings.terrainData)
         {
+            terrain = GameObject.FindObjectOfType<Terrain>();
+            if (terrain == null) return;
+            this.terrainData = terrainSettings.terrainData;
+            this.terrainPosition = terrain.transform.position;
+
             GameObject grassPrefab = terrainData.detailPrototypes[0].prototype;
             grassMesh = grassPrefab.GetComponent<MeshFilter>().sharedMesh;
             grassMat = new Material(grassPrefab.GetComponent<MeshRenderer>().sharedMaterial);
@@ -56,14 +63,14 @@ public class TerrainRenderer
 
     public void GenereateGrassData()
     {
-        if (settings.terrainData == null) return;
+        if (terrain == null) return;
         commandBuffer.BeginSample(commandBuffer.name);
         ExecuteCommandBuffer();
         commandBuffer.SetComputeTextureParam(settings.grassDataCompute, 0, "_TerrainHeightmapTexture", terrainData.heightmapTexture);
-        commandBuffer.SetComputeVectorParam(settings.grassDataCompute, "_TerrainPosition", settings.terrainPostion);
+        commandBuffer.SetGlobalVector("_TerrainPosition", terrainPosition);
         commandBuffer.SetComputeVectorParam(settings.grassDataCompute, "_TerrainHeightmapScale", terrainData.heightmapScale);
         Vector4 terrainSize = new Vector4(terrainData.size.x, terrainData.size.z, terrainData.detailWidth, terrainData.detailHeight);
-        commandBuffer.SetComputeVectorParam(settings.grassDataCompute, "_TerrainSize", terrainSize);
+        commandBuffer.SetGlobalVector("_TerrainSize", terrainSize);
         Vector4 detilSize = new Vector4(terrainData.detailPrototypes[0].maxWidth, terrainData.detailPrototypes[0].minWidth, terrainData.detailPrototypes[0].maxHeight, terrainData.detailPrototypes[0].minHeight);
         commandBuffer.SetComputeVectorParam(settings.grassDataCompute, "_DetilSize", detilSize);
         commandBuffer.SetBufferCounterValue(grassPosition, 0);
@@ -74,23 +81,25 @@ public class TerrainRenderer
         ExecuteCommandBuffer();
         commandBuffer.SetGlobalBuffer("_DetilsPosition", grassPosition);
         commandBuffer.CopyCounterValue(grassPosition, grassInstanceArgsBuffer, 4);
+        ExecuteCommandBuffer();
     }
 
-    public void DrawShadows()
+    public void DrawShadows(CommandBuffer commandBuffer_shadow)
     {
-        if (settings.terrainData == null) return;
-        commandBuffer.DrawMeshInstancedIndirect(grassMesh, 0, grassMat, 2, grassInstanceArgsBuffer);
+        if (terrain == null) return;
+        commandBuffer_shadow.DrawMeshInstancedIndirect(grassMesh, 0, grassMat, 2, grassInstanceArgsBuffer);
     }
 
     public void DrawDepthNormal()
     {
-        if (settings.terrainData == null) return;
+        if (terrain == null) return;
         commandBuffer.DrawMeshInstancedIndirect(grassMesh, 0, grassMat, 0, grassInstanceArgsBuffer);
     }
 
     public void Draw()
     {
-        if (settings.terrainData == null) return;
+        if (terrain == null) return;
+        commandBuffer.SetGlobalTexture("_TerrainNormalmapTexture", terrain.normalmapTexture);
         commandBuffer.DrawMeshInstancedIndirect(grassMesh, 0, grassMat, 1, grassInstanceArgsBuffer);
     }
 

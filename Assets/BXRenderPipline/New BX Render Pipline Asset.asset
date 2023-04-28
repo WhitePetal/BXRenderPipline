@@ -20,11 +20,11 @@ MonoBehaviour:
   reflectType: 1
   shadowSettings:
     maxShadowDistance: 100
-    distanceFade: 0.1
-    shadowsColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+    distanceFade: 0.5
+    shadowsColor: {r: 0.48282304, g: 0.5849056, b: 0.58004457, a: 1}
     shadowMapBits: 24
     shadowMapSize: 2048
-    shadowFilter: 0
+    shadowFilter: 1
     cascadeBlendMode: 2
     cascadeCount: 4
     cascadeRatio1: 0.1
@@ -86,6 +86,6 @@ MonoBehaviour:
     fogSettings:
       fogShader: {fileID: 4800000, guid: 04c90dd40eaa845089cd65548b01e80b, type: 3}
   terrainSettings:
+    updateAlways: 0
     grassDataCompute: {fileID: 7200000, guid: d65c72a9e648d4ff589cd921d86573ff, type: 3}
     terrainData: {fileID: 15600000, guid: 31b78034619454a939c454551daf35b2, type: 2}
-    terrainPostion: {x: -128, y: 0, z: -128}

@@ -9,6 +9,7 @@ Shader "BXPostProcess/ColorManager"
             ZTest Always
 
             HLSLPROGRAM
+            #pragma target 4.5
             #pragma multi_compile_local __ CM_ColorGrading    
             #pragma multi_compile_local __ CM_ColorSplitToning
             #pragma multi_compile_local __ CM_ShadowsMidtoneHighlights

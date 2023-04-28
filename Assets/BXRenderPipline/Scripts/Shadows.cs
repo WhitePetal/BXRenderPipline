@@ -173,9 +173,9 @@ public class Shadows
 				directionalShadowMatrixs[tileInex] = ConvertToShadowMapTileMatrix(projMatrix * viewMatrix, SetTileViewport(tileInex, split, tileSize), split);
 				commandBuffer.SetViewProjectionMatrices(viewMatrix, projMatrix);
 				commandBuffer.SetGlobalDepthBias(1f, 2.5f + light.slopeScaleBias);
+				terrainRenderer.DrawShadows(commandBuffer);
 				ExecuteCommandBuffer();
-				//terrainRenderer.DrawShadows();
-				context.DrawShadows(ref dirShadowSettings);
+                context.DrawShadows(ref dirShadowSettings);
 				commandBuffer.SetGlobalDepthBias(0f, 0f);
 			}
 		}
