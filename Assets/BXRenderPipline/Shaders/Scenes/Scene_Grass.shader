@@ -86,7 +86,7 @@ Shader "Scene/Scene_Grass"
             half4 frag (v2f i) : SV_TARGET0
             {
                 UNITY_SETUP_INSTANCE_ID(i);
-                half3 n = _TerrainNormalmapTexture.Sample(sampler_point_clamp, i.terrainUV).xyz;
+                half3 n = _TerrainNormalmapTexture.Sample(sampler_point_clamp, i.terrainUV).xyz * 2 - 1;
                 half3 normal_view = mul((float3x3)UNITY_MATRIX_V, n).xyz;
                 return (i.vertex.z < (1.0-1.0/65025.0)) ? EncodeDepthNormal(i.vertex.z, normalize(normal_view)) : float4(0.5,0.5,1.0,1.0);
             }
@@ -126,6 +126,7 @@ Shader "Scene/Scene_Grass"
                 float4 vertex : SV_POSITION;
                 float2 terrainUV : TEXCOORD0;
                 float4 pos_world : TEXCOORD1;
+                float3 normal_world : TEXCOORD2;
                 UNITY_VERTEX_INPUT_INSTANCE_ID
             };
 
@@ -163,6 +164,8 @@ Shader "Scene/Scene_Grass"
                     cs
                 );
                 v.vertex.xz = mul(mat, v.vertex.xz);
+                o.normal_world = v.normal;
+                o.normal_world.xz = mul(mat, o.normal_world.xz);
 
                 float3 noiseWindDir = float3(0, 0, 1);
                 noiseWindDir.xz = mul(mat, noiseWindDir.xz);
@@ -186,7 +189,7 @@ Shader "Scene/Scene_Grass"
                 float depthEye = LinearEyeDepth(i.vertex.z);
 
                 half3 v = normalize(_WorldSpaceCameraPos.xyz - i.pos_world.xyz);
-                half3 n = _TerrainNormalmapTexture.Sample(sampler_point_clamp, i.terrainUV).xyz;
+                half3 n = lerp(_TerrainNormalmapTexture.Sample(sampler_point_clamp, i.terrainUV).xyz * 2 - 1, normalize(i.normal_world), i.pos_world.w * 0.4);
                 half3 r = reflect(-v, n);
                 half ndotv = max(0.001, dot(n, v));
 

@@ -76,6 +76,19 @@ public class Constants
 	public static int fogLightingBufferId = Shader.PropertyToID("_FogLightingBuffer");
 	public static int fogFinalBufferId = Shader.PropertyToID("_FogFinalBuffer");
 
+	public static int depthNormalConstantBufferId = Shader.PropertyToID("_BXDepthNormalConstantBuffer");
+	public static int bxMatrixVId = Shader.PropertyToID("BX_MatrixV");
+
+	public static int controlId = Shader.PropertyToID("_Control");
+	public static int terrainHeightmapTextureId = Shader.PropertyToID("_TerrainHeightmapTexture");
+	public static int terrainPositionId = Shader.PropertyToID("_TerrainPosition");
+	public static int terrainHeightmapScaleId = Shader.PropertyToID("_TerrainHeightmapScale");
+	public static int terrainSizeId = Shader.PropertyToID("_TerrainSize");
+	public static int detilSizeId = Shader.PropertyToID("_DetilSize");
+	public static int detilsDensityId = Shader.PropertyToID("_DetilsDensity");
+	public static int detilsPositionId = Shader.PropertyToID("_DetilsPosition");
+	public static int terrainNormalTextureId = Shader.PropertyToID("_TerrainNormalmapTexture");
+
 	public static string[] reflectTypeKeywords = new string[3]
 	{
 		"_SSR_ONLY", "_REFLECT_PROBE_ONLY", "_SSR_AND_RELFECT_PROBE"

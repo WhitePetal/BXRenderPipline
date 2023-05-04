@@ -156,9 +156,9 @@ public class DeferredGraphics
 		context.EndSubPass();
 		context.EndRenderPass();
 
-        commandBuffer.SetComputeIntParam(deferredComputeSettings.tileLightingCS, "_PointLightCount", lights.pointLightCount);
-        commandBuffer.SetComputeVectorArrayParam(deferredComputeSettings.tileLightingCS, "_PointLightSpheres", lights.pointLightSpheres);
-        commandBuffer.SetComputeMatrixParam(deferredComputeSettings.tileLightingCS, "BX_MatrixV", camera.worldToCameraMatrix);
+        commandBuffer.SetComputeIntParam(deferredComputeSettings.tileLightingCS, Constants.pointLightCountId, lights.pointLightCount);
+        commandBuffer.SetComputeVectorArrayParam(deferredComputeSettings.tileLightingCS, Constants.pointLightSpheresId, lights.pointLightSpheres);
+        commandBuffer.SetComputeMatrixParam(deferredComputeSettings.tileLightingCS, Constants.bxMatrixVId, camera.worldToCameraMatrix);
         commandBuffer.SetComputeTextureParam(deferredComputeSettings.tileLightingCS, 0, Constants.depthNormalBufferId, Constants.depthNormalBufferTargetId);
 		commandBuffer.DispatchCompute(deferredComputeSettings.tileLightingCS, 0, Mathf.CeilToInt(width / 16f), Mathf.CeilToInt(height / 16f), 1);
 		ExecuteBuffer();
@@ -169,7 +169,6 @@ public class DeferredGraphics
 		depthBuffer = new AttachmentDescriptor(RenderTextureFormat.Depth);
 		depthBuffer.ConfigureClear(Color.clear, 1f, 0);
 		depthBuffer.ConfigureTarget(Constants.depthBufferTargetId, false, true);
-		Debug.Log("DepthBUffer LoadStoreTarget: " + depthBuffer.loadStoreTarget);
 
 		attachments = new NativeArray<AttachmentDescriptor>(2, Allocator.Temp);
 		const int lightingBufferIndex = 1;

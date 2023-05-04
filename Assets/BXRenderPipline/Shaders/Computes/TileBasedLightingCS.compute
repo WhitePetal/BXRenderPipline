@@ -73,7 +73,7 @@ bool IntersectTileAndPointLight(float zMin, float zMax, uint3 groupId, float4 li
         float3 n5 = cross(v0, v2);
         frustume[5] = float4(n5, 0);
 
-        [unroll(6)]
+        [loop]
         for(uint k = 0; k < 6; ++k)
         {
             // https://gdbooks.gitbooks.io/3dcollisions/content/Chapter2/static_aabb_plane.html AABB-平面相交

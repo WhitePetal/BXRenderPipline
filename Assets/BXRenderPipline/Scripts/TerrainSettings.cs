@@ -11,4 +11,6 @@ public class TerrainSettings
     public ComputeShader grassDataCompute;
     [SerializeField]
     public TerrainData terrainData;
+    [SerializeField]
+    public bool grassShadowEnable;
 }
