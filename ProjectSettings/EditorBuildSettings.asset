@@ -8,7 +8,10 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/BXRenderPipline/Scenes/SampleScene_ProducalCity.unity
     guid: acbaf90dcf7e147a480ad9257ba3edd3
-  - enabled: 0
+  - enabled: 1
+    path: Assets/BXRenderPipline/Scenes/SampleScene_ProducalTerrain.unity
+    guid: 7a752ae12b32d474780c5a32df6d1844
+  - enabled: 1
     path: Assets/Scenes/BXSampleScene.unity
     guid: 7d88e5c4d2cb22b49bad285bfda184fc
   m_configObjects: {}
