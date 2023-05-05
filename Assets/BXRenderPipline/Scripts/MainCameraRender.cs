@@ -31,7 +31,7 @@ public partial class MainCameraRender
 	public ComputeBuffer tileLightingDatasBuffer = new ComputeBuffer(2048 * 2048 / 256, sizeof(uint), ComputeBufferType.Structured, ComputeBufferMode.Dynamic);
 	private Vector4[] frustumPlanes = new Vector4[6];
 
-	public void Render(ScriptableRenderContext context, Camera camera, bool editorMode, bool useDynamicBatching, bool useGPUInstancing,
+	public void Render(ScriptableRenderContext context, Camera camera, bool useDynamicBatching, bool useGPUInstancing,
 		DeferredComputeSettings deferredComputeSettings, PostProcessSettings postprocessSettings, ShadowSettings shadowSettings,
 		TerrainSettings terrainSettings)
 	{
@@ -61,7 +61,7 @@ public partial class MainCameraRender
 		graphicsPipline.Setup(context, cullingResults, commandBufferGraphics, camera,
 			deferredComputeSettings, lights, terrainRenderer,
             width, height, 1,
-            editorMode, useDynamicBatching, useGPUInstancing,
+            useDynamicBatching, useGPUInstancing,
             postprocessSettings);
 
 		commandBufferGraphics.SetGlobalBuffer(Constants.tileLightingDatasId, tileLightingDatasBuffer);

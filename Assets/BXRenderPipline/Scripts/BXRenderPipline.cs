@@ -26,19 +26,18 @@ public class BXRenderPipline : RenderPipeline
 		new ShaderTagId("VertexLM")
 	};
 
-	private bool useDynamicBatching, useGPUInstancing, editorMode;
+	private bool useDynamicBatching, useGPUInstancing;
 	private MainCameraRender mainCameraRenderer = new MainCameraRender();
 	private DeferredComputeSettings deferredComputeSettings;
 	private PostProcessSettings postprocessSettings;
 	private ShadowSettings shadowSettings;
 	private TerrainSettings terrainSettings;
 
-	public BXRenderPipline(bool editorMode, bool useDynamicBatching, bool useGPUInstancing, bool useSRPBatching,
+	public BXRenderPipline(bool useDynamicBatching, bool useGPUInstancing, bool useSRPBatching,
 		FrameRate frameRate,
 		DeferredComputeSettings deferredComputeSettings, PostProcessSettings postprocessSettings, ShadowSettings shadowSettings,
 		TerrainSettings terrainSettings)
 	{
-		this.editorMode = editorMode;
 		this.useDynamicBatching = useDynamicBatching;
 		this.useGPUInstancing = useGPUInstancing;
 		this.deferredComputeSettings = deferredComputeSettings;
@@ -55,7 +54,7 @@ public class BXRenderPipline : RenderPipeline
 	{
 		for (int i = 0; i < cameras.Length; ++i)
 		{
-			mainCameraRenderer.Render(context, cameras[i], editorMode, useDynamicBatching, useGPUInstancing,
+			mainCameraRenderer.Render(context, cameras[i], useDynamicBatching, useGPUInstancing,
 				deferredComputeSettings, postprocessSettings, shadowSettings, terrainSettings);
 		}
 	}

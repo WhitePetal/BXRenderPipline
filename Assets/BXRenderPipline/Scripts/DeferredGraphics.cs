@@ -19,9 +19,8 @@ public class DeferredGraphics
 
 	private PostProcess postProcess = new PostProcess();
 
-	private bool editorMode, useDynamicBatching, useGPUInstancing;
+	private bool useDynamicBatching, useGPUInstancing;
 	private int width, height, aa;
-
 
 #if UNITY_EDITOR
 	private static Material material_error = new Material(Shader.Find("Hidden/InternalErrorShader"));
@@ -30,7 +29,7 @@ public class DeferredGraphics
 	public void Setup(ScriptableRenderContext context, CullingResults cullingResults, CommandBuffer commandBuffer, Camera camera,
 		DeferredComputeSettings deferredComputeSettings, Lights lights, TerrainRenderer terrainRenderer,
 		int width, int height, int aa,
-		 bool editorMode, bool useDynamicBatching, bool useGPUInstancing,
+		 bool useDynamicBatching, bool useGPUInstancing,
 		 PostProcessSettings postProcessSettings)
 	{
 		this.context = context;
@@ -40,7 +39,6 @@ public class DeferredGraphics
 		this.deferredComputeSettings = deferredComputeSettings;
 		this.lights = lights;
 		this.terrainRenderer = terrainRenderer;
-		this.editorMode = editorMode;
 		this.useDynamicBatching = useDynamicBatching;
 		this.useGPUInstancing = useGPUInstancing;
 		this.width = width;
@@ -48,6 +46,8 @@ public class DeferredGraphics
 		this.aa = aa;
 
 		postProcess.Setup(postProcessSettings, commandBuffer, width, height);
+
+
 	}
 
 	public void Render()
