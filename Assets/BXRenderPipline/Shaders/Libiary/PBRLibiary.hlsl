@@ -194,11 +194,13 @@ void PBR_BRDF_DirectionalLighting(half3 specCol, float3 pos_world, float2 lightm
     }
 }
 
-void PBR_BRDF_PointLighting(half3 specCol, float3 pos_world, half3 n, half3 v, float2 pos_clip, half ndotv, half roughness, inout half3 diffuseColor, inout half3 specularColor)
+void PBR_BRDF_PointLighting(half3 specCol, float3 pos_world, half3 n, half3 v, float2 pos_clip, half ndotv, half roughness, half depthEye, inout half3 diffuseColor, inout half3 specularColor)
 {
     uint2 screenXY = pos_clip / 16.0;
-    uint tileIndex = screenXY.x * _ScreenParams.y / 16.0 + screenXY.y;
+    uint tileZ = ceil(depthEye * 256.0 / _ProjectionParams.z);
+    uint tileIndex = tileZ * (_ScreenParams.x * _ScreenParams.y / 256.0) + (screenXY.y * _ScreenParams.x / 16.0 + screenXY.x);
     uint tileData = _TileLightingDatas[tileIndex];
+    // uint realCount = 0;
     [loop]
     for(uint tileLightOffset = 0; tileLightOffset < tileData; ++tileLightOffset)
     {
@@ -211,8 +213,10 @@ void PBR_BRDF_PointLighting(half3 specCol, float3 pos_world, half3 n, half3 v, f
         float lenSqr = dot(lenV, lenV);
         float3 l = SafeNormalize(lenV);
         float3 h = SafeNormalize(l + v);
-
-        half ndotl = max(0.0, dot(n, l));
+        
+        half ndotl_source = dot(n, l);
+        if(ndotl_source <= 0.0) continue;
+        half ndotl = max(0.0, ndotl_source);
         half ndoth = max(0.0, dot(n, h));
         half ldoth = max(0.0, dot(l, h));
         half atten =  saturate(1.0 - lenSqr / (lightSphere.w * lightSphere.w));
@@ -223,7 +227,9 @@ void PBR_BRDF_PointLighting(half3 specCol, float3 pos_world, half3 n, half3 v, f
 
         diffuseColor += lightColor * f0 * ndotl;
         specularColor += lightColor * fgd;
+        // realCount++;
     }
+    // diffuseColor = realCount / 2.0;
 }
 #endif
 

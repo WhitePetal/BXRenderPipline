@@ -17,54 +17,54 @@ Shader "BXCharacters/PBR_BRDF"
     {
         Tags { "RenderType"="Opaque" "Queue"="Geometry"}
 
-        Pass
-        {
-            Tags {"LightMode"="BXDepthNormal"}
-            HLSLPROGRAM
-            #pragma target 4.5
-            #pragma multi_compile _ LOD_FADE_CROSSFADE
-            #pragma multi_compile_instancing
+        // Pass
+        // {
+        //     Tags {"LightMode"="BXDepthNormal"}
+        //     HLSLPROGRAM
+        //     #pragma target 4.5
+        //     #pragma multi_compile _ LOD_FADE_CROSSFADE
+        //     #pragma multi_compile_instancing
 
-            #pragma vertex vert
-            #pragma fragment frag
+        //     #pragma vertex vert
+        //     #pragma fragment frag
 
-            #include "Assets/BXRenderPipline/Shaders/Libiary/Common.hlsl"
+        //     #include "Assets/BXRenderPipline/Shaders/Libiary/Common.hlsl"
 
-            struct appdata
-            {
-                float4 vertex : POSITION;
-                half3 normal : NORMAL;
-                UNITY_VERTEX_INPUT_INSTANCE_ID
-            };
+        //     struct appdata
+        //     {
+        //         float4 vertex : POSITION;
+        //         half3 normal : NORMAL;
+        //         UNITY_VERTEX_INPUT_INSTANCE_ID
+        //     };
 
-            struct v2f
-            {
-                float4 vertex : SV_POSITION;
-                float3 normal_view : TEXCOORD0;
-                UNITY_VERTEX_INPUT_INSTANCE_ID
-            };
+        //     struct v2f
+        //     {
+        //         float4 vertex : SV_POSITION;
+        //         float3 normal_view : TEXCOORD0;
+        //         UNITY_VERTEX_INPUT_INSTANCE_ID
+        //     };
 
-            v2f vert (appdata v)
-            {
-                v2f o;
-                UNITY_SETUP_INSTANCE_ID(v);
-                UNITY_TRANSFER_INSTANCE_ID(v, o);
-                float3 pos_world = TransformObjectToWorld(v.vertex.xyz);
-                o.vertex = TransformWorldToHClip(pos_world);
-                half3 normal_world = TransformObjectToWorldNormal(v.normal);
-                o.normal_view = mul((float3x3)UNITY_MATRIX_V, normal_world).xyz;
+        //     v2f vert (appdata v)
+        //     {
+        //         v2f o;
+        //         UNITY_SETUP_INSTANCE_ID(v);
+        //         UNITY_TRANSFER_INSTANCE_ID(v, o);
+        //         float3 pos_world = TransformObjectToWorld(v.vertex.xyz);
+        //         o.vertex = TransformWorldToHClip(pos_world);
+        //         half3 normal_world = TransformObjectToWorldNormal(v.normal);
+        //         o.normal_view = mul((float3x3)UNITY_MATRIX_V, normal_world).xyz;
 
-                return o;
-            }
+        //         return o;
+        //     }
 
-            half4 frag (v2f i) : SV_TARGET0
-            {
-                UNITY_SETUP_INSTANCE_ID(i);
-                ClipLOD(i.vertex.xy);
-                return (i.vertex.z < (1.0-1.0/65025.0)) ? EncodeDepthNormal(i.vertex.z, normalize(i.normal_view)) : float4(0.5,0.5,1.0,1.0);
-            }
-            ENDHLSL
-        }
+        //     half4 frag (v2f i) : SV_TARGET0
+        //     {
+        //         UNITY_SETUP_INSTANCE_ID(i);
+        //         ClipLOD(i.vertex.xy);
+        //         return (i.vertex.z < (1.0-1.0/65025.0)) ? EncodeDepthNormal(i.vertex.z, normalize(i.normal_view)) : float4(0.5,0.5,1.0,1.0);
+        //     }
+        //     ENDHLSL
+        // }
 
         Pass
         {
@@ -105,6 +105,7 @@ Shader "BXCharacters/PBR_BRDF"
                 half3 normal_world : TEXCOORD2;
                 half3 tangent_world : TEXCOORD3;
                 half3 binormal_world : TEXCOORD4;
+                float3 normal_view : TEXCOORD5;
                 UNITY_VERTEX_INPUT_INSTANCE_ID
             };
 
@@ -137,6 +138,7 @@ Shader "BXCharacters/PBR_BRDF"
                 o.normal_world = TransformObjectToWorldNormal(v.normal);
                 o.tangent_world = TransformObjectToWorldDir(v.tangent.xyz);
                 o.binormal_world = cross(o.normal_world, o.tangent_world) * v.tangent.w * unity_WorldTransformParams.w;
+                o.normal_view = mul((float3x3)UNITY_MATRIX_V, o.normal_world).xyz;
 
                 return o;
             }
@@ -147,7 +149,7 @@ Shader "BXCharacters/PBR_BRDF"
                 half4 depthNormalBuffer : SV_TARGET1;
             };
 
-            half4 frag (v2f i) : SV_TARGET0
+            FragOutput frag (v2f i)
             {
                 UNITY_SETUP_INSTANCE_ID(i);
                 ClipLOD(i.vertex.xy);
@@ -178,7 +180,7 @@ Shader "BXCharacters/PBR_BRDF"
                 half3 specularColor = 0.0;
 
                 PBR_BRDF_DirectionalLighting(specCol, i.pos_world.xyz, 0.0, n, v, i.vertex.xy, ndotv, roughness, depthEye, diffuseColor, specularColor);
-                PBR_BRDF_PointLighting(specCol, i.pos_world.xyz, n, v, i.vertex.xy, ndotv, roughness, diffuseColor, specularColor);
+                PBR_BRDF_PointLighting(specCol, i.pos_world.xyz, n, v, i.vertex.xy, ndotv, roughness, depthEye, diffuseColor, specularColor);
 
                 diffuseColor = diffuseColor * albedo;
                 specularColor *= 0.25 / ndotv;
@@ -187,7 +189,10 @@ Shader "BXCharacters/PBR_BRDF"
                     lighting += emissionMap.rgb * GET_PROP(_EmissionColor).rgb * emissionMap.a;
                 #endif
                 
-                return half4(lighting, 1.0);
+                FragOutput o;
+                o.lightingBuffer = half4(lighting, 1.0);
+                o.depthNormalBuffer = (i.vertex.z < (1.0-1.0/65025.0)) ? EncodeDepthNormal(i.vertex.z, normalize(i.normal_view)) : float4(0.5,0.5,1.0,1.0);
+                return o;
             }
             ENDHLSL
         }

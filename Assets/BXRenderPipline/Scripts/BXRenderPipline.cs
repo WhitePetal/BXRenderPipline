@@ -6,9 +6,9 @@ using UnityEngine.Rendering;
 
 public class BXRenderPipline : RenderPipeline
 {
-	public static ShaderTagId[] bxShaderTagIds = new ShaderTagId[7]
+	public static ShaderTagId[] bxShaderTagIds = new ShaderTagId[6]
 	{
-			new ShaderTagId("BXDepthNormal"),
+			//new ShaderTagId("BXDepthNormal"),
 			new ShaderTagId("BXOpaque"),
 			new ShaderTagId("BXCharacterAlphaDepth"),
 			new ShaderTagId("BXCharacterAlpha"),

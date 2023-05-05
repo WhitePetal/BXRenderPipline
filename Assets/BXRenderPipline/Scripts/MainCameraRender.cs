@@ -27,8 +27,8 @@ public partial class MainCameraRender
 	private DeferredGraphics graphicsPipline = new DeferredGraphics();
 	private TerrainRenderer terrainRenderer = new TerrainRenderer();
 
-	public ComputeBuffer tileLightingIndicesBuffer = new ComputeBuffer(2048 * 2048, sizeof(uint), ComputeBufferType.Structured, ComputeBufferMode.Dynamic);
-	public ComputeBuffer tileLightingDatasBuffer = new ComputeBuffer(2048 * 2048 / 256, sizeof(uint), ComputeBufferType.Structured, ComputeBufferMode.Dynamic);
+	public ComputeBuffer tileLightingIndicesBuffer = new ComputeBuffer(2048 * 2048 * 128, sizeof(uint), ComputeBufferType.Structured, ComputeBufferMode.Dynamic);
+	public ComputeBuffer tileLightingDatasBuffer = new ComputeBuffer(2048 * 2048, sizeof(uint), ComputeBufferType.Structured, ComputeBufferMode.Dynamic);
 	private Vector4[] frustumPlanes = new Vector4[6];
 
 	public void Render(ScriptableRenderContext context, Camera camera, bool useDynamicBatching, bool useGPUInstancing,
