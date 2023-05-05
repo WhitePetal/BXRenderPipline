@@ -5,12 +5,12 @@ using UnityEngine.Rendering;
 
 public class Constants
 {
-	public static int depthBufferId = Shader.PropertyToID("_DepthBuffer");
+	//public static int depthBufferId = Shader.PropertyToID("_DepthBuffer");
 	public static int lightingBufferId = Shader.PropertyToID("_LightingBuffer");
 	public static int depthNormalBufferId = Shader.PropertyToID("_BXDepthNormalBuffer");
 	public static int fxaaInputBufferId = Shader.PropertyToID("_FXAAInputBuffer");
 	public static int ssrBufferId = Shader.PropertyToID("_SSRBuffer");
-	public static RenderTargetIdentifier depthBufferTargetId = new RenderTargetIdentifier(depthBufferId);
+	//public static RenderTargetIdentifier depthBufferTargetId = new RenderTargetIdentifier(depthBufferId);
 	public static RenderTargetIdentifier lightingBufferTargetId = new RenderTargetIdentifier(lightingBufferId);
 	public static RenderTargetIdentifier depthNormalBufferTargetId = new RenderTargetIdentifier(depthNormalBufferId);
 	public static RenderTargetIdentifier fxaaInputBufferTargetId = new RenderTargetIdentifier(fxaaInputBufferId);
@@ -28,9 +28,9 @@ public class Constants
 	{
 		RenderBufferStoreAction.Store, RenderBufferStoreAction.Store
 	};
-	public static RenderTargetBinding shadingBinding = new RenderTargetBinding(shadingTargestsId, shadingTargetLoads, shadingTargetStores, depthBufferTargetId, RenderBufferLoadAction.DontCare, RenderBufferStoreAction.Store);
-	public static RenderTargetBinding preDepthNormalBinding = new RenderTargetBinding(depthNormalBufferTargetId, RenderBufferLoadAction.DontCare, RenderBufferStoreAction.Store, depthBufferTargetId, RenderBufferLoadAction.DontCare, RenderBufferStoreAction.Store);
-	public static RenderTargetBinding lightingBinding = new RenderTargetBinding(lightingBufferTargetId, RenderBufferLoadAction.DontCare, RenderBufferStoreAction.Store, depthBufferTargetId, RenderBufferLoadAction.DontCare, RenderBufferStoreAction.Store);
+	//public static RenderTargetBinding shadingBinding = new RenderTargetBinding(shadingTargestsId, shadingTargetLoads, shadingTargetStores, depthBufferTargetId, RenderBufferLoadAction.DontCare, RenderBufferStoreAction.Store);
+	//public static RenderTargetBinding preDepthNormalBinding = new RenderTargetBinding(depthNormalBufferTargetId, RenderBufferLoadAction.DontCare, RenderBufferStoreAction.Store, depthBufferTargetId, RenderBufferLoadAction.DontCare, RenderBufferStoreAction.Store);
+	//public static RenderTargetBinding lightingBinding = new RenderTargetBinding(lightingBufferTargetId, RenderBufferLoadAction.DontCare, RenderBufferStoreAction.Store, depthBufferTargetId, RenderBufferLoadAction.DontCare, RenderBufferStoreAction.Store);
 
 	public static int frustumPlanesId = Shader.PropertyToID("_FrustumPlanes");
 	public static int viewPortRaysId = Shader.PropertyToID("_ViewPortRays");

@@ -197,7 +197,7 @@ void PBR_BRDF_DirectionalLighting(half3 specCol, float3 pos_world, float2 lightm
 void PBR_BRDF_PointLighting(half3 specCol, float3 pos_world, half3 n, half3 v, float2 pos_clip, half ndotv, half roughness, inout half3 diffuseColor, inout half3 specularColor)
 {
     uint2 screenXY = pos_clip / 16.0;
-    uint tileIndex = screenXY.y * _ScreenParams.x / 16.0 + screenXY.x;
+    uint tileIndex = screenXY.x * _ScreenParams.y / 16.0 + screenXY.y;
     uint tileData = _TileLightingDatas[tileIndex];
     [loop]
     for(uint tileLightOffset = 0; tileLightOffset < tileData; ++tileLightOffset)
@@ -267,7 +267,7 @@ void PBR_BSSSDFSkin_DirectionalLighting(half3 specCol, float3 pos_world, half3 n
 void PBR_BSSSDFSkin_PointLighting(half3 specCol, half3 ndotl_sss_avg, float3 pos_world, half3 n, half3 v, float2 pos_clip, half ndotv, half roughness, inout half3 diffuseColor, inout half3 specularColor)
 {
     uint2 screenXY = pos_clip / 16.0;
-    uint tileIndex = screenXY.y * _ScreenParams.x / 16.0 + screenXY.x;
+    uint tileIndex = screenXY.x * _ScreenParams.y / 16.0 + screenXY.y;
     uint tileData = _TileLightingDatas[tileIndex];
     [loop]
     for(uint tileLightOffset = 0; tileLightOffset < min(tileData, _PointLightCount); ++tileLightOffset)

@@ -97,7 +97,7 @@ bool IntersectTileAndPointLight(float zMin, float zMax, uint3 groupId, float4 li
 [numthreads(16,16,1)]
 void CSMain (uint3 id : SV_DispatchThreadID, uint groupIndex : SV_GROUPINDEX, uint3 groupId : SV_GROUPID)
 {   
-    uint tileIndex = groupId.y * _ScreenParams.x / 16.0 + groupId.x;
+    uint tileIndex = groupId.x * _ScreenParams.y / 16.0 + groupId.y;
     if(groupIndex == 0)
     {
         _TileLightingDatas[tileIndex] = 0;

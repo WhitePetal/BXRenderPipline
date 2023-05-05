@@ -71,7 +71,6 @@ public class DeferredGraphics
 
 	public void CleanUp()
 	{
-		commandBuffer.ReleaseTemporaryRT(Constants.depthBufferId);
 		commandBuffer.ReleaseTemporaryRT(Constants.lightingBufferId);
 		commandBuffer.ReleaseTemporaryRT(Constants.depthNormalBufferId);
 		commandBuffer.ReleaseTemporaryRT(Constants.fxaaInputBufferId);
@@ -82,11 +81,6 @@ public class DeferredGraphics
 
 	private void GenerateBuffers()
 	{
-#if UNITY_EDITOR
-		commandBuffer.GetTemporaryRT(Constants.depthBufferId, width, height, 24, FilterMode.Point, RenderTextureFormat.Depth, RenderTextureReadWrite.Linear, 1, false, RenderTextureMemoryless.None);
-#else
-		commandBuffer.GetTemporaryRT(Constants.depthBufferId, width, height, 24, FilterMode.Point, RenderTextureFormat.Depth, RenderTextureReadWrite.Linear, 1, false, RenderTextureMemoryless.Depth);
-#endif
 		commandBuffer.GetTemporaryRT(Constants.lightingBufferId, width, height, 0, FilterMode.Point, RenderTextureFormat.ARGBHalf, RenderTextureReadWrite.Linear, 1, false, RenderTextureMemoryless.None);
 		commandBuffer.GetTemporaryRT(Constants.depthNormalBufferId, width, height, 0, FilterMode.Point, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear, 1, false, RenderTextureMemoryless.None);
 		commandBuffer.GetTemporaryRT(Constants.fxaaInputBufferId, width, height, 0, FilterMode.Point, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear, 1, false, RenderTextureMemoryless.None);
@@ -113,7 +107,6 @@ public class DeferredGraphics
 		depthNormalBuffer.ConfigureClear(Color.clear);
 		depthBuffer.ConfigureClear(Color.clear, 1f, 0);
 		depthNormalBuffer.ConfigureTarget(Constants.depthNormalBufferTargetId, false, true);
-		depthBuffer.ConfigureTarget(Constants.depthBufferTargetId, false, true);
 
 		PerObjectData lightsPerObjectFlags = PerObjectData.None;
 		SortingSettings sortingSettings = new SortingSettings(camera)
@@ -166,9 +159,6 @@ public class DeferredGraphics
 		var lightingBuffer = new AttachmentDescriptor(RenderTextureFormat.ARGBHalf);
 		lightingBuffer.ConfigureClear(clearFlags == CameraClearFlags.SolidColor ? camera.backgroundColor.linear : Color.clear, 1f, 0);
 		lightingBuffer.ConfigureTarget(Constants.lightingBufferTargetId, false, true);
-		depthBuffer = new AttachmentDescriptor(RenderTextureFormat.Depth);
-		depthBuffer.ConfigureClear(Color.clear, 1f, 0);
-		depthBuffer.ConfigureTarget(Constants.depthBufferTargetId, false, true);
 
 		attachments = new NativeArray<AttachmentDescriptor>(2, Allocator.Temp);
 		const int lightingBufferIndex = 1;
@@ -176,17 +166,16 @@ public class DeferredGraphics
 		attachments[lightingBufferIndex] = lightingBuffer;
 		context.BeginRenderPass(width, height, 1, attachments, depthBufferIndex);
 		attachments.Dispose();
-		drawingSettings.SetShaderPassName(0, BXRenderPipline.bxShaderTagIds[1]);
+
 		var lightingBufferTarget = new NativeArray<int>(1, Allocator.Temp);
 		lightingBufferTarget[0] = lightingBufferIndex;
 		context.BeginSubPass(lightingBufferTarget);
 		lightingBufferTarget.Dispose();
 
-		drawingSettings.SetShaderPassName(0, BXRenderPipline.bxShaderTagIds[1]);
-
 		terrainRenderer.Draw();
         ExecuteBuffer();
 
+		drawingSettings.SetShaderPassName(0, BXRenderPipline.bxShaderTagIds[1]);
 		context.DrawRenderers(cullingResults, ref drawingSettings, ref filteringSettings);
         context.DrawSkybox(camera);
         sortingSettings.criteria = SortingCriteria.CommonTransparent;

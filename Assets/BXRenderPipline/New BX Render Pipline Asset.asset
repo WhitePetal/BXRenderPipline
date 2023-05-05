@@ -89,3 +89,4 @@ MonoBehaviour:
     updateAlways: 0
     grassDataCompute: {fileID: 7200000, guid: d65c72a9e648d4ff589cd921d86573ff, type: 3}
     terrainData: {fileID: 15600000, guid: 31b78034619454a939c454551daf35b2, type: 2}
+    grassShadowEnable: 0
