@@ -14,6 +14,7 @@ float4 _TileLBStart;
 float4 _CameraForward;
 float4 _TileRVec;
 float4 _TileUVec;
+float4 _ClusterSize;
 float4x4 BX_MatrixV;
 float4 _ZBufferParams;
 float4 _ScreenParams;
@@ -57,7 +58,7 @@ bool IntersectTileAndPointLight(float zMin, float zMax, uint3 groupId, float4 li
     float3 n5 = cross(v0, v2);
     frustume[5] = float4(n5, 0);
 
-    [loop]
+    [unroll(6)]
     for(uint k = 0; k < 6; ++k)
     {
         // https://gdbooks.gitbooks.io/3dcollisions/content/Chapter2/static_aabb_plane.html AABB-平面相交
@@ -67,7 +68,8 @@ bool IntersectTileAndPointLight(float zMin, float zMax, uint3 groupId, float4 li
         float d = plane.w;
         float r = dot(bextent, n_abs);
         float s = dot(n, lightSphere.xyz) + d;
-
+        
+        [branch]
         if((-r - s) > 0)
         {
             return false;
@@ -79,21 +81,21 @@ bool IntersectTileAndPointLight(float zMin, float zMax, uint3 groupId, float4 li
 [numthreads(16,16,1)]
 void CSMain (uint3 id : SV_DispatchThreadID, uint groupIndex : SV_GROUPINDEX, uint3 groupId : SV_GROUPID)
 {   
-    uint tileIndex = groupId.z * (_ScreenParams.x * _ScreenParams.y / 256.0) + (groupId.y * _ScreenParams.x / 16.0 + groupId.x);
+    uint k = groupId.z;
+    uint tileIndex = k * 16 * 32 + (groupId.y * 32 + groupId.x);
     if(groupIndex == 0)
     {
-        _TileLightingDatas[tileIndex] = 0;
-        _TileLightingIndices[tileIndex] = 0;
         tileVisibleLightCount = 0;
     }
     GroupMemoryBarrierWithGroupSync();
 
-    float depthSlice = _ProjectionParams.z / 256.0;
+    [branch]
     if (groupIndex < (uint)_PointLightCount)
     {
         float4 lightSphere = _PointLightSpheres[groupIndex];
         lightSphere.xyz = mul(BX_MatrixV, float4(lightSphere.xyz, 1.0)).xyz;
-        if(IntersectTileAndPointLight(-depthSlice * groupId.z, -depthSlice * (groupId.z + 1), groupId, lightSphere))
+        float nearK = -_ProjectionParams.y*pow(_ClusterSize.z, k);
+        if(IntersectTileAndPointLight(nearK, nearK * _ClusterSize.z, groupId, lightSphere))
         {
             uint offset;
             InterlockedAdd(tileVisibleLightCount, 1, offset);

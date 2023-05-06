@@ -12,7 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0b8d8ebd19e644a74875705ed60382f9, type: 3}
   m_Name: New BX Render Pipline Asset
   m_EditorClassIdentifier: 
-  editorMode: 0
   useDynamicBatching: 1
   useGPUInstancing: 1
   useSRPBatching: 1
@@ -32,7 +31,7 @@ MonoBehaviour:
     cascadeRatio3: 0.5
     cascadeFade: 0.1
   deferredComputeSettings:
-    tileLightingCS: {fileID: 7200000, guid: 12540c88edcc2e6479f2fe9f1b7aaddb, type: 3}
+    clusterLightingCS: {fileID: 7200000, guid: 12540c88edcc2e6479f2fe9f1b7aaddb, type: 3}
     ssrGenerateCS: {fileID: 7200000, guid: d2e50bac7b2bf1143a41094ea9a1af0a, type: 3}
   processSettings:
     copTexShader: {fileID: 4800000, guid: 83f9d710d6f3ca84d96a5a4671c475a5, type: 3}
@@ -89,4 +88,4 @@ MonoBehaviour:
     updateAlways: 0
     grassDataCompute: {fileID: 7200000, guid: d65c72a9e648d4ff589cd921d86573ff, type: 3}
     terrainData: {fileID: 15600000, guid: 31b78034619454a939c454551daf35b2, type: 2}
-    grassShadowEnable: 0
+    grassShadowEnable: 1

@@ -22,76 +22,76 @@ Shader "Scene/Scene_Grass"
             
         ENDHLSL
 
-        Pass
-        {
-            Tags {"LightMode"="BXDepthNormal"}
-            HLSLPROGRAM
-            #pragma target 4.5
-            #pragma multi_compile_instancing
+        // Pass
+        // {
+        //     Tags {"LightMode"="BXDepthNormal"}
+        //     HLSLPROGRAM
+        //     #pragma target 4.5
+        //     #pragma multi_compile_instancing
 
-            #pragma vertex vert
-            #pragma fragment frag
+        //     #pragma vertex vert
+        //     #pragma fragment frag
 
-            #include "Assets/BXRenderPipline/Shaders/Libiary/Common.hlsl"
+        //     #include "Assets/BXRenderPipline/Shaders/Libiary/Common.hlsl"
 
-            struct appdata
-            {
-                float4 vertex : POSITION;
-                UNITY_VERTEX_INPUT_INSTANCE_ID
-            };
+        //     struct appdata
+        //     {
+        //         float4 vertex : POSITION;
+        //         UNITY_VERTEX_INPUT_INSTANCE_ID
+        //     };
 
-            struct v2f
-            {
-                float4 vertex : SV_POSITION;
-                float2 terrainUV : TEXCOORD0;
-                UNITY_VERTEX_INPUT_INSTANCE_ID
-            };
+        //     struct v2f
+        //     {
+        //         float4 vertex : SV_POSITION;
+        //         float2 terrainUV : TEXCOORD0;
+        //         UNITY_VERTEX_INPUT_INSTANCE_ID
+        //     };
 
-            CBUFFER_START(_Terrain)
-                float4 _TerrainPosition;
-                float4 _TerrainSize; // terrainWidth、terrainHeight、detilMapWidth、detilMapHeight
-            CBUFFER_END
+        //     CBUFFER_START(_Terrain)
+        //         float4 _TerrainPosition;
+        //         float4 _TerrainSize; // terrainWidth、terrainHeight、detilMapWidth、detilMapHeight
+        //     CBUFFER_END
 
-            Texture2D _TerrainNormalmapTexture;
-            SamplerState sampler_point_clamp;
-            StructuredBuffer<float4> _DetilsPosition;
+        //     Texture2D _TerrainNormalmapTexture;
+        //     SamplerState sampler_point_clamp;
+        //     StructuredBuffer<float4> _DetilsPosition;
 
-            v2f vert (appdata v, uint instanceID : SV_INSTANCEID)
-            {
-                v2f o;
-                UNITY_SETUP_INSTANCE_ID(v);
-                UNITY_TRANSFER_INSTANCE_ID(v, o);
-                float3 pos_world = _DetilsPosition[instanceID].xyz;
+        //     v2f vert (appdata v, uint instanceID : SV_INSTANCEID)
+        //     {
+        //         v2f o;
+        //         UNITY_SETUP_INSTANCE_ID(v);
+        //         UNITY_TRANSFER_INSTANCE_ID(v, o);
+        //         float3 pos_world = _DetilsPosition[instanceID].xyz;
 
-                half r = random_nn(pos_world.xz);
-                half angle = r * 6.283;
-                half2 cs = half2(sin(angle), cos(angle));
-                half2x2 mat = half2x2(
-                    half2(cs.y, -cs.x),
-                    cs
-                );
+        //         half r = random_nn(pos_world.xz);
+        //         half angle = r * 6.283;
+        //         half2 cs = half2(sin(angle), cos(angle));
+        //         half2x2 mat = half2x2(
+        //             half2(cs.y, -cs.x),
+        //             cs
+        //         );
 
-                v.vertex.xz = mul(mat, v.vertex.xz);
-                float3 noiseWindDir = float3(0, 0, 1);
-                noiseWindDir.xz = mul(mat, noiseWindDir.xz);
-                v.vertex.xyz += 0.3 * sin((pos_world.x + pos_world.y + pos_world.z + _Time.x * 15.0)) * v.vertex.y * noiseWindDir * half3(1.0, 0.0, 1.0);
-                pos_world += v.vertex.xyz;
-                o.vertex = TransformWorldToHClip(pos_world);
+        //         v.vertex.xz = mul(mat, v.vertex.xz);
+        //         float3 noiseWindDir = float3(0, 0, 1);
+        //         noiseWindDir.xz = mul(mat, noiseWindDir.xz);
+        //         v.vertex.xyz += 0.3 * sin((pos_world.x + pos_world.y + pos_world.z + _Time.x * 15.0)) * v.vertex.y * noiseWindDir * half3(1.0, 0.0, 1.0);
+        //         pos_world += v.vertex.xyz;
+        //         o.vertex = TransformWorldToHClip(pos_world);
 
-                o.terrainUV = (pos_world.xz - _TerrainPosition.xz) / _TerrainSize.xy;
+        //         o.terrainUV = (pos_world.xz - _TerrainPosition.xz) / _TerrainSize.xy;
 
-                return o;
-            }
+        //         return o;
+        //     }
 
-            half4 frag (v2f i) : SV_TARGET0
-            {
-                UNITY_SETUP_INSTANCE_ID(i);
-                half3 n = _TerrainNormalmapTexture.Sample(sampler_point_clamp, i.terrainUV).xyz * 2 - 1;
-                half3 normal_view = mul((float3x3)UNITY_MATRIX_V, n).xyz;
-                return (i.vertex.z < (1.0-1.0/65025.0)) ? EncodeDepthNormal(i.vertex.z, normalize(normal_view)) : float4(0.5,0.5,1.0,1.0);
-            }
-            ENDHLSL
-        }
+        //     half4 frag (v2f i) : SV_TARGET0
+        //     {
+        //         UNITY_SETUP_INSTANCE_ID(i);
+        //         half3 n = _TerrainNormalmapTexture.Sample(sampler_point_clamp, i.terrainUV).xyz * 2 - 1;
+        //         half3 normal_view = mul((float3x3)UNITY_MATRIX_V, n).xyz;
+        //         return (i.vertex.z < (1.0-1.0/65025.0)) ? EncodeDepthNormal(i.vertex.z, normalize(normal_view)) : float4(0.5,0.5,1.0,1.0);
+        //     }
+        //     ENDHLSL
+        // }
 
         Pass
         {
@@ -179,7 +179,13 @@ Shader "Scene/Scene_Grass"
                 return o;
             }
 
-            half4 frag (v2f i) : SV_TARGET0
+            struct FragOutput
+            {
+                half4 lightingBuffer : SV_TARGET0;
+                half4 depthNormalBuffer : SV_TARGET1;
+            };
+
+            FragOutput frag (v2f i)
             {
                 UNITY_SETUP_INSTANCE_ID(i);
                 half4 control = _Control.Sample(sampler_point_clamp, i.terrainUV);
@@ -200,13 +206,17 @@ Shader "Scene/Scene_Grass"
                 half3 specularColor = 0.0;
 
                 PBR_BRDF_DirectionalLighting(specCol, i.pos_world.xyz, 0.0, n, v, i.vertex.xy, ndotv, 0.7, depthEye, diffuseColor, specularColor);
-                PBR_BRDF_PointLighting(specCol, i.pos_world.xyz, n, v, i.vertex.xy, ndotv, 0.7, diffuseColor, specularColor);
+                PBR_BRDF_PointLighting(specCol, i.pos_world.xyz, n, v, i.vertex.xy, ndotv, 0.7, depthEye, diffuseColor, specularColor);
 
                 diffuseColor = diffuseColor * albedo;
                 specularColor *= 0.25 / ndotv;
                 half3 lighting = diffuseColor + specularColor + (indirectDiffuse * albedo + indirectSpecular);
 
-                return half4(lighting, 1.0);
+                FragOutput o;
+                o.lightingBuffer = half4(lighting, 1.0);
+                half3 normal_view = mul((float3x3)UNITY_MATRIX_V, n).xyz;
+                o.depthNormalBuffer = (i.vertex.z < (1.0-1.0/65025.0)) ? EncodeDepthNormal(i.vertex.z, normalize(normal_view)) : float4(0.5,0.5,1.0,1.0);
+                return o;
             }
             ENDHLSL
         }

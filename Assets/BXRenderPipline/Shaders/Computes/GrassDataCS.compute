@@ -37,7 +37,7 @@ void GenerateDetilsData (uint3 id : SV_DispatchThreadID)
     float2 bextentGridSize = 0.5 * _TerrainSize.xy / _TerrainSize.zw;
     float3 bextent = float3(bextentGridSize.x, _DetilSize.z, bextentGridSize.y);
 
-    [loop]
+    [unroll(6)]
     for(int i = 0; i < 6; i++)
     {
         // https://gdbooks.gitbooks.io/3dcollisions/content/Chapter2/static_aabb_plane.html AABB-平面相交

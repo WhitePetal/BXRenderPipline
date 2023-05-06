@@ -52,6 +52,7 @@ public class Constants
 	public static int tileLBStartId = Shader.PropertyToID("_TileLBStart");
 	public static int tileRVecId = Shader.PropertyToID("_TileRVec");
 	public static int tileUVecId = Shader.PropertyToID("_TileUVec");
+	public static int clusterSizeId = Shader.PropertyToID("_ClusterSize");
 
 	public static int fxaaConfigId = Shader.PropertyToID("_FXAAConfig");
 

@@ -6,7 +6,7 @@ using UnityEngine;
 public class DeferredComputeSettings
 {
 	[SerializeField]
-	public ComputeShader tileLightingCS;
+	public ComputeShader clusterLightingCS;
 	[SerializeField]
 	public ComputeShader ssrGenerateCS;
 }

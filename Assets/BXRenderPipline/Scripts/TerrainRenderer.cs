@@ -87,7 +87,7 @@ public class TerrainRenderer
     public void DrawShadows(CommandBuffer commandBuffer_shadow)
     {
         if (terrain == null || !settings.grassShadowEnable) return;
-        commandBuffer_shadow.DrawMeshInstancedIndirect(grassMesh, 0, grassMat, 2, grassInstanceArgsBuffer);
+        commandBuffer_shadow.DrawMeshInstancedIndirect(grassMesh, 0, grassMat, 1, grassInstanceArgsBuffer);
     }
 
     public void DrawDepthNormal()
@@ -100,7 +100,7 @@ public class TerrainRenderer
     {
         if (terrain == null) return;
         commandBuffer.SetGlobalTexture(Constants.terrainNormalTextureId, terrain.normalmapTexture);
-        commandBuffer.DrawMeshInstancedIndirect(grassMesh, 0, grassMat, 1, grassInstanceArgsBuffer);
+        commandBuffer.DrawMeshInstancedIndirect(grassMesh, 0, grassMat, 0, grassInstanceArgsBuffer);
     }
 
     public void OnDispose()

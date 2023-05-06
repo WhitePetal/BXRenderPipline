@@ -12,74 +12,74 @@ Shader "BXScenes/Scene_Terrain"
     {
         Tags { "RenderType"="Opaque" "Queue"="Geometry"}
 
-        Pass
-        {
-            Tags { "LightMode"="BXDepthNormal" }
-            HLSLPROGRAM
-            #pragma target 4.5
-            #pragma multi_compile_instancing
-            #pragma instancing_options assumeuniformscaling nomatrices nolightprobe nolightmap
+        // Pass
+        // {
+        //     Tags { "LightMode"="BXDepthNormal" }
+        //     HLSLPROGRAM
+        //     #pragma target 4.5
+        //     #pragma multi_compile_instancing
+        //     #pragma instancing_options assumeuniformscaling nomatrices nolightprobe nolightmap
 
-            #pragma vertex vert
-            #pragma fragment frag
+        //     #pragma vertex vert
+        //     #pragma fragment frag
 
-            #include "Assets/BXRenderPipline/Shaders/Libiary/Common.hlsl"
+        //     #include "Assets/BXRenderPipline/Shaders/Libiary/Common.hlsl"
 
-            struct appdata
-            {
-                float4 vertex : POSITION;
-                UNITY_VERTEX_INPUT_INSTANCE_ID
-            };
+        //     struct appdata
+        //     {
+        //         float4 vertex : POSITION;
+        //         UNITY_VERTEX_INPUT_INSTANCE_ID
+        //     };
 
-            struct v2f
-            {
-                float4 vertex : SV_POSITION;
-                float3 normal_view : TEXCOORD0;
-                UNITY_VERTEX_OUTPUT_STEREO
-            };
+        //     struct v2f
+        //     {
+        //         float4 vertex : SV_POSITION;
+        //         float3 normal_view : TEXCOORD0;
+        //         UNITY_VERTEX_OUTPUT_STEREO
+        //     };
 
-            CBUFFER_START(_Terrain)
-                float4 _TerrainHeightmapRecipSize;   // float4(1.0f/width, 1.0f/height, 1.0f/(width-1), 1.0f/(height-1))
-                float4 _TerrainHeightmapScale;       // float4(hmScale.x, hmScale.y / (float)(kMaxHeight), hmScale.z, 0.0f)
-            CBUFFER_END
+        //     CBUFFER_START(_Terrain)
+        //         float4 _TerrainHeightmapRecipSize;   // float4(1.0f/width, 1.0f/height, 1.0f/(width-1), 1.0f/(height-1))
+        //         float4 _TerrainHeightmapScale;       // float4(hmScale.x, hmScale.y / (float)(kMaxHeight), hmScale.z, 0.0f)
+        //     CBUFFER_END
 
-            UNITY_INSTANCING_BUFFER_START(Terrain)
-                UNITY_DEFINE_INSTANCED_PROP(float4, _TerrainPatchInstanceData)  // float4(xBase, yBase, skipScale, ~)
-            UNITY_INSTANCING_BUFFER_END(Terrain)
+        //     UNITY_INSTANCING_BUFFER_START(Terrain)
+        //         UNITY_DEFINE_INSTANCED_PROP(float4, _TerrainPatchInstanceData)  // float4(xBase, yBase, skipScale, ~)
+        //     UNITY_INSTANCING_BUFFER_END(Terrain)
 
-            Texture2D _TerrainHeightmapTexture;
-            Texture2D _TerrainNormalmapTexture;
-            SamplerState sampler_TerrainNormalmapTexture;
+        //     Texture2D _TerrainHeightmapTexture;
+        //     Texture2D _TerrainNormalmapTexture;
+        //     SamplerState sampler_TerrainNormalmapTexture;
 
-            v2f vert (appdata v)
-            {
-                v2f o;
-                UNITY_SETUP_INSTANCE_ID(v);
-                UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
-                float2 patchVertex = v.vertex.xy;
-                float4 instanceData = UNITY_ACCESS_INSTANCED_PROP(Terrain, _TerrainPatchInstanceData);
-                float2 sampleCoords = (patchVertex.xy + instanceData.xy) * instanceData.z;
-                float height = UnpackHeightmap(_TerrainHeightmapTexture.Load(int3(sampleCoords, 0)));
+        //     v2f vert (appdata v)
+        //     {
+        //         v2f o;
+        //         UNITY_SETUP_INSTANCE_ID(v);
+        //         UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
+        //         float2 patchVertex = v.vertex.xy;
+        //         float4 instanceData = UNITY_ACCESS_INSTANCED_PROP(Terrain, _TerrainPatchInstanceData);
+        //         float2 sampleCoords = (patchVertex.xy + instanceData.xy) * instanceData.z;
+        //         float height = UnpackHeightmap(_TerrainHeightmapTexture.Load(int3(sampleCoords, 0)));
 
-                v.vertex.xz = sampleCoords * _TerrainHeightmapScale.xz;
-                v.vertex.y = height * _TerrainHeightmapScale.y;
-                float3 pos_world = TransformObjectToWorld(v.vertex.xyz);
-                o.vertex = TransformWorldToHClip(pos_world);
-                half3 normal = _TerrainNormalmapTexture.Load(int3(sampleCoords, 0)).rgb * 2 - 1;
-                // half4 tangent = half4(cross(half3(0, 0, 1), normal), 1.0);
-                float3 normal_world = TransformObjectToWorldNormal(normal);
-                o.normal_view = mul((float3x3)UNITY_MATRIX_V, normal_world).xyz;
+        //         v.vertex.xz = sampleCoords * _TerrainHeightmapScale.xz;
+        //         v.vertex.y = height * _TerrainHeightmapScale.y;
+        //         float3 pos_world = TransformObjectToWorld(v.vertex.xyz);
+        //         o.vertex = TransformWorldToHClip(pos_world);
+        //         half3 normal = _TerrainNormalmapTexture.Load(int3(sampleCoords, 0)).rgb * 2 - 1;
+        //         // half4 tangent = half4(cross(half3(0, 0, 1), normal), 1.0);
+        //         float3 normal_world = TransformObjectToWorldNormal(normal);
+        //         o.normal_view = mul((float3x3)UNITY_MATRIX_V, normal_world).xyz;
 
-                return o;
-            }
+        //         return o;
+        //     }
 
-            half4 frag (v2f i) : SV_TARGET0
-            {
-                UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(i);
-                return (i.vertex.z < (1.0-1.0/65025.0)) ? EncodeDepthNormal(i.vertex.z, normalize(i.normal_view)) : float4(0.5,0.5,1.0,1.0);
-            }
-            ENDHLSL
-        }
+        //     half4 frag (v2f i) : SV_TARGET0
+        //     {
+        //         UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(i);
+        //         return (i.vertex.z < (1.0-1.0/65025.0)) ? EncodeDepthNormal(i.vertex.z, normalize(i.normal_view)) : float4(0.5,0.5,1.0,1.0);
+        //     }
+        //     ENDHLSL
+        // }
 
         Pass
         {
@@ -116,6 +116,7 @@ Shader "BXScenes/Scene_Terrain"
                 float4 uvSplat23 : TEXCOORD2;
                 float3 pos_world : TEXCOORD3;
                 half3 normal_world : TEXCOORD4;
+                half3 normal_view : TEXCOORD5;
                 UNITY_VERTEX_OUTPUT_STEREO
             };
 
@@ -162,6 +163,7 @@ Shader "BXScenes/Scene_Terrain"
                 half3 normal = _TerrainNormalmapTexture.Load(int3(sampleCoords, 0)).rgb * 2 - 1;
                 // half4 tangent = half4(cross(half3(0, 0, 1), normal), 1.0);
                 o.normal_world = TransformObjectToWorldNormal(normal);
+                o.normal_view = mul((float3x3)UNITY_MATRIX_V, o.normal_world).xyz;
 
                 o.uvSplat01.xy = o.uv * _Splat0_ST.xy + _Splat0_ST.zw;
                 o.uvSplat01.zw = o.uv * _Splat1_ST.xy + _Splat1_ST.zw;
@@ -177,7 +179,7 @@ Shader "BXScenes/Scene_Terrain"
                 half4 depthNormalBuffer : SV_TARGET1;
             };
 
-            half4 frag (v2f i) : SV_TARGET0
+            FragOutput frag (v2f i)
             {
                 UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(i);
                 
@@ -211,13 +213,16 @@ Shader "BXScenes/Scene_Terrain"
                 half3 specularColor = 0.0;
 
                 PBR_BRDF_DirectionalLighting(specCol, i.pos_world.xyz, 0.0, n, v, i.vertex.xy, ndotv, roughness, depthEye, diffuseColor, specularColor);
-                PBR_BRDF_PointLighting(specCol, i.pos_world.xyz, n, v, i.vertex.xy, ndotv, roughness, diffuseColor, specularColor);
+                PBR_BRDF_PointLighting(specCol, i.pos_world.xyz, n, v, i.vertex.xy, ndotv, roughness, depthEye, diffuseColor, specularColor);
 
                 diffuseColor = diffuseColor * albedo;
                 specularColor *= 0.25 / ndotv;
                 half3 lighting = diffuseColor + specularColor + (indirectDiffuse * albedo + indirectSpecular) * ao;
 
-                return half4(lighting, 1.0);
+                FragOutput o;
+                o.lightingBuffer = half4(lighting, 1.0);
+                o.depthNormalBuffer = (i.vertex.z < (1.0-1.0/65025.0)) ? EncodeDepthNormal(i.vertex.z, normalize(i.normal_view)) : float4(0.5,0.5,1.0,1.0);
+                return o;
             }
             ENDHLSL
         }

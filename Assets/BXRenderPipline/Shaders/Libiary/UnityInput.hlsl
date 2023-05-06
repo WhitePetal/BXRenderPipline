@@ -35,6 +35,8 @@ CBUFFER_START(UnityPerFrame)
     // w = 1 + 1.0/height
     float4 _ScreenParams;
 
+    float4 _ClusterSize;
+
     float4 _Time;
     half _GlobalBloomThreshold;
 

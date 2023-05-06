@@ -196,15 +196,16 @@ void PBR_BRDF_DirectionalLighting(half3 specCol, float3 pos_world, float2 lightm
 
 void PBR_BRDF_PointLighting(half3 specCol, float3 pos_world, half3 n, half3 v, float2 pos_clip, half ndotv, half roughness, half depthEye, inout half3 diffuseColor, inout half3 specularColor)
 {
-    uint2 screenXY = pos_clip / 16.0;
-    uint tileZ = ceil(depthEye * 256.0 / _ProjectionParams.z);
-    uint tileIndex = tileZ * (_ScreenParams.x * _ScreenParams.y / 256.0) + (screenXY.y * _ScreenParams.x / 16.0 + screenXY.x);
+    uint2 tileXY = pos_clip / _ClusterSize.xy;
+    uint k = log(depthEye / _ProjectionParams.y) * _ClusterSize.w;
+    uint tileIndex = k * 32 * 16 + (tileXY.y * 32 + tileXY.x);
     uint tileData = _TileLightingDatas[tileIndex];
-    // uint realCount = 0;
+    uint tileLightIndexStart = tileIndex * 256;
+
     [loop]
     for(uint tileLightOffset = 0; tileLightOffset < tileData; ++tileLightOffset)
     {
-        uint tileLightIndex = tileIndex * 256 + tileLightOffset;
+        uint tileLightIndex = tileLightIndexStart + tileLightOffset;
         uint pointLightIndex = _TileLightingIndices[tileLightIndex];
         float4 lightSphere = _PointLightSpheres[pointLightIndex];
         half3 lightColor = _PointLightColors[pointLightIndex].xyz;
@@ -214,9 +215,7 @@ void PBR_BRDF_PointLighting(half3 specCol, float3 pos_world, half3 n, half3 v, f
         float3 l = SafeNormalize(lenV);
         float3 h = SafeNormalize(l + v);
         
-        half ndotl_source = dot(n, l);
-        if(ndotl_source <= 0.0) continue;
-        half ndotl = max(0.0, ndotl_source);
+        half ndotl = max(0.0, dot(n, l));
         half ndoth = max(0.0, dot(n, h));
         half ldoth = max(0.0, dot(l, h));
         half atten =  saturate(1.0 - lenSqr / (lightSphere.w * lightSphere.w));
@@ -227,14 +226,12 @@ void PBR_BRDF_PointLighting(half3 specCol, float3 pos_world, half3 n, half3 v, f
 
         diffuseColor += lightColor * f0 * ndotl;
         specularColor += lightColor * fgd;
-        // realCount++;
     }
-    // diffuseColor = realCount / 2.0;
 }
 #endif
 
 #if BSSSDFSKIN_LIGHTING
-void PBR_BSSSDFSkin_DirectionalLighting(half3 specCol, float3 pos_world, half3 n, half3 v, float2 pos_clip, half ndotv, half r, half roughness, half depthEye, inout half3 diffuseColor, inout half3 specularColor)
+void PBR_BSSSDFSkin_DirectionalLighting(half3 specCol, float3 pos_world, half3 n, half3 v, float2 pos_clip, half ndotv, half r, half roughness, float depthEye, inout half3 diffuseColor, inout half3 specularColor)
 {
     half shadowDistanceStrength = GetShadowDistanceStrength(depthEye);
     #if defined(_SHADOW_MASK_ALWAYS) || defined(_SHADOW_MASK_DISTANCE)
@@ -270,15 +267,18 @@ void PBR_BSSSDFSkin_DirectionalLighting(half3 specCol, float3 pos_world, half3 n
     }
 }
 
-void PBR_BSSSDFSkin_PointLighting(half3 specCol, half3 ndotl_sss_avg, float3 pos_world, half3 n, half3 v, float2 pos_clip, half ndotv, half roughness, inout half3 diffuseColor, inout half3 specularColor)
+void PBR_BSSSDFSkin_PointLighting(half3 specCol, half3 ndotl_sss_avg, float3 pos_world, half3 n, half3 v, float2 pos_clip, half ndotv, half roughness, float depthEye, inout half3 diffuseColor, inout half3 specularColor)
 {
-    uint2 screenXY = pos_clip / 16.0;
-    uint tileIndex = screenXY.x * _ScreenParams.y / 16.0 + screenXY.y;
+    uint2 tileXY = pos_clip / _ClusterSize.xy;
+    uint k = log(depthEye / _ProjectionParams.y) * _ClusterSize.w;
+    uint tileIndex = k * 32 * 16 + (tileXY.y * 32 + tileXY.x);
     uint tileData = _TileLightingDatas[tileIndex];
+    uint tileLightIndexStart = tileIndex * 256;
+
     [loop]
     for(uint tileLightOffset = 0; tileLightOffset < min(tileData, _PointLightCount); ++tileLightOffset)
     {
-        uint tileLightIndex = tileIndex * 256 + tileLightOffset;
+        uint tileLightIndex = tileLightIndexStart + tileLightOffset;
         uint pointLightIndex = _TileLightingIndices[tileLightIndex];
         float4 lightSphere = _PointLightSpheres[pointLightIndex];
         half3 lightColor = _PointLightColors[pointLightIndex].xyz;
