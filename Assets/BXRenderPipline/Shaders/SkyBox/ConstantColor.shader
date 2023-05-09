@@ -52,7 +52,11 @@ Shader "BXSkyBox/ConstantColor"
             {
                 FragOutput output;
                 half3 v = normalize(_WorldSpaceCameraPos.xyz - i.pos_world.xyz);
-                output.lightingBuffer = half4(_BaseColor.rgb, 1.0);
+                half3 l = _DirectionalLightDirections[0].xyz;
+                half vdotl = max(0, dot(v, -l));
+                half3 lightCol = _DirectionalLightColors[0].rgb;
+                half3 fog = lightCol * _FogOuterParams.x * (1.0 + vdotl * vdotl) * exp(-_FogOuterParams.y * exp(0.5 * v.y));
+                output.lightingBuffer = half4(_BaseColor.rgb + fog, 1.0);
                 output.depthNormalBuffer = float4(EncodeViewNormalStereo(i.normal_view), 0.0, 0.0);
                 return output;
             }

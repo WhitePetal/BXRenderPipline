@@ -75,7 +75,7 @@ half PBR_SchlickFresnel(half x)
 }
 half3 PBR_SchlickFresnel(half3 x)
 {
-    half3 i = 1.0 - x;
+    half3 i = max(0.0, 1.0 - x);
     half3 ii = i*i;
     return ii*ii*i;
 }
@@ -233,12 +233,12 @@ void PBR_BRDF_DirectionalLighting(half3 specCol, float3 pos_world, float2 lightm
     [loop]
     for(uint lightIndex = 0; lightIndex < _DirectionalLightCount; ++lightIndex)
     {
-        half3 l = _DirectionalLightDirections[lightIndex].xyz;
+        float3 l = _DirectionalLightDirections[lightIndex].xyz;
         half3 lightColor = _DirectionalLightColors[lightIndex].xyz;
         half3 h = SafeNormalize(l + v);
-        half ndotl = max(0.001, dot(n, l));
-        half ndoth = max(0.001, dot(n, h));
-        half ldoth = max(0.001, dot(l, h));
+        half ndotl = max(0.0, dot(n, l));
+        half ndoth = max(0.0, dot(n, h));
+        float ldoth = max(0.0, dot(l, h));
         half f0 = PBR_F0(ndotl, ndotv, ldoth, roughness);
         half3 fgd = PBR_SchlickFresnelFunction(specCol, ldoth) * PBR_G(ndotl, ndotv, roughness) * PBR_D(roughness, ndoth);
         #ifndef _SHADOW_MASK_ALWAYS
