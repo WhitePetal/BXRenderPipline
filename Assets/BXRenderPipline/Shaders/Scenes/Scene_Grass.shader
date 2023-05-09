@@ -106,7 +106,7 @@ Shader "Scene/Scene_Grass"
             #pragma multi_compile _SSR_ONLY _REFLECT_PROBE_ONLY _SSR_AND_RELFECT_PROBE
             #pragma multi_compile_instancing
 
-            #define BRDF_LIGHTING 1
+            #define HALF_LAMBERT_LIGHTING 1
 
             #pragma vertex vert
             #pragma fragment frag
@@ -191,29 +191,24 @@ Shader "Scene/Scene_Grass"
                 half4 control = _Control.Sample(sampler_point_clamp, i.terrainUV);
                 half3 baseCol = _Color0.rgb * control.r + _Color1.rgb * control.g + _Color2.rgb * control.b + _Color3.rgb * control.a;
                 half3 albedo = lerp(baseCol, _BaseColor.rgb, i.pos_world.w);
-                half3 specCol = 0.04;
                 float depthEye = LinearEyeDepth(i.vertex.z);
 
                 half3 v = normalize(_WorldSpaceCameraPos.xyz - i.pos_world.xyz);
                 half3 n = lerp(_TerrainNormalmapTexture.Sample(sampler_point_clamp, i.terrainUV).xyz * 2 - 1, normalize(i.normal_world), i.pos_world.w * 0.4);
-                half3 r = reflect(-v, n);
                 half ndotv = max(0.001, dot(n, v));
 
                 float2 uv_screen = i.vertex.xy * (_ScreenParams.zw - 1.0);
                 half3 indirectDiffuse = PBR_GetIndirectDiffuseFromProbe(i.pos_world.xyz, n);
-                half3 indirectSpecular = PBR_GetIndirectSpecular(specCol, r, uv_screen, ndotv, 0.7, 1.0);
                 half3 diffuseColor = 0.0;
-                half3 specularColor = 0.0;
 
-                PBR_BRDF_DirectionalLighting(specCol, i.pos_world.xyz, 0.0, n, v, i.vertex.xy, ndotv, 0.7, depthEye, diffuseColor, specularColor);
-                PBR_BRDF_PointLighting(specCol, i.pos_world.xyz, n, v, i.vertex.xy, ndotv, 0.7, depthEye, diffuseColor, specularColor);
+                HALF_LAMBERT_DirectionalLighting(i.pos_world.xyz, n, i.vertex.xy, depthEye, diffuseColor);
+                HALF_LAMBERT_PointLighting(i.pos_world.xyz, n, i.vertex.xy, depthEye, diffuseColor);
 
                 diffuseColor = diffuseColor * albedo;
-                specularColor *= 0.25 / ndotv;
-                half3 lighting = diffuseColor + specularColor + (indirectDiffuse * albedo + indirectSpecular);
+                half3 lighting = diffuseColor + indirectDiffuse * albedo;
 
                 FragOutput o;
-                o.lightingBuffer = half4(lighting, 1.0);
+                o.lightingBuffer = half4(ApplyFog(lighting, v, depthEye), 1.0);
                 half3 normal_view = mul((float3x3)UNITY_MATRIX_V, n).xyz;
                 o.depthNormalBuffer = (i.vertex.z < (1.0-1.0/65025.0)) ? EncodeDepthNormal(i.vertex.z, normalize(normal_view)) : float4(0.5,0.5,1.0,1.0);
                 return o;

@@ -104,10 +104,25 @@ public struct FXAASettings
 }
 
 [System.Serializable]
-public struct FogSettings
+public struct AtmoSettings
 {
 	[SerializeField]
 	public Shader fogShader;
+	[SerializeField]
+	public Material skyBox;
+	[SerializeField]
+	public Color skyColor;
+	[SerializeField]
+	public float innerScatterIntensity;
+	[SerializeField]
+	public float innerScatterDensity;
+	[SerializeField]
+	public float fogStartDistance;
+	[SerializeField]
+	public float outerScatterIntensity;
+	[SerializeField]
+	public float outerScatterDensity;
+
 }
 
 [System.Serializable]
@@ -168,8 +183,13 @@ public class PostProcessSettings
 		subpixelBlending = 0.75f
 	};
 
-	public FogSettings fogSettings = new FogSettings
+	public AtmoSettings atmoSettings = new AtmoSettings
 	{
+		innerScatterIntensity = 1f,
+		innerScatterDensity = 20f,
+		fogStartDistance = 150,
 
+		outerScatterIntensity = 4f,
+		outerScatterDensity = 0.2f,
 	};
 }

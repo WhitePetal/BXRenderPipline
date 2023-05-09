@@ -14,6 +14,7 @@ public class DeferredGraphics
 	private CommandBuffer commandBuffer;
 	private Camera camera;
 	private DeferredComputeSettings deferredComputeSettings;
+	private PostProcessSettings postProcessSettings;
 	private Lights lights;
 	private TerrainRenderer terrainRenderer;
 
@@ -40,6 +41,7 @@ public class DeferredGraphics
 		this.commandBuffer = commandBuffer;
 		this.camera = camera;
 		this.deferredComputeSettings = deferredComputeSettings;
+		this.postProcessSettings = postProcessSettings;
 		this.lights = lights;
 		this.terrainRenderer = terrainRenderer;
 		this.useDynamicBatching = useDynamicBatching;
@@ -47,6 +49,12 @@ public class DeferredGraphics
 		this.width = width;
 		this.height = height;
 		this.aa = aa;
+
+		if(RenderSettings.skybox != postProcessSettings.atmoSettings.skyBox || postProcessSettings.atmoSettings.skyBox.GetColor("_BaseColor") != postProcessSettings.atmoSettings.skyColor.gamma)
+        {
+			postProcessSettings.atmoSettings.skyBox.SetColor("_BaseColor", postProcessSettings.atmoSettings.skyColor.gamma);
+			RenderSettings.skybox = postProcessSettings.atmoSettings.skyBox;
+        }
 
 		postProcess.Setup(postProcessSettings, commandBuffer, width, height);
 	}
@@ -56,6 +64,7 @@ public class DeferredGraphics
 		commandBuffer.BeginSample(commandBuffer.name);
 		ExecuteBuffer();
 
+		SetFogData();
 		ClusterBasedLightCulling();
 		GenerateBuffers();
 
@@ -98,6 +107,20 @@ public class DeferredGraphics
 		//commandBuffer.GetTemporaryRT(Constants.ssrBufferId, ssrDescriptor, FilterMode.Bilinear);
 
 		ExecuteBuffer();
+	}
+
+	private void SetFogData()
+    {
+		commandBuffer.SetGlobalColor("_FogColor", postProcessSettings.atmoSettings.skyColor);
+		commandBuffer.SetGlobalVector("_FogInnerParams", new Vector4(
+			1f / postProcessSettings.atmoSettings.innerScatterIntensity,
+			postProcessSettings.atmoSettings.innerScatterDensity,
+			postProcessSettings.atmoSettings.fogStartDistance
+			));
+		commandBuffer.SetGlobalVector("_FogOuterParams", new Vector4(
+			postProcessSettings.atmoSettings.outerScatterIntensity,
+			1f / postProcessSettings.atmoSettings.outerScatterDensity
+			));
 	}
 
 	private void ClusterBasedLightCulling()

@@ -35,10 +35,7 @@ CBUFFER_START(UnityPerFrame)
     // w = 1 + 1.0/height
     float4 _ScreenParams;
 
-    float4 _ClusterSize;
-
     float4 _Time;
-    half _GlobalBloomThreshold;
 
     // Vector4 lu = forward - right + up;
     // Vector4 ru = forward + right + up;
@@ -47,6 +44,17 @@ CBUFFER_START(UnityPerFrame)
     float4x4 _ViewPortRays;
 
     float4x4 unity_CameraProjection;
+
+    // ===============================
+    //     BXRP Custome Propertys
+    // ===============================
+    float4 _ClusterSize;
+
+    half _GlobalBloomThreshold;
+
+    half4 _FogColor;
+    float4 _FogOuterParams;
+    float4 _FogInnerParams;
 CBUFFER_END
 
 CBUFFER_START(UnityPerDraw)

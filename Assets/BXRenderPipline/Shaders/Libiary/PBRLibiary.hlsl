@@ -157,8 +157,69 @@ half3 PBR_GetIndirectSpecular(half3 specCol, half3 r, float2 uv_screen, half ndo
     return indirectSpecular * lerp(specCol,saturate(2.0 - roughness - oneMinusMetallic), PBR_SchlickFresnel(ndotv)) / (1.0 + roughness * roughness);
 }
 
+half3 ApplyFog(half3 col, half3 v, float depthEye)
+{
+    half fog = min(1.0, _FogInnerParams.x * exp(-_FogInnerParams.y * (depthEye - _FogInnerParams.z) / 1000));
+    half3 l = _DirectionalLightDirections[0].xyz;
+    half vdotl = max(0, dot(v, -l));
+    half3 lightCol = _DirectionalLightColors[0].rgb;
+
+    return lerp(_FogColor.rgb, col.rgb, fog) + lightCol * _FogOuterParams.x * (1.0 + vdotl * vdotl) * exp(-_FogOuterParams.y * exp(0.5 * v.y));
+}
+
+#if HALF_LAMBERT_LIGHTING
+void HALF_LAMBERT_DirectionalLighting(float3 pos_world, half3 n, float2 pos_clip, float depthEye, inout half3 diffuseColor)
+{
+    half3 shadowCol = 1.0;
+    #ifndef _SHADOW_MASK_ALWAYS
+        half shadowDistanceStrength = GetShadowDistanceStrength(depthEye);
+    #endif
+    [loop]
+    for(uint lightIndex = 0; lightIndex < _DirectionalLightCount; ++lightIndex)
+    {
+        half3 l = _DirectionalLightDirections[lightIndex].xyz;
+        half3 lightColor = _DirectionalLightColors[lightIndex].xyz;
+        half ndotl = saturate(dot(n, l) + 0.5);
+        #ifndef _SHADOW_MASK_ALWAYS
+            half shadowAtten = GetDirectionalShadow(lightIndex, pos_clip, pos_world, n, shadowDistanceStrength);
+            shadowCol = lerp(_BXShadowsColor.xyz, 1.0, shadowAtten);
+        #endif
+        lightColor *= shadowCol;
+
+        diffuseColor += lightColor * ndotl;
+    }
+}
+
+void HALF_LAMBERT_PointLighting(float3 pos_world, half3 n, float2 pos_clip, float depthEye, inout half3 diffuseColor)
+{
+    uint2 tileXY = pos_clip / _ClusterSize.xy;
+    uint k = log(depthEye / _ProjectionParams.y) * _ClusterSize.w;
+    uint tileIndex = k * 32 * 16 + (tileXY.y * 32 + tileXY.x);
+    uint tileData = _TileLightingDatas[tileIndex];
+    uint tileLightIndexStart = tileIndex * 256;
+
+    [loop]
+    for(uint tileLightOffset = 0; tileLightOffset < tileData; ++tileLightOffset)
+    {
+        uint tileLightIndex = tileLightIndexStart + tileLightOffset;
+        uint pointLightIndex = _TileLightingIndices[tileLightIndex];
+        float4 lightSphere = _PointLightSpheres[pointLightIndex];
+        half3 lightColor = _PointLightColors[pointLightIndex].xyz;
+
+        float3 lenV = lightSphere.xyz - pos_world.xyz;
+        float lenSqr = dot(lenV, lenV);
+        float3 l = SafeNormalize(lenV);
+
+        half ndotl = saturate(dot(n, l) + 0.5);
+        half atten =  saturate(1.0 - lenSqr / (lightSphere.w * lightSphere.w));
+        lightColor *= atten;
+        diffuseColor += lightColor * ndotl;
+    }
+}
+#endif
+
 #if BRDF_LIGHTING
-void PBR_BRDF_DirectionalLighting(half3 specCol, float3 pos_world, float2 lightmapUV, half3 n, half3 v, float2 pos_clip, half ndotv, half roughness, half depthEye, inout half3 diffuseColor, inout half3 specularColor)
+void PBR_BRDF_DirectionalLighting(half3 specCol, float3 pos_world, float2 lightmapUV, half3 n, half3 v, half ndotv, float2 pos_clip, half roughness, float depthEye, inout half3 diffuseColor, inout half3 specularColor)
 {
     #ifndef _SHADOW_MASK_ALWAYS
         half shadowDistanceStrength = GetShadowDistanceStrength(depthEye);
@@ -194,7 +255,7 @@ void PBR_BRDF_DirectionalLighting(half3 specCol, float3 pos_world, float2 lightm
     }
 }
 
-void PBR_BRDF_PointLighting(half3 specCol, float3 pos_world, half3 n, half3 v, float2 pos_clip, half ndotv, half roughness, half depthEye, inout half3 diffuseColor, inout half3 specularColor)
+void PBR_BRDF_PointLighting(half3 specCol, float3 pos_world, half3 n, half3 v, half ndotv, float2 pos_clip, half roughness, float depthEye, inout half3 diffuseColor, inout half3 specularColor)
 {
     uint2 tileXY = pos_clip / _ClusterSize.xy;
     uint k = log(depthEye / _ProjectionParams.y) * _ClusterSize.w;

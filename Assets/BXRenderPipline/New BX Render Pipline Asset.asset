@@ -18,7 +18,7 @@ MonoBehaviour:
   frameRate: 30
   reflectType: 1
   shadowSettings:
-    maxShadowDistance: 100
+    maxShadowDistance: 1000
     distanceFade: 0.5
     shadowsColor: {r: 0.48282304, g: 0.5849056, b: 0.58004457, a: 1}
     shadowMapBits: 24
@@ -82,10 +82,17 @@ MonoBehaviour:
       fixedThreshold: 0.0833
       relativeThreshold: 0.166
       subpixelBlending: 0.75
-    fogSettings:
+    atmoSettings:
       fogShader: {fileID: 4800000, guid: 04c90dd40eaa845089cd65548b01e80b, type: 3}
+      skyBox: {fileID: 2100000, guid: 8280f8dcbd5cd024e84017443aa1b308, type: 2}
+      skyColor: {r: 0.25364897, g: 0.87577397, b: 0.9433962, a: 0}
+      innerScatterIntensity: 1
+      innerScatterDensity: 20
+      innerScatterDistance: 150
+      outerScatterIntensity: 4
+      outerScatterDensity: 0.2
   terrainSettings:
     updateAlways: 0
     grassDataCompute: {fileID: 7200000, guid: d65c72a9e648d4ff589cd921d86573ff, type: 3}
     terrainData: {fileID: 15600000, guid: 31b78034619454a939c454551daf35b2, type: 2}
-    grassShadowEnable: 1
+    grassShadowEnable: 0

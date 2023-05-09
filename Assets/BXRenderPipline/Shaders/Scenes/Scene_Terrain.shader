@@ -212,15 +212,15 @@ Shader "BXScenes/Scene_Terrain"
                 half3 diffuseColor = 0.0;
                 half3 specularColor = 0.0;
 
-                PBR_BRDF_DirectionalLighting(specCol, i.pos_world.xyz, 0.0, n, v, i.vertex.xy, ndotv, roughness, depthEye, diffuseColor, specularColor);
-                PBR_BRDF_PointLighting(specCol, i.pos_world.xyz, n, v, i.vertex.xy, ndotv, roughness, depthEye, diffuseColor, specularColor);
+                PBR_BRDF_DirectionalLighting(specCol, i.pos_world.xyz, 0.0, n, v, ndotv, i.vertex.xy, roughness, depthEye, diffuseColor, specularColor);
+                PBR_BRDF_PointLighting(specCol, i.pos_world.xyz, n, v, ndotv, i.vertex.xy, roughness, depthEye, diffuseColor, specularColor);
 
                 diffuseColor = diffuseColor * albedo;
                 specularColor *= 0.25 / ndotv;
                 half3 lighting = diffuseColor + specularColor + (indirectDiffuse * albedo + indirectSpecular) * ao;
 
                 FragOutput o;
-                o.lightingBuffer = half4(lighting, 1.0);
+                o.lightingBuffer = half4(ApplyFog(lighting, v, depthEye), 1.0);
                 o.depthNormalBuffer = (i.vertex.z < (1.0-1.0/65025.0)) ? EncodeDepthNormal(i.vertex.z, normalize(i.normal_view)) : float4(0.5,0.5,1.0,1.0);
                 return o;
             }

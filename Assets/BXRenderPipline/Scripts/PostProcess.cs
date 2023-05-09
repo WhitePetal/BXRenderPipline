@@ -71,9 +71,9 @@ public class PostProcess
 	{
 		get
 		{
-			if (fogMaterial == null && settings.fogSettings.fogShader != null)
+			if (fogMaterial == null && settings.atmoSettings.fogShader != null)
 			{
-				fogMaterial = new Material(settings.fogSettings.fogShader);
+				fogMaterial = new Material(settings.atmoSettings.fogShader);
 				fogMaterial.hideFlags = HideFlags.HideAndDontSave;
 			}
 			return fogMaterial;
@@ -101,6 +101,7 @@ public class PostProcess
 
 	public void CleanUp()
 	{
+		//commandBuffer.ReleaseTemporaryRT(Constants.fogFinalBufferId);
 		for (int i = 0; i < bloomPyarmCount - 1; ++i)
 		{
 			commandBuffer.ReleaseTemporaryRT(Constants.bloomPyarmIds[i]);
@@ -118,16 +119,20 @@ public class PostProcess
 
 	public void Fog()
 	{
-		commandBuffer.GetTemporaryRT(Constants.fogLightingBufferId, width >> 1, height >> 1, 0, FilterMode.Bilinear, RenderTextureFormat.ARGBHalf, RenderTextureReadWrite.Linear, 1, false, RenderTextureMemoryless.None);
 		commandBuffer.GetTemporaryRT(Constants.fogFinalBufferId, width, height, 0, FilterMode.Bilinear, RenderTextureFormat.ARGBHalf, RenderTextureReadWrite.Linear, 1, false, RenderTextureMemoryless.None);
-		commandBuffer.SetRenderTarget(Constants.fogLightingBufferTargetId);
-		commandBuffer.ClearRenderTarget(true, true, Color.clear);
-		commandBuffer.DrawProcedural(Matrix4x4.identity, FogMaterial, 0, MeshTopology.Quads, 4);
 		commandBuffer.SetRenderTarget(Constants.fogFinalBufferTargetId);
 		commandBuffer.ClearRenderTarget(true, true, Color.clear);
-		commandBuffer.DrawProcedural(Matrix4x4.identity, FogMaterial, 1, MeshTopology.Triangles, 3);
-		commandBuffer.ReleaseTemporaryRT(Constants.fogLightingBufferId);
-		commandBuffer.ReleaseTemporaryRT(Constants.fogFinalBufferId);
+		commandBuffer.SetGlobalColor("_FogColor", settings.atmoSettings.skyColor);
+		commandBuffer.SetGlobalVector("_FogInnerParams", new Vector4(
+			1f / settings.atmoSettings.innerScatterIntensity,
+			settings.atmoSettings.innerScatterDensity,
+			settings.atmoSettings.fogStartDistance
+			));
+		commandBuffer.SetGlobalVector("_FogOuterParams", new Vector4(
+			settings.atmoSettings.outerScatterIntensity,
+			1f / settings.atmoSettings.outerScatterDensity
+			));
+		commandBuffer.DrawProcedural(Matrix4x4.identity, FogMaterial, 0, MeshTopology.Quads, 4);
 	}
 
 	private void BloomBlur(RenderTargetIdentifier from, RenderTargetIdentifier to, int pass, bool clear = false)
