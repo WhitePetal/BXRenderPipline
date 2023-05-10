@@ -113,8 +113,10 @@ public struct AtmoSettings
 	[SerializeField]
 	public Color skyColor;
 	[SerializeField]
+	[Range(0f, 10f)]
 	public float innerScatterIntensity;
 	[SerializeField]
+	[Range(0, .5f)]
 	public float innerScatterDensity;
 	[SerializeField]
 	public float fogStartDistance;

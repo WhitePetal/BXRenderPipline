@@ -11,8 +11,6 @@ GameObject:
   - component: {fileID: 1467907350624262137}
   - component: {fileID: 7567185687752732111}
   - component: {fileID: 4195246131663343926}
-  - component: {fileID: 5813518538018011024}
-  - component: {fileID: -3636159685238821852}
   m_Layer: 0
   m_Name: Rock06
   m_TagString: Untagged
@@ -30,6 +28,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
@@ -53,10 +52,12 @@ MeshRenderer:
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -81,36 +82,4 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
---- !u!64 &5813518538018011024
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2451176652310455786}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 4
-  m_Convex: 1
-  m_CookingOptions: 30
-  m_Mesh: {fileID: 7070945312058859118, guid: 3ef54dab4b56d6a41814fbf07e63eb80, type: 3}
---- !u!205 &-3636159685238821852
-LODGroup:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2451176652310455786}
-  serializedVersion: 2
-  m_LocalReferencePoint: {x: 0, y: 0, z: -0.000000059604645}
-  m_Size: 0.7366569
-  m_FadeMode: 0
-  m_AnimateCrossFading: 0
-  m_LastLODIsBillboard: 0
-  m_LODs:
-  - screenRelativeHeight: 0.02946351
-    fadeTransitionWidth: 0
-    renderers:
-    - renderer: {fileID: 4195246131663343926}
-  m_Enabled: 1
+  m_AdditionalVertexStreams: {fileID: 0}

@@ -26,8 +26,8 @@ MonoBehaviour:
     shadowFilter: 1
     cascadeBlendMode: 2
     cascadeCount: 4
-    cascadeRatio1: 0.1
-    cascadeRatio2: 0.25
+    cascadeRatio1: 0.01
+    cascadeRatio2: 0.1
     cascadeRatio3: 0.5
     cascadeFade: 0.1
   deferredComputeSettings:
@@ -86,13 +86,22 @@ MonoBehaviour:
       fogShader: {fileID: 4800000, guid: 04c90dd40eaa845089cd65548b01e80b, type: 3}
       skyBox: {fileID: 2100000, guid: 8280f8dcbd5cd024e84017443aa1b308, type: 2}
       skyColor: {r: 0.25364897, g: 0.87577397, b: 0.9433962, a: 0}
-      innerScatterIntensity: 1
-      innerScatterDensity: 20
-      innerScatterDistance: 150
+      innerScatterIntensity: 2
+      innerScatterDensity: 0.044
+      fogStartDistance: 50
       outerScatterIntensity: 4
       outerScatterDensity: 0.2
   terrainSettings:
     updateAlways: 0
     grassDataCompute: {fileID: 7200000, guid: d65c72a9e648d4ff589cd921d86573ff, type: 3}
+    treeDataCompute: {fileID: 7200000, guid: 80148e310ef7a4d2194e9341ec0d9037, type: 3}
     terrainData: {fileID: 15600000, guid: 31b78034619454a939c454551daf35b2, type: 2}
-    grassShadowEnable: 0
+    terrainTileColor0: {r: 0.46645102, g: 0.7075472, b: 0.27033645, a: 1}
+    terrainTileColor1: {r: 0.6698113, g: 0.48290062, b: 0.20536669, a: 1}
+    terrainTileColor2: {r: 0.67058825, g: 0.48235294, b: 0.20392157, a: 1}
+    terrainTileColor3: {r: 0.46666667, g: 0.7058824, b: 0.27058825, a: 1}
+    grassShadowEnable: 1
+    grassLODDistance0: 10
+    grassLODDistance1: 20
+    grassLODDistance2: 40
+    grassLODDistance3: 100

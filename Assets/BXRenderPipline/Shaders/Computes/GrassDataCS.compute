@@ -11,6 +11,8 @@ float4 _TerrainPosition;
 float4 _TerrainHeightmapScale;
 float4 _TerrainSize; // terrainWidth、terrainHeight、detilMapWidth、detilMapHeight
 float4 _DetilSize; // detilWidthMax、detilWidthMin、detilHeightMax、detilHeightMin
+float4 _LODDistances; // LOD0 1 2 3
+float4 _LODSteps;// LODStep0 1 2 3
 
 StructuredBuffer<int> _DetilsDensity;
 AppendStructuredBuffer<float4> _DetilsPosition;
@@ -67,9 +69,9 @@ void GenerateDetilsData (uint3 id : SV_DispatchThreadID)
     // lod
     float2 v = pos.xz - _WorldSpaceCameraPos.xz;
     float dst = length(v);
-    float densityF = lerp(1, 0.8, saturate((dst - 10.0) / 10.0));
-    densityF = lerp(densityF, 0.4, saturate((dst - 20.0) / 20.0));
-    densityF = lerp(densityF, 0, saturate((dst - 40) / 200.0));
+    float densityF = lerp(1, 0.8, saturate((dst - _LODDistances.x) / _LODSteps.x));
+    densityF = lerp(densityF, 0.5, saturate((dst - _LODDistances.y) / _LODSteps.y));
+    densityF = lerp(densityF, 0.0, saturate((dst - _LODDistances.z) / _LODSteps.z));
     density *= densityF;
 
     for(int k = 0; k < density; k++)

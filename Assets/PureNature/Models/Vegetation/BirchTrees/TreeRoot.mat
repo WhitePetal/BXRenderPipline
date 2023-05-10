@@ -1,18 +1,5 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &-6777601075838505097
-MonoBehaviour:
-  m_ObjectHideFlags: 11
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d0353a89b1f911e48b9e16bdc9f2e058, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  version: 5
 --- !u!21 &2100000
 Material:
   serializedVersion: 8
@@ -20,12 +7,12 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: GrassMat
-  m_Shader: {fileID: 4800000, guid: 214996fd200f9455cbe7ad51ebc9a9ec, type: 3}
+  m_Name: TreeRoot
+  m_Shader: {fileID: 4800000, guid: 28057baf1bfae458196cd83306ff9006, type: 3}
   m_ValidKeywords: []
   m_InvalidKeywords: []
   m_LightmapFlags: 4
-  m_EnableInstancingVariants: 1
+  m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: -1
   stringTagMap: {}
@@ -37,11 +24,6 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    - _Control:
-        m_Texture: {fileID: 6282064763503339535, guid: 31b78034619454a939c454551daf35b2,
-          type: 2}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
     - _DetailAlbedoMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -51,10 +33,6 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _DetailNormalMap:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _DetailTex:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
@@ -89,7 +67,6 @@ Material:
     m_Ints: []
     m_Floats:
     - _BumpScale: 1
-    - _Cull: 2
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
@@ -107,16 +84,10 @@ Material:
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _UVSec: 0
-    - _WindQuality: 0
     - _ZWrite: 1
     m_Colors:
-    - _BaseColor: {r: 0.37587515, g: 1, b: 0.33490568, a: 1}
-    - _Color: {r: 0.51907015, g: 0.8679245, b: 0.21698113, a: 1}
-    - _Color0: {r: 0.654902, g: 0.81568635, b: 0.38823533, a: 1}
-    - _Color1: {r: 0.78431374, g: 0.5647059, b: 0.23921569, a: 1}
-    - _Color2: {r: 0.78431374, g: 0.5647059, b: 0.23921569, a: 1}
-    - _Color3: {r: 0.72156864, g: 0.854902, b: 0.4666667, a: 1}
+    - _BaseColor: {r: 0.5372549, g: 0.3882353, b: 0.21568628, a: 1}
+    - _Color: {r: 0.5377358, g: 0.38830337, b: 0.21560162, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _HueVariation: {r: 1, g: 0.5, b: 0, a: 0.1}
-    - _Metallic_Roughness_AOOffset: {r: 0, g: 1, b: 0, a: 1}
+    - _Metallic_Roughness_AOOffset: {r: 0, g: 0.868, b: 0, a: 1}
   m_BuildTextureStacks: []

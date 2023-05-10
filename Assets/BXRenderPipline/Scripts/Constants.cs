@@ -89,6 +89,8 @@ public class Constants
 	public static int detilsDensityId = Shader.PropertyToID("_DetilsDensity");
 	public static int detilsPositionId = Shader.PropertyToID("_DetilsPosition");
 	public static int terrainNormalTextureId = Shader.PropertyToID("_TerrainNormalmapTexture");
+	public static int detilsLODDistances = Shader.PropertyToID("_LODDistances");
+	public static int detilsLODStpes = Shader.PropertyToID("_LODSteps");
 
 	public static string[] reflectTypeKeywords = new string[3]
 	{

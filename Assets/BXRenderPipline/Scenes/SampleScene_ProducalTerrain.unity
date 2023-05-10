@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.2536612, g: 0.87597585, b: 0.9433633, a: 1}
+  m_IndirectSpecularColor: {r: 0.25557077, g: 0.8776847, b: 0.9446277, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -521,7 +521,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1312619536
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1145,6 +1145,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Terrain
+      objectReference: {fileID: 0}
+    - target: {fileID: 3881199561495770534, guid: 6e4e16957212445e1afe01d4656682cb,
+        type: 3}
+      propertyPath: m_DrawHeightmap
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3881199561495770534, guid: 6e4e16957212445e1afe01d4656682cb,
         type: 3}

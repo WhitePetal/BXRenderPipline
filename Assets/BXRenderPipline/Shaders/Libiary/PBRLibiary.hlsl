@@ -159,7 +159,7 @@ half3 PBR_GetIndirectSpecular(half3 specCol, half3 r, float2 uv_screen, half ndo
 
 half3 ApplyFog(half3 col, half3 v, float depthEye)
 {
-    half fog = min(1.0, _FogInnerParams.x * exp(-_FogInnerParams.y * (depthEye - _FogInnerParams.z) / 1000));
+    half fog = min(1.0, _FogInnerParams.x * exp(-_FogInnerParams.y * (depthEye - _FogInnerParams.z)));
     half3 l = _DirectionalLightDirections[0].xyz;
     half vdotl = max(0, dot(v, -l));
     half3 lightCol = _DirectionalLightColors[0].rgb;
@@ -179,7 +179,7 @@ void HALF_LAMBERT_DirectionalLighting(float3 pos_world, half3 n, float2 pos_clip
     {
         half3 l = _DirectionalLightDirections[lightIndex].xyz;
         half3 lightColor = _DirectionalLightColors[lightIndex].xyz;
-        half ndotl = saturate(dot(n, l) + 0.5);
+        half ndotl = (dot(n, l) + 1.0) * 0.5;
         #ifndef _SHADOW_MASK_ALWAYS
             half shadowAtten = GetDirectionalShadow(lightIndex, pos_clip, pos_world, n, shadowDistanceStrength);
             shadowCol = lerp(_BXShadowsColor.xyz, 1.0, shadowAtten);
@@ -210,7 +210,7 @@ void HALF_LAMBERT_PointLighting(float3 pos_world, half3 n, float2 pos_clip, floa
         float lenSqr = dot(lenV, lenV);
         float3 l = SafeNormalize(lenV);
 
-        half ndotl = saturate(dot(n, l) + 0.5);
+        half ndotl = (dot(n, l) + 1.0) * 0.5;
         half atten =  saturate(1.0 - lenSqr / (lightSphere.w * lightSphere.w));
         lightColor *= atten;
         diffuseColor += lightColor * ndotl;

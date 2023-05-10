@@ -1,0 +1,62 @@
+#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Common.hlsl"
+
+#pragma kernel GenerateTreesData
+
+float4 _FrustumPlanes[6];
+
+struct TreeInstance
+{
+    float3 position;
+    float widthScale;
+    float heightScale;
+    float rotation;
+    int color;
+    int lightmapColor;
+    int prototypeIndex;
+};
+
+StructuredBuffer<float4> _TreeInstances;
+AppendStructuredBuffer<float4> _TreePositions;
+
+float2 randVec(float2 value)
+{
+    float2 vec = float2(dot(value, float2(127.1, 337.1)), dot(value, float2(268.5, 183.3)));
+    vec = -1.0 + 2.0 * frac(sin(vec) * 43758.123);
+    return vec;
+}
+
+float random_nn(float2 pos)
+{
+    return frac(sin(dot(pos, float2(12.9898, 78.233))) * 43748.543);
+}
+
+[numthreads(8,1,1)]
+void GenerateTreesData (uint3 id : SV_DispatchThreadID)
+{
+    float3 center = _TreeInstances[id.x].xyz;
+    float3 bextent = float3(3, 3, 3);
+
+    [unroll(6)]
+    for(int i = 0; i < 6; i++)
+    {
+        // https://gdbooks.gitbooks.io/3dcollisions/content/Chapter2/static_aabb_plane.html AABB-平面相交
+        float4 plane = _FrustumPlanes[i];
+        float3 n = plane.xyz;
+        float3 n_abs = abs(n);
+        float d = plane.w;
+        float r = dot(bextent, n_abs);
+        float s = dot(n, center) + d;
+        
+        [branch]
+        if((-r - s) > 0) 
+        {
+            return;
+        }
+        else
+        {
+            continue;
+        }
+    }
+
+    _TreePositions.Append(float4(center, 1.0));
+}
