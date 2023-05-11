@@ -6,10 +6,10 @@ using UnityEngine.Rendering;
 
 public class BXRenderPipline : RenderPipeline
 {
-	public static ShaderTagId[] bxShaderTagIds = new ShaderTagId[6]
+	public static ShaderTagId[] bxShaderTagIds = new ShaderTagId[7]
 	{
-			//new ShaderTagId("BXDepthNormal"),
-			new ShaderTagId("BXOpaque"),
+			new ShaderTagId("SRPDefaultUnlit"), // Unity UI In Scene Window use it
+            new ShaderTagId("BXOpaque"),
 			new ShaderTagId("BXCharacterAlphaDepth"),
 			new ShaderTagId("BXCharacterAlpha"),
 			new ShaderTagId("BXSceneAlphaDepth"),

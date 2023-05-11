@@ -152,17 +152,18 @@ public class DeferredGraphics
         ExecuteBuffer();
 
 		drawingSettings.SetShaderPassName(0, BXRenderPipline.bxShaderTagIds[0]);
+		drawingSettings.SetShaderPassName(1, BXRenderPipline.bxShaderTagIds[1]);
 		context.DrawRenderers(cullingResults, ref drawingSettings, ref filteringSettings);
 
         context.DrawSkybox(camera);
 
         sortingSettings.criteria = SortingCriteria.CommonTransparent;
         drawingSettings.sortingSettings = sortingSettings;
-        drawingSettings.SetShaderPassName(0, BXRenderPipline.bxShaderTagIds[1]);
-        drawingSettings.SetShaderPassName(1, BXRenderPipline.bxShaderTagIds[2]);
-        drawingSettings.SetShaderPassName(2, BXRenderPipline.bxShaderTagIds[3]);
-        drawingSettings.SetShaderPassName(3, BXRenderPipline.bxShaderTagIds[4]);
-        drawingSettings.SetShaderPassName(4, BXRenderPipline.bxShaderTagIds[5]);
+        drawingSettings.SetShaderPassName(2, BXRenderPipline.bxShaderTagIds[2]);
+        drawingSettings.SetShaderPassName(3, BXRenderPipline.bxShaderTagIds[3]);
+        drawingSettings.SetShaderPassName(4, BXRenderPipline.bxShaderTagIds[4]);
+        drawingSettings.SetShaderPassName(5, BXRenderPipline.bxShaderTagIds[5]);
+        drawingSettings.SetShaderPassName(6, BXRenderPipline.bxShaderTagIds[6]);
         filteringSettings = new FilteringSettings(RenderQueueRange.transparent);
         context.DrawRenderers(cullingResults, ref drawingSettings, ref filteringSettings);
 
