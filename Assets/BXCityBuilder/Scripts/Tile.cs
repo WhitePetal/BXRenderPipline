@@ -14,6 +14,14 @@ public class Tile
     public bool occupied;
     public ObstacleType obstacleType;
 
+    public int x, z;
+
+    public Tile(int x, int z)
+    {
+        this.x = x;
+        this.z = z;
+    }
+
     public void SetObstacleType(ObstacleType obstacleType)
     {
         occupied = obstacleType != ObstacleType.None;

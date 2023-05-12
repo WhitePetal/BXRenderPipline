@@ -164,9 +164,10 @@ public class TerrainRenderer
 
     public void DrawShadows(CommandBuffer commandBuffer_shadow)
     {
+        if (terrain == null) return;
         commandBuffer_shadow.DrawMeshInstancedIndirect(treeMesh, 0, treeSubMesh0Mat, 1, treeSubMesh0InstanceArgsBuffer);
         commandBuffer_shadow.DrawMeshInstancedIndirect(treeMesh, 1, treeSubMesh1Mat, 1, treeSubMesh1InstanceArgsBuffer);
-        if (terrain == null || !settings.grassShadowEnable) return;
+        if (!settings.grassShadowEnable) return;
         commandBuffer_shadow.DrawMeshInstancedIndirect(grassMesh, 0, grassMat, 1, grassInstanceArgsBuffer);
     }
 

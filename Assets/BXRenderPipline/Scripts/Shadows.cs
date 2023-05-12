@@ -64,8 +64,6 @@ public class Shadows
 		this.shadowSettings = shadowSettings;
 		this.terrainRenderer = terrainRenderer;
 		this.shadowedDirectionalLightCount = 0;
-        commandBuffer.BeginSample(bufferName);
-		ExecuteCommandBuffer();
 	}
 
 	private void ExecuteCommandBuffer()
@@ -98,6 +96,8 @@ public class Shadows
 
 	public void Render(bool useShadowMask)
 	{
+		commandBuffer.BeginSample(bufferName);
+		ExecuteCommandBuffer();
 		SetKeywords(shadowMaskKeywords, useShadowMask ?
 			QualitySettings.shadowmaskMode == ShadowmaskMode.Shadowmask ? 0 : 1 :
 			-1);

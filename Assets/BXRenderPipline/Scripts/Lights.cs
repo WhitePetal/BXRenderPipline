@@ -19,6 +19,7 @@ public class Lights
 		pointLightSpheres = new Vector4[Constants.maxPointLightCount],
 		pointLightColors = new Vector4[Constants.maxPointLightCount];
 
+	private int dirLightCount;
 	public int pointLightCount;
 
 	private ScriptableRenderContext context;
@@ -28,31 +29,16 @@ public class Lights
 
 	private bool useShadowMask;
 
-	public void Setup(ScriptableRenderContext context, CullingResults cullingResults, ShadowSettings shadowSettings, TerrainRenderer terrainRenderer)
+	public void CollectLightDatas(ScriptableRenderContext context, CullingResults cullingResults, ShadowSettings shadowSettings, TerrainRenderer terrainRenderer)
 	{
 		this.context = context;
 		this.cullingResults = cullingResults;
-		commandBuffer.BeginSample(bufferName);
-		ExecuteCommandBuffer();
+
 		shadows.Setup(context, cullingResults, shadowSettings, terrainRenderer);
 
-		SetupLights();
-        shadows.Render(useShadowMask);
-        commandBuffer.EndSample(bufferName);
-        ExecuteCommandBuffer();
-    }
-
-	private void ExecuteCommandBuffer()
-	{
-		context.ExecuteCommandBuffer(commandBuffer);
-		commandBuffer.Clear();
-	}
-
-	private void SetupLights()
-	{
 		NativeArray<VisibleLight> visibleLights = cullingResults.visibleLights;
-		int dirLightCount = 0;
-		int pointLightCount = 0;
+		dirLightCount = 0;
+		pointLightCount = 0;
 		for (int visibleLightIndex = 0; visibleLightIndex < visibleLights.Length; ++visibleLightIndex)
 		{
 			VisibleLight visibleLight = visibleLights[visibleLightIndex];
@@ -82,6 +68,27 @@ public class Lights
 			}
 			if (dirLightCount >= Constants.maxDirLightCount && pointLightCount >= Constants.maxPointLightCount) break;
 		}
+	}
+
+	public void Setup()
+	{
+		commandBuffer.BeginSample(bufferName);
+		ExecuteCommandBuffer();
+
+		SetupLights();
+        shadows.Render(useShadowMask);
+        commandBuffer.EndSample(bufferName);
+        ExecuteCommandBuffer();
+    }
+
+	private void ExecuteCommandBuffer()
+	{
+		context.ExecuteCommandBuffer(commandBuffer);
+		commandBuffer.Clear();
+	}
+
+	private void SetupLights()
+	{
 		commandBuffer.SetGlobalInt(Constants.dirLightCountId, dirLightCount);
 		if (dirLightCount > 0)
 		{
@@ -95,7 +102,6 @@ public class Lights
 			commandBuffer.SetGlobalVectorArray(Constants.pointLightSpheresId, pointLightSpheres);
 			commandBuffer.SetGlobalVectorArray(Constants.pointLightColorsId, pointLightColors);
 		}
-		this.pointLightCount = pointLightCount;
 	}
 
 	private void SetupDirectionalLight(int dirLightIndex, int visibleLightIndex, ref VisibleLight visibleLight)

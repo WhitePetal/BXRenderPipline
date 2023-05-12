@@ -55,11 +55,12 @@ public partial class MainCameraRender
         SetupForRender();
 		terrainRenderer.SetUp(context, commandBufferGraphics, terrainSettings);
 		terrainRenderer.GenereateGrassData();
+		lights.CollectLightDatas(context, cullingResults, shadowSettings, terrainRenderer);
 		ClusterBasedLightCulling();
 
 		commandBufferGraphics.BeginSample(SampleName);
 		ExecuteGraphicsCommand();
-		lights.Setup(context, cullingResults, shadowSettings, terrainRenderer);
+		lights.Setup();
 
         width = camera.pixelWidth;
         height = camera.pixelHeight;
@@ -73,8 +74,6 @@ public partial class MainCameraRender
             useDynamicBatching, useGPUInstancing,
             postprocessSettings);
 
-		commandBufferGraphics.SetGlobalBuffer(Constants.tileLightingDatasId, tileLightingDatasBuffer);
-		commandBufferGraphics.SetGlobalBuffer(Constants.tileLightingIndicesId, tileLightingIndicesBuffer);
 		graphicsPipline.Render();
 
         CleanUp();
@@ -112,9 +111,17 @@ public partial class MainCameraRender
 			1f / postProcessSettings.atmoSettings.outerScatterDensity
 			));
 
-		float fov = camera.fieldOfView;
 		float aspec = camera.aspect;
-		float h_half = Mathf.Tan(0.5f * fov * Mathf.Deg2Rad);
+		float h_half;
+        if (camera.orthographic || camera.fieldOfView == 0f)
+        {
+			h_half = camera.orthographicSize;
+        }
+        else
+        {
+			float fov = camera.fieldOfView;
+			h_half = Mathf.Tan(0.5f * fov * Mathf.Deg2Rad);
+		}
 		float w_half = h_half * aspec;
 		float near = camera.nearClipPlane;
 		float far = camera.farClipPlane;
@@ -181,6 +188,8 @@ public partial class MainCameraRender
 
 	private void ClusterBasedLightCulling()
 	{
+		commandBufferGraphics.SetGlobalBuffer(Constants.tileLightingDatasId, tileLightingDatasBuffer);
+		commandBufferGraphics.SetGlobalBuffer(Constants.tileLightingIndicesId, tileLightingIndicesBuffer);
 		commandBufferGraphics.SetComputeIntParam(deferredComputeSettings.clusterLightingCS, Constants.pointLightCountId, lights.pointLightCount);
 		commandBufferGraphics.SetComputeVectorArrayParam(deferredComputeSettings.clusterLightingCS, Constants.pointLightSpheresId, lights.pointLightSpheres);
 		commandBufferGraphics.SetComputeMatrixParam(deferredComputeSettings.clusterLightingCS, Constants.bxMatrixVId, camera.worldToCameraMatrix);
