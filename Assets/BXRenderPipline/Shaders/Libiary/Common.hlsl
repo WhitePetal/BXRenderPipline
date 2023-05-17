@@ -76,8 +76,17 @@ inline float Linear01Depth( float z )
     return 1.0 / (_ZBufferParams.x * z + _ZBufferParams.y);
 }
 
+float LinearEyeDepthOrtho(float z)
+{
+    #if UNITY_REVERSED_Z
+        return half(_ProjectionParams.z - (_ProjectionParams.z - _ProjectionParams.y) * z);
+    #else
+        return half(_ProjectionParams.y + (_ProjectionParams.z - _ProjectionParams.y) * z);
+    #endif
+}
+
 inline float LinearEyeDepth( float z )
 {
-    return 1.0 / (_ZBufferParams.z * z + _ZBufferParams.w);
+    return (unity_OrthoParams.w == 0) ? (1.0 / (_ZBufferParams.z * z + _ZBufferParams.w)) : LinearEyeDepthOrtho(z);
 }
 #endif

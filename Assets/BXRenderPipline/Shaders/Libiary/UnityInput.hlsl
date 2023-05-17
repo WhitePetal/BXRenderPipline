@@ -35,6 +35,12 @@ CBUFFER_START(UnityPerFrame)
     // w = 1 + 1.0/height
     float4 _ScreenParams;
 
+    // x = orthographic camera's width
+    // y = orthographic camera's height
+    // z = unused
+    // w = 1.0 if camera is ortho, 0.0 if perspective
+    float4 unity_OrthoParams;
+
     float4 _Time;
 
     // Vector4 lu = forward - right + up;
