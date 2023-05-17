@@ -2,43 +2,31 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Tile
+namespace CityBuilder
 {
-    public enum ObstacleType
+    [System.Serializable]
+    public class Tile
     {
-        None,
-        Tree,
-        Building
-    }
-    public Building building;
-    public bool occupied;
-    public ObstacleType obstacleType;
+        public enum TileState
+        {
+            None,
+            Tree,
+            Building
+        }
+        public Building building;
+        public bool occupied;
+        public TileState obstacleType;
 
-    public int x, z;
+        public int x, z;
 
-    public Tile(int x, int z)
-    {
-        this.x = x;
-        this.z = z;
-    }
+        [System.NonSerialized]
+        public GameObject tileObj;
 
-    public void SetObstacleType(ObstacleType obstacleType)
-    {
-        occupied = obstacleType != ObstacleType.None;
-        this.obstacleType = obstacleType;
-    }
-
-    public void SetObstacleType(ObstacleType obstacleType, Building building)
-    {
-        occupied = obstacleType != ObstacleType.None;
-        this.obstacleType = obstacleType;
-        this.building = building;
+        public Tile(int x, int z)
+        {
+            this.x = x;
+            this.z = z;
+        }
     }
 
-    public void Clear()
-    {
-        occupied = false;
-        obstacleType = ObstacleType.None;
-        building = null;
-    }
 }

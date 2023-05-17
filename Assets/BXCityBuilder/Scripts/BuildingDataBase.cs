@@ -2,13 +2,24 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(menuName = "BXCityBuilder/BuildingDataBase")]
-public class BuildingDataBase : ScriptableObject
+namespace CityBuilder
 {
-    public List<Building> buildings;
-
-    public BuildingDataBase()
+    [CreateAssetMenu(menuName = "BXCityBuilder/BuildingDataBase")]
+    public class BuildingDataBase : ScriptableObject, ISerializationCallbackReceiver
     {
-        buildings = new List<Building>();
+        public List<BuildingConfig> buildings = new List<BuildingConfig>();
+
+        public void OnAfterDeserialize()
+        {
+            return;
+        }
+
+        public void OnBeforeSerialize()
+        {
+            for(int i = 0; i < buildings.Count; ++i)
+            {
+                buildings[i].id = i;
+            }
+        }
     }
 }

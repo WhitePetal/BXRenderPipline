@@ -2,23 +2,36 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[System.Serializable]
-public class Building
+namespace CityBuilder
 {
-    public enum ResourceType
+    [System.Serializable]
+    public class Building
     {
-        None,
-        Cone,
-        Stone,
-        Wood
-    }
+        public int id;
+        public int width, length;
+        public ResourceType resourceType;
+        [System.NonSerialized]
+        public GameObject buildingObj;
 
-    public int id;
-    public int width, length;
-    public ResourceType resourcesType;
+        public Building(int id, int width, int length, ResourceType resourceType)
+        {
+            this.id = id;
+            this.width = width;
+            this.length = length;
+            this.resourceType = resourceType;
+        }
 
-    public void PreviewBuilding()
-    {
-        Debug.Log("Preview Building");
+        public Building(BuildingConfig config)
+        {
+            this.id = config.id;
+            this.width = config.width;
+            this.length = config.length;
+            this.resourceType = config.resourceType;
+        }
+
+        public void PreviewBuilding()
+        {
+            Debug.Log("Preview Building");
+        }
     }
 }

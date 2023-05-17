@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0134c7cfe6f5e41dc99656b43b1a3360, type: 3}
+  m_Name: Building Data Base
+  m_EditorClassIdentifier: 
+  buildings:
+  - id: 0
+    width: 1
+    length: 1
+    resourceType: 4
+    buildingObj: {fileID: 124530052003661251, guid: 3310c830d46d840038c7b1dc8fe4c83e,
+      type: 3}
+    buildingSprite: {fileID: 21300000, guid: 372e7b39fc8f34549ac25d8757965a2c, type: 3}
+    buildingDescript: "  \u8FD9\u5C31\u662F\u4E00\u9897\u6811"
+  - id: 1
+    width: 1
+    length: 1
+    resourceType: 3
+    buildingObj: {fileID: 1002828366031325173, guid: 36f7fd608e74949ab95e70ead6d1ce25,
+      type: 3}
+    buildingSprite: {fileID: 21300000, guid: 17035c204825f6340a252046ab6476fd, type: 3}
+    buildingDescript: "  \u8FD9\u5C31\u662F\u4E00\u5757\u77F3\u5934"
+  - id: 2
+    width: 1
+    length: 1
+    resourceType: 2
+    buildingObj: {fileID: 3610349492082670236, guid: fb9f5a2d0bf9641df8bc28d54a4f6141,
+      type: 3}
+    buildingSprite: {fileID: 21300000, guid: 7fd3cda14282bb7429b8eeb6c121e5bb, type: 3}
+    buildingDescript: "  \u8FD9\u5C31\u662F\u4E00\u680B\u623F\u5B50"

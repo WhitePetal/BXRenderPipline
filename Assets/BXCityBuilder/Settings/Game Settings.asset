@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 82d8cd47cb8934648bbf90ed24e67a59, type: 3}
+  m_Name: Game Settings
+  m_EditorClassIdentifier: 
+  tileSettings:
+    tileObj: {fileID: 4883938422729840830, guid: f2ca2e93ee71e4818b290cad60ba7a74,
+      type: 3}
+    normalColor: {r: 0.37254903, g: 0.5764706, b: 0.52156866, a: 1}
+    selectedColor: {r: 1, g: 0.89939255, b: 0.23113209, a: 1}
+  worldViewCameraSettings:
+    horizontalMoveSpeed: 0.5
+    verticalMoveSpeed: 0.5
