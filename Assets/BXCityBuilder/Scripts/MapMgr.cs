@@ -27,6 +27,9 @@ namespace CityBuilder
         private MapData mapData;
 
         private Tile curSelectedTile;
+        private BuildingConfig willBuildBuildingConfig;
+        private Building willBuildBuilding;
+        private List<Tile> willBuildTiles;
 
         public int MapWidth
         {
@@ -101,14 +104,29 @@ namespace CityBuilder
             }
         }
 
-        public void WillBuildBuilding(int buildingID, int x, int z)
+        public void SetWillBuildBuildingInfo(int buildingId)
+        {
+            this.willBuildBuildingConfig = GameManager.Instance.buildingDataBase.buildings[buildingId];
+            if (this.willBuildBuilding != null) GameObject.Destroy(this.willBuildBuilding.buildingObj);
+            this.willBuildBuilding = new Building(willBuildBuildingConfig);
+        }
+
+        public void WillBuildBuilding(int x, int z)
+        {
+            if (!CheckTilePosVailed(x, z)) return;
+
+            if(willBuildBuilding.buildingObj == null) willBuildBuilding.buildingObj = GameObject.Instantiate<GameObject>(willBuildBuildingConfig.buildingObj);
+            Vector3 pos = willBuildBuilding.buildingObj.transform.position;
+            willBuildBuilding.buildingObj.transform.position = new Vector3(x, pos.y, z);
+        }
+
+        public void BuildBuilding(int x, int z)
         {
             Tile tile = SetSelectedTile(x, z);
             if (tile == null || tile.occupied) return;
 
-            BuildingConfig buildingConfig = GameManager.Instance.buildingDataBase.buildings[buildingID];
-            tile.building = new Building(buildingConfig);
-            tile.building.buildingObj = GameObject.Instantiate<GameObject>(buildingConfig.buildingObj, tile.tileObj.transform);
+            tile.building = new Building(willBuildBuildingConfig);
+            tile.building.buildingObj = GameObject.Instantiate<GameObject>(willBuildBuildingConfig.buildingObj, tile.tileObj.transform);
             tile.occupied = true;
         }
 

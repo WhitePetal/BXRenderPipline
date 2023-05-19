@@ -20,6 +20,12 @@ namespace CityBuilder
         {
             public float horizontalMoveSpeed;
             public float verticalMoveSpeed;
+            public float horizontalLeaveScreenMoveSpeed;
+            public float verticalLevaeScreenMoveSpeed;
+            public float rotateSpeed;
+            public float zoomStpe;
+            public float zoomMin;
+            public float zoomMax;
         }
 
         public TileSettings tileSettings;

@@ -20,3 +20,9 @@ MonoBehaviour:
   worldViewCameraSettings:
     horizontalMoveSpeed: 0.5
     verticalMoveSpeed: 0.5
+    horizontalLeaveScreenMoveSpeed: 4
+    verticalLevaeScreenMoveSpeed: 4
+    rotateSpeed: 40
+    zoomStpe: 1
+    zoomMin: 0.5
+    zoomMax: 20
