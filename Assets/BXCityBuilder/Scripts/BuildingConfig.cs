@@ -10,6 +10,7 @@ namespace CityBuilder
         public int id;
         public int width, length;
         public ResourceType resourceType;
+        public float woodProducedPerS, stoneProducedPerS, coneProducedPerS, peopleProducedPerS;
         public GameObject buildingObj;
         public Sprite buildingSprite;
         public string buildingDescript;

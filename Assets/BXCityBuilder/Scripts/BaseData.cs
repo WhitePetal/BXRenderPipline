@@ -17,6 +17,8 @@ namespace CityBuilder
         public int cone;
         public int pepole;
 
+        public double offlineTime;
+
         public BaseData(int initMaxWood, int initMaxStone, int initMaxCone, int initMaxPeople,
             int initWood, int initStone, int initCone, int initPeople)
         {

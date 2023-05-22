@@ -10,6 +10,8 @@ namespace CityBuilder
         public int id;
         public int width, length;
         public ResourceType resourceType;
+        public float woodProduced, stoneProduced, coneProduced, peopleProduced;
+
         [System.NonSerialized]
         public GameObject buildingObj;
 
@@ -27,11 +29,6 @@ namespace CityBuilder
             this.width = config.width;
             this.length = config.length;
             this.resourceType = config.resourceType;
-        }
-
-        public void PreviewBuilding()
-        {
-            Debug.Log("Preview Building");
         }
     }
 }

@@ -4275,8 +4275,8 @@ Camera:
   near clip plane: 0.3
   far clip plane: 1000
   field of view: 60
-  orthographic: 1
-  orthographic size: 3
+  orthographic: 0
+  orthographic size: 5
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -4299,8 +4299,8 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1144745101}
-  m_LocalRotation: {x: -0.23451751, y: -0.3751418, z: 0.10071869, w: -0.8911374}
-  m_LocalPosition: {x: -0.53, y: 4.62, z: -0.42}
+  m_LocalRotation: {x: -0.09101052, y: -0.38633278, z: 0.040281598, w: -0.9169741}
+  m_LocalPosition: {x: 6.88, y: -1.59, z: 6.83}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -4957,7 +4957,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "\u9000\u51FA"
+  m_Text: "\u9000\u51FA/\u7ED3\u7B97"
 --- !u!222 &1236289229
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -6761,6 +6761,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   worldViewCam: {fileID: 1018779580}
   inWorldCam: {fileID: 9758717}
+  test: 0
   gameSettings: {fileID: 11400000, guid: 4e594e3c2bf924d7ca409e24ce798087, type: 2}
   buildingDataBase: {fileID: 11400000, guid: be20703d5137d40a485d9de8015a105c, type: 2}
   gameState: 0

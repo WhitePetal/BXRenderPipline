@@ -192,6 +192,7 @@ namespace CityBuilder
 
         public double GetMillisecondsTime()
         {
+            nowTime = GetUTCMilliseconds();
             return nowTime;
         }
         public DateTime GetLocalDateTime()
@@ -218,7 +219,7 @@ namespace CityBuilder
         public string GetLocalTimeStr()
         {
             DateTime dt = GetLocalDateTime();
-            string str = GetTimeStr(dt.Hour) + ":" + GetTimeStr(dt.Minute) + ":" + GetTimeStr(dt.Second);
+            string str = dt.Year.ToString() + ":" + GetTimeStr(dt.Month) + ":" +  GetTimeStr(dt.Hour) + ":" + GetTimeStr(dt.Minute) + ":" + GetTimeStr(dt.Second);
             return str;
         }
 

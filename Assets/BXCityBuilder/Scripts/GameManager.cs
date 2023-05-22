@@ -112,11 +112,6 @@ namespace CityBuilder
             return true;
         }
 
-        public void SetWillBuildBuildingInfo(int buildingID)
-        {
-            MapMgr.Instance.SetWillBuildBuildingInfo(buildingID);
-        }
-
         public void RotateWorldViewCamera(float roteAngle)
         {
             Ray ray = Camera.main.ScreenPointToRay(new Vector3(Screen.width * 0.5f, Screen.height * 0.5f, 1));

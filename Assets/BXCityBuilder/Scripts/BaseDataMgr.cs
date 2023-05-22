@@ -19,6 +19,8 @@ namespace CityBuilder
 
         private BaseData baseData;
 
+        public int willCostWood, willCostStone, willCostCone, willCostPeople;
+
         public void Init()
         {
             baseData = SaveMgr.Instance.GetBaseData();

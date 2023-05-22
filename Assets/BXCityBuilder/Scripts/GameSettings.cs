@@ -13,6 +13,15 @@ namespace CityBuilder
             public GameObject tileObj;
             public Color normalColor;
             public Color selectedColor;
+            public Color canBuildColor;
+            public Color cantBuildColor;
+        }
+
+        [System.Serializable]
+        public struct BuildingSettings
+        {
+            public Material willBuildingOnMouseMat;
+            public Material willBuildingOnTileMat;
         }
 
         [System.Serializable]
@@ -29,6 +38,8 @@ namespace CityBuilder
         }
 
         public TileSettings tileSettings;
+
+        public BuildingSettings buildingSettings;
 
         public WorldViewCameraSettings worldViewCameraSettings;
 

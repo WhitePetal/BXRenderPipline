@@ -17,6 +17,13 @@ MonoBehaviour:
       type: 3}
     normalColor: {r: 0.37254903, g: 0.5764706, b: 0.52156866, a: 1}
     selectedColor: {r: 1, g: 0.89939255, b: 0.23113209, a: 1}
+    canBuildColor: {r: 1, g: 1, b: 1, a: 1}
+    cantBuildColor: {r: 1, g: 0, b: 0, a: 1}
+  buildingSettings:
+    willBuildingOnMouseMat: {fileID: 2100000, guid: 2cfbeb2f3d9214bb29bd468bb961902d,
+      type: 2}
+    willBuildingOnTileMat: {fileID: 2100000, guid: b3a1dcdb7c85c4f88b91f18372c32dd9,
+      type: 2}
   worldViewCameraSettings:
     horizontalMoveSpeed: 0.5
     verticalMoveSpeed: 0.5

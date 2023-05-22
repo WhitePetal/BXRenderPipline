@@ -23,10 +23,13 @@ namespace CityBuilder
         private GameObject tileObj;
         private Material tileNormalMat;
         private Material tileSelectedMat;
+        private Material tileCanBuildMat, tileCantBuildMat;
 
         private MapData mapData;
 
         private Tile curSelectedTile;
+        private Tile curWillBuildTile;
+
         private BuildingConfig willBuildBuildingConfig;
         private Building willBuildBuilding;
         private List<Tile> willBuildTiles;
@@ -54,6 +57,10 @@ namespace CityBuilder
             this.tileNormalMat.SetColor("_Color", tileSettings.normalColor);
             this.tileSelectedMat = new Material(tileNormalMat);
             this.tileSelectedMat.SetColor("_Color", tileSettings.selectedColor);
+            this.tileCanBuildMat = new Material(tileNormalMat);
+            this.tileCanBuildMat.SetColor("_Color", tileSettings.canBuildColor);
+            this.tileCantBuildMat = new Material(tileNormalMat);
+            this.tileCantBuildMat.SetColor("_Color", tileSettings.cantBuildColor);
 
             mapData = SaveMgr.Instance.GetMapData();
 
@@ -106,18 +113,52 @@ namespace CityBuilder
 
         public void SetWillBuildBuildingInfo(int buildingId)
         {
-            this.willBuildBuildingConfig = GameManager.Instance.buildingDataBase.buildings[buildingId];
-            if (this.willBuildBuilding != null) GameObject.Destroy(this.willBuildBuilding.buildingObj);
-            this.willBuildBuilding = new Building(willBuildBuildingConfig);
+            willBuildBuildingConfig = GameManager.Instance.buildingDataBase.buildings[buildingId];
+            if (willBuildBuilding != null) GameObject.Destroy(this.willBuildBuilding.buildingObj);
+            willBuildBuilding = new Building(willBuildBuildingConfig);
+            willBuildBuilding.buildingObj = GameObject.Instantiate<GameObject>(willBuildBuildingConfig.buildingObj);
+            var renderers = willBuildBuilding.buildingObj.GetComponentsInChildren<Renderer>();
+            var willBuildingOnMouseMat = GameManager.Instance.gameSettings.buildingSettings.willBuildingOnMouseMat;
+            for(int i = 0; i < renderers.Length; ++i)
+            {
+                var mats = renderers[i].sharedMaterials;
+                for (int k = 0; k < mats.Length; ++k)
+                {
+                    mats[k] = willBuildingOnMouseMat;
+                }
+                renderers[i].sharedMaterials = mats;
+            }
         }
 
         public void WillBuildBuilding(int x, int z)
         {
             if (!CheckTilePosVailed(x, z)) return;
 
-            if(willBuildBuilding.buildingObj == null) willBuildBuilding.buildingObj = GameObject.Instantiate<GameObject>(willBuildBuildingConfig.buildingObj);
-            Vector3 pos = willBuildBuilding.buildingObj.transform.position;
-            willBuildBuilding.buildingObj.transform.position = new Vector3(x, pos.y, z);
+            Tile tile = mapData.map[x, z];
+            MeshRenderer tileRenderer = tile.tileObj.GetComponent<MeshRenderer>();
+            Material tileMat = tileRenderer.sharedMaterial;
+
+            if(curWillBuildTile != null && curWillBuildTile != tile && curWillBuildTile != curSelectedTile)
+            {
+                MeshRenderer curWillBuildTileRenderer = curWillBuildTile.tileObj.GetComponent<MeshRenderer>();
+                Material curWillBuildTileMat = curWillBuildTileRenderer.sharedMaterial;
+                if (curWillBuildTileMat != tileNormalMat) curWillBuildTileRenderer.sharedMaterial = tileNormalMat;
+            }
+
+            if (tile.occupied)
+            {
+                willBuildBuilding.buildingObj.SetActive(false);
+                if (tile != curSelectedTile && tileMat != tileCantBuildMat) tileRenderer.sharedMaterial = tileCantBuildMat;
+            }
+            else
+            {
+                Vector3 pos = willBuildBuilding.buildingObj.transform.position;
+                willBuildBuilding.buildingObj.SetActive(true);
+                willBuildBuilding.buildingObj.transform.position = new Vector3(x, pos.y, z);
+                if (tileMat != tileCanBuildMat) tileRenderer.sharedMaterial = tileCanBuildMat;
+            }
+
+            curWillBuildTile = tile;
         }
 
         public void BuildBuilding(int x, int z)
@@ -128,6 +169,20 @@ namespace CityBuilder
             tile.building = new Building(willBuildBuildingConfig);
             tile.building.buildingObj = GameObject.Instantiate<GameObject>(willBuildBuildingConfig.buildingObj, tile.tileObj.transform);
             tile.occupied = true;
+
+            var renderers = tile.building.buildingObj.GetComponentsInChildren<Renderer>();
+            var willBuildingOnTileMat = GameManager.Instance.gameSettings.buildingSettings.willBuildingOnTileMat;
+            for (int i = 0; i < renderers.Length; ++i)
+            {
+                var mats = renderers[i].sharedMaterials;
+                for (int k = 0; k < mats.Length; ++k)
+                {
+                    mats[k] = willBuildingOnTileMat;
+                }
+                renderers[i].sharedMaterials = mats;
+            }
+
+            willBuildBuilding.buildingObj.SetActive(false);
         }
 
         private bool CheckTilePosVailed(int x, int z)

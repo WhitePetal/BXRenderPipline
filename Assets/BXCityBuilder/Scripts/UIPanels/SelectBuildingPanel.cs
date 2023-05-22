@@ -51,7 +51,7 @@ namespace CityBuilder
                 if (GameManager.Instance.SetGameState(GameManager.GameState.ChangingUI))
                 {
                     UIMgr.Instance.EnterPanel<BuildBuildingPanel>("BuildBuildingPanel");
-                    GameManager.Instance.SetWillBuildBuildingInfo(buildingID);
+                    MapMgr.Instance.SetWillBuildBuildingInfo(buildingID);
                 }
             };
         }
