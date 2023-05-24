@@ -33,3 +33,8 @@ MonoBehaviour:
     zoomStpe: 1
     zoomMin: 0.5
     zoomMax: 20
+  uiSettings:
+    woodTextColor: {r: 0.9056604, g: 0.63323367, b: 0.2007832, a: 0}
+    stoneTextColor: {r: 0.4245283, g: 0.4245283, b: 0.4245283, a: 0}
+    coneTextColor: {r: 1, g: 0.93987954, b: 0.3820755, a: 0}
+    peopleTextColor: {r: 1, g: 1, b: 1, a: 0}

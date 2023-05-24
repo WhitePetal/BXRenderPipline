@@ -19,6 +19,6 @@ namespace CityBuilder
 
         public abstract void OnPanelEnter();
         public abstract void OnPanelExit();
-
+        public abstract void OnPanelRefresh();
     }
 }

@@ -37,11 +37,22 @@ namespace CityBuilder
             public float zoomMax;
         }
 
+        [System.Serializable]
+        public struct UISettings
+        {
+            public Color woodTextColor;
+            public Color stoneTextColor;
+            public Color coneTextColor;
+            public Color peopleTextColor;
+        }
+
         public TileSettings tileSettings;
 
         public BuildingSettings buildingSettings;
 
         public WorldViewCameraSettings worldViewCameraSettings;
+
+        public UISettings uiSettings;
 
     }
 }

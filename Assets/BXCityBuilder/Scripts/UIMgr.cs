@@ -18,6 +18,7 @@ namespace CityBuilder
         }
 
         private RectTransform canvas;
+        private CanvasGroup canvasGroup;
         private Dictionary<string, UIPanel> uiPanelPoor;
         private Stack<UIPanel> uiPanelStack;
         private UIPanel prePanel;
@@ -27,21 +28,35 @@ namespace CityBuilder
             uiPanelPoor = new Dictionary<string, UIPanel>();
             uiPanelStack = new Stack<UIPanel>();
             canvas = GameObject.Find("Canvas").GetComponent<RectTransform>();
+            canvasGroup = canvas.GetComponent<CanvasGroup>();
 
             MainPanel mainPanel = new MainPanel();
             mainPanel.InitPanel("MainPanel", canvas.Find("MainPanel").GetComponent<RectTransform>());
             EnterPanel(mainPanel);
         }
 
+        public void FreezeAllUI()
+        {
+            canvasGroup.interactable = false;
+        }
+
+        public void UnFreezeAllUI()
+        {
+            canvasGroup.interactable = true;
+        }
+
         public void EnterPanel(UIPanel panel)
         {
             ExitTopPanel();
-            uiPanelStack.Push(panel);
-            uiPanelPoor[panel.name] = panel;
-            panel.OnPanelEnter();
+            if (GameManager.Instance.SetGameState(GameManager.GameState.ChangingUI))
+            {
+                uiPanelStack.Push(panel);
+                uiPanelPoor[panel.name] = panel;
+                panel.OnPanelEnter();
+            }
         }
 
-        public void EnterPanel<T>(string name) where T : UIPanel, new()
+        public T EnterPanel<T>(string name) where T : UIPanel, new()
         {
             T panel;
             if (uiPanelPoor.ContainsKey(name))
@@ -54,6 +69,7 @@ namespace CityBuilder
                 panel.InitPanel(name, canvas.Find(name).GetComponent<RectTransform>());
             }
             EnterPanel(panel);
+            return panel;
         }
 
         public void EnterPrePanel()
@@ -65,10 +81,18 @@ namespace CityBuilder
         public void ExitTopPanel()
         {
             if (uiPanelStack.Count == 0) return;
-            UIPanel panel = uiPanelStack.Pop();
-            panel.OnPanelExit();
-            prePanel = panel;
+            if (GameManager.Instance.SetGameState(GameManager.GameState.ChangingUI))
+            {
+                UIPanel panel = uiPanelStack.Pop();
+                panel.OnPanelExit();
+                prePanel = panel;
+            }
         }
 
+        public void RefreshPanel()
+        {
+            if (uiPanelStack.Count == 0) return;
+            uiPanelStack.Peek().OnPanelRefresh();
+        }
     }
 }

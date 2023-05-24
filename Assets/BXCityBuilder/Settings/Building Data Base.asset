@@ -17,6 +17,14 @@ MonoBehaviour:
     width: 1
     length: 1
     resourceType: 4
+    costWood: 0
+    costStone: 0
+    costCone: 20
+    costPeople: 20
+    woodProducedPerS: 1
+    stoneProducedPerS: 1
+    coneProducedPerS: 1
+    peopleProducedPerS: 1
     buildingObj: {fileID: 124530052003661251, guid: 3310c830d46d840038c7b1dc8fe4c83e,
       type: 3}
     buildingSprite: {fileID: 21300000, guid: 372e7b39fc8f34549ac25d8757965a2c, type: 3}
@@ -25,6 +33,14 @@ MonoBehaviour:
     width: 1
     length: 1
     resourceType: 3
+    costWood: 0
+    costStone: 0
+    costCone: 20
+    costPeople: 20
+    woodProducedPerS: 1
+    stoneProducedPerS: 1
+    coneProducedPerS: 1
+    peopleProducedPerS: 1
     buildingObj: {fileID: 1002828366031325173, guid: 36f7fd608e74949ab95e70ead6d1ce25,
       type: 3}
     buildingSprite: {fileID: 21300000, guid: 17035c204825f6340a252046ab6476fd, type: 3}
@@ -33,6 +49,14 @@ MonoBehaviour:
     width: 1
     length: 1
     resourceType: 2
+    costWood: 20
+    costStone: 20
+    costCone: 20
+    costPeople: 20
+    woodProducedPerS: 1
+    stoneProducedPerS: 1
+    coneProducedPerS: 1
+    peopleProducedPerS: 1
     buildingObj: {fileID: 3610349492082670236, guid: fb9f5a2d0bf9641df8bc28d54a4f6141,
       type: 3}
     buildingSprite: {fileID: 21300000, guid: 7fd3cda14282bb7429b8eeb6c121e5bb, type: 3}

@@ -40,19 +40,15 @@ namespace CityBuilder
 
         private void OnCloseBtnClick()
         {
-            if (GameManager.Instance.SetGameState(GameManager.GameState.ChangingUI))
-                UIMgr.Instance.EnterPrePanel();
+            UIMgr.Instance.EnterPrePanel();
         }
 
         private UnityEngine.Events.UnityAction OnBuildingCardClick(int buildingID)
         {
             return () =>
             {
-                if (GameManager.Instance.SetGameState(GameManager.GameState.ChangingUI))
-                {
-                    UIMgr.Instance.EnterPanel<BuildBuildingPanel>("BuildBuildingPanel");
-                    MapMgr.Instance.SetWillBuildBuildingInfo(buildingID);
-                }
+                UIMgr.Instance.EnterPanel<BuildBuildingPanel>("BuildBuildingPanel");
+                MapMgr.Instance.SetWillBuildBuildingInfo(buildingID);
             };
         }
 
@@ -60,17 +56,27 @@ namespace CityBuilder
         {
             window.DOComplete();
             panel.gameObject.SetActive(true);
+            GameManager.Instance.SetGameState(GameManager.GameState.SelectBuilding);
+            UIMgr.Instance.FreezeAllUI();
+
             window.DOScale(0f, 0f);
-            window.DOScale(1f, 0.5f).onComplete += () =>
-            {
-                GameManager.Instance.SetGameState(GameManager.GameState.SelectBuilding);
-            };
+            window.DOScale(1f, 0.5f).onComplete += () => UIMgr.Instance.UnFreezeAllUI(); ;
         }
 
         public override void OnPanelExit()
         {
             window.DOComplete();
-            window.DOScale(0f, 0.5f).onComplete += () => panel.gameObject.SetActive(false);
+            UIMgr.Instance.FreezeAllUI();
+            window.DOScale(0f, 0.5f).onComplete += () =>
+            {
+                panel.gameObject.SetActive(false);
+                UIMgr.Instance.UnFreezeAllUI();
+            };
+        }
+
+        public override void OnPanelRefresh()
+        {
+            
         }
     }
 }

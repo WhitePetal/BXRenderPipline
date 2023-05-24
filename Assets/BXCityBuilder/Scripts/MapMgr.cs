@@ -62,6 +62,8 @@ namespace CityBuilder
             this.tileCantBuildMat = new Material(tileNormalMat);
             this.tileCantBuildMat.SetColor("_Color", tileSettings.cantBuildColor);
 
+            willBuildTiles = new List<Tile>();
+
             mapData = SaveMgr.Instance.GetMapData();
 
             if(mapData == null)
@@ -130,7 +132,7 @@ namespace CityBuilder
             }
         }
 
-        public void WillBuildBuilding(int x, int z)
+        public void PreviewWillBuildBuilding(int x, int z)
         {
             if (!CheckTilePosVailed(x, z)) return;
 
@@ -155,20 +157,23 @@ namespace CityBuilder
                 Vector3 pos = willBuildBuilding.buildingObj.transform.position;
                 willBuildBuilding.buildingObj.SetActive(true);
                 willBuildBuilding.buildingObj.transform.position = new Vector3(x, pos.y, z);
-                if (tileMat != tileCanBuildMat) tileRenderer.sharedMaterial = tileCanBuildMat;
+                if (tile != curSelectedTile && tileMat != tileCanBuildMat) tileRenderer.sharedMaterial = tileCanBuildMat;
             }
 
             curWillBuildTile = tile;
         }
 
-        public void BuildBuilding(int x, int z)
+        public BuildingConfig WillBuildBuilding(int x, int z)
         {
             Tile tile = SetSelectedTile(x, z);
-            if (tile == null || tile.occupied) return;
+            if (tile == null || tile.occupied) return null;
 
             tile.building = new Building(willBuildBuildingConfig);
             tile.building.buildingObj = GameObject.Instantiate<GameObject>(willBuildBuildingConfig.buildingObj, tile.tileObj.transform);
             tile.occupied = true;
+            tile.isWillBuilding = true;
+            tile.willBuildIndex = willBuildTiles.Count;
+            willBuildTiles.Add(tile);
 
             var renderers = tile.building.buildingObj.GetComponentsInChildren<Renderer>();
             var willBuildingOnTileMat = GameManager.Instance.gameSettings.buildingSettings.willBuildingOnTileMat;
@@ -183,6 +188,26 @@ namespace CityBuilder
             }
 
             willBuildBuilding.buildingObj.SetActive(false);
+            return willBuildBuildingConfig;
+        }
+
+        public void CancleLastBuildBuilding()
+        {
+            Tile lastWillBuildTile = willBuildTiles[willBuildTiles.Count - 1];
+            lastWillBuildTile.occupied = false;
+            lastWillBuildTile.isWillBuilding = false;
+            GameObject.DestroyImmediate(lastWillBuildTile.building.buildingObj);
+            lastWillBuildTile.building = null;
+        }
+
+        public void ActualBuildBuilding()
+        {
+            for(int i = 0; i < willBuildTiles.Count; ++i)
+            {
+                Tile tile = willBuildTiles[i];
+                tile.isWillBuilding = false;
+
+            }
         }
 
         private bool CheckTilePosVailed(int x, int z)

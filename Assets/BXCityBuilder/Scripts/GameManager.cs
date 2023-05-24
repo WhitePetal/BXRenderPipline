@@ -29,7 +29,8 @@ namespace CityBuilder
             ChangingUI,
             MainPanel,
             SelectBuilding,
-            BuildBuilding
+            BuildBuilding,
+            WarningPanel,
         }
 
         public CinemachineVirtualCamera worldViewCam;
@@ -218,7 +219,17 @@ namespace CityBuilder
             if (Physics.Raycast(ray, out RaycastHit hitInfo))
             {
                 Vector3 mousePos = hitInfo.point;
-                MapMgr.Instance.BuildBuilding(Mathf.FloorToInt(mousePos.x + 0.5f), Mathf.FloorToInt(mousePos.z + 0.5f));
+                BuildingConfig config = MapMgr.Instance.WillBuildBuilding(Mathf.FloorToInt(mousePos.x + 0.5f), Mathf.FloorToInt(mousePos.z + 0.5f));
+                if (config != null)
+                {
+                    bool resourcesEnough = BaseDataMgr.Instance.WillBuildBuilding(config, out int outofWood, out int outofStone, out int outofCone, out int outofPeople);
+                    if (!resourcesEnough)
+                    {
+                        UIMgr.Instance.EnterPanel<WarningPanel>("WarningPanel").ShowMessage("资源不够啦！");
+                        MapMgr.Instance.CancleLastBuildBuilding();
+                    }
+                    UIMgr.Instance.RefreshPanel();
+                }
             }
         }
         private void OnLeftMouseDownMove_MainPanel_BuildBuildingPanel()
@@ -239,7 +250,7 @@ namespace CityBuilder
             if (Physics.Raycast(ray, out RaycastHit hitInfo))
             {
                 Vector3 mousePos = hitInfo.point;
-                MapMgr.Instance.WillBuildBuilding(Mathf.FloorToInt(mousePos.x + 0.5f), Mathf.FloorToInt(mousePos.z + 0.5f));
+                MapMgr.Instance.PreviewWillBuildBuilding(Mathf.FloorToInt(mousePos.x + 0.5f), Mathf.FloorToInt(mousePos.z + 0.5f));
             }
         }
     }

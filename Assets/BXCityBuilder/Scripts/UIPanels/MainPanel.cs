@@ -77,18 +77,28 @@ namespace CityBuilder
             panel.DOComplete();
 
             panel.gameObject.SetActive(true);
+            GameManager.Instance.SetGameState(GameManager.GameState.MainPanel);
+            UIMgr.Instance.FreezeAllUI();
+
             panel.DOScale(2f, 0f);
-            panel.DOScale(1f, 0.5f).onComplete += () =>
-            {
-                GameManager.Instance.SetGameState(GameManager.GameState.MainPanel);
-            };
+            panel.DOScale(1f, 0.5f).onComplete += () => UIMgr.Instance.UnFreezeAllUI();
         }
 
         public override void OnPanelExit()
         {
             panel.DOComplete();
 
-            panel.DOScale(1.2f, 0.5f).onComplete += () => panel.gameObject.SetActive(false);
+            UIMgr.Instance.FreezeAllUI();
+            panel.DOScale(1.2f, 0.5f).onComplete += () =>
+            {
+                panel.gameObject.SetActive(false);
+                UIMgr.Instance.UnFreezeAllUI();
+            };
+        }
+
+        public override void OnPanelRefresh()
+        {
+            
         }
 
         private void OnSaveBtnClick()
@@ -99,8 +109,7 @@ namespace CityBuilder
 
         private void OnBuildingsBtnClick()
         {
-            if (GameManager.Instance.SetGameState(GameManager.GameState.ChangingUI))
-                UIMgr.Instance.EnterPanel<SelectBuildingPanel>("SelectBuildingPanel");
+            UIMgr.Instance.EnterPanel<SelectBuildingPanel>("SelectBuildingPanel");
         }
 
         private void OnLeftRotateWorldViewBtnClick()

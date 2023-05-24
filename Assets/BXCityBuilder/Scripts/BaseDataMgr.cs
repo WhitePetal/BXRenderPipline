@@ -19,7 +19,7 @@ namespace CityBuilder
 
         private BaseData baseData;
 
-        public int willCostWood, willCostStone, willCostCone, willCostPeople;
+        private int willCostWood, willCostStone, willCostCone, willCostPeople;
 
         public void Init()
         {
@@ -46,6 +46,14 @@ namespace CityBuilder
             people = baseData.pepole;
         }
 
+        public void GetAllCostData(out int costWood, out int costStone, out int costCone, out int costPeople)
+        {
+            costWood = willCostWood;
+            costStone = willCostStone;
+            costCone = willCostCone;
+            costPeople = willCostPeople;
+        }
+
         public int GetMaxWoodCount()
         {
             return baseData.maxWood;
@@ -64,6 +72,35 @@ namespace CityBuilder
         public void SaveBaseData()
         {
             SaveMgr.Instance.SaveBaseData(baseData);
+        }
+
+        public bool WillBuildBuilding(BuildingConfig config, out int outofWood, out int outofStone, out int outofCone, out int outofPeople)
+        {
+            int targetCostWood = willCostWood + config.costWood;
+            int targetCostStone = willCostStone + config.costStone;
+            int targetCostCone = willCostCone + config.costCone;
+            int targetCostPeople = willCostPeople + config.costPeople;
+
+            outofWood = targetCostWood - baseData.wood;
+            outofStone = targetCostStone - baseData.stone;
+            outofCone = targetCostCone - baseData.cone;
+            outofPeople = targetCostPeople - baseData.pepole;
+
+            if(outofWood > 0 || outofStone > 0 || outofCone > 0 || outofPeople > 0)
+            {
+                return false;
+            }
+
+            willCostWood = targetCostWood;
+            willCostStone = targetCostStone;
+            willCostCone = targetCostCone;
+            willCostPeople = targetCostPeople;
+            return true;
+        }
+
+        public void ActuallyBuildBuilding()
+        {
+
         }
     }
 }
