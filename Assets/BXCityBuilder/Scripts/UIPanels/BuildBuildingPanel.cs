@@ -43,6 +43,12 @@ namespace CityBuilder
             exitConfirmPanel = panel.Find("ExitConfirmPanel").GetComponent<RectTransform>();
             exitConfirmWindow = panel.Find("ExitConfirmPanel/Window").GetComponent<RectTransform>();
             exitConfirmText = panel.Find("ExitConfirmPanel/Window/Text").GetComponent<Text>();
+
+            Button confirmBuildBtn = panel.Find("ExitConfirmPanel/Window/ConfirmBuildBtn").GetComponent<Button>();
+            confirmBuildBtn.onClick.AddListener(OnConfirmBuildClick);
+
+            Button cancleAllWillBuildBtn = panel.Find("ExitConfirmPanel/Window/ExitBtn").GetComponent<Button>();
+            cancleAllWillBuildBtn.onClick.AddListener(OnCancleAllWillBuildBtnClick);
         }
 
         private void OnBackBtnClick()
@@ -70,6 +76,20 @@ namespace CityBuilder
             string info = "  建造共花费: " + woodCountText + " 木料, " + stoneCountText + " 石料, " + coneCountText + " 金币, " + peopleCountText + " 人力\n";
             info += "  确认建造吗?";
             exitConfirmText.text = info;
+        }
+
+        private void OnConfirmBuildClick()
+        {
+            BaseDataMgr.Instance.ConfirmBuild();
+            MapMgr.Instance.ConfirmBuild();
+            UIMgr.Instance.EnterPanel<MainPanel>("MainPanel");
+        }
+
+        private void OnCancleAllWillBuildBtnClick()
+        {
+            BaseDataMgr.Instance.CancleAllWillBuild();
+            MapMgr.Instance.CancleAllWillBuild();
+            UIMgr.Instance.EnterPanel<MainPanel>("MainPanel");
         }
 
         public override void OnPanelEnter()
@@ -114,10 +134,10 @@ namespace CityBuilder
             haveConeText.text = "拥有: " + coneCount;
             havePeopleText.text = "拥有: " + peopleCount;
 
-            costWoodSlider.value = costWoodValue;
-            costStoneSlider.value = costStoneValue;
-            costConeSlider.value = costConeValue;
-            costPeopleSlider.value = costPeopleValue;
+            costWoodSlider.DOValue(costWoodValue, 0.2f);
+            costStoneSlider.DOValue(costStoneValue, 0.2f);
+            costConeSlider.DOValue(costConeValue, 0.2f);
+            costPeopleSlider.DOValue(costPeopleValue, 0.2f);
 
             costWoodText.text = costWood.ToString();
             costStoneText.text = costStone.ToString();

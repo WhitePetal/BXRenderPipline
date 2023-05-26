@@ -98,7 +98,20 @@ namespace CityBuilder
             return true;
         }
 
-        public void ActuallyBuildBuilding()
+        public void ConfirmBuild()
+        {
+            baseData.wood -= willCostWood;
+            baseData.stone -= willCostStone;
+            baseData.cone -= willCostCone;
+            baseData.pepole -= willCostPeople;
+
+            willCostWood = 0;
+            willCostStone = 0;
+            willCostCone = 0;
+            willCostPeople = 0;
+        }
+
+        public void CancleAllWillBuild()
         {
 
         }

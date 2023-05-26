@@ -119,17 +119,8 @@ namespace CityBuilder
             if (willBuildBuilding != null) GameObject.Destroy(this.willBuildBuilding.buildingObj);
             willBuildBuilding = new Building(willBuildBuildingConfig);
             willBuildBuilding.buildingObj = GameObject.Instantiate<GameObject>(willBuildBuildingConfig.buildingObj);
-            var renderers = willBuildBuilding.buildingObj.GetComponentsInChildren<Renderer>();
             var willBuildingOnMouseMat = GameManager.Instance.gameSettings.buildingSettings.willBuildingOnMouseMat;
-            for(int i = 0; i < renderers.Length; ++i)
-            {
-                var mats = renderers[i].sharedMaterials;
-                for (int k = 0; k < mats.Length; ++k)
-                {
-                    mats[k] = willBuildingOnMouseMat;
-                }
-                renderers[i].sharedMaterials = mats;
-            }
+            willBuildBuilding.buildingObj.ReplaceMaterials(willBuildingOnMouseMat);
         }
 
         public void PreviewWillBuildBuilding(int x, int z)
@@ -175,17 +166,8 @@ namespace CityBuilder
             tile.willBuildIndex = willBuildTiles.Count;
             willBuildTiles.Add(tile);
 
-            var renderers = tile.building.buildingObj.GetComponentsInChildren<Renderer>();
             var willBuildingOnTileMat = GameManager.Instance.gameSettings.buildingSettings.willBuildingOnTileMat;
-            for (int i = 0; i < renderers.Length; ++i)
-            {
-                var mats = renderers[i].sharedMaterials;
-                for (int k = 0; k < mats.Length; ++k)
-                {
-                    mats[k] = willBuildingOnTileMat;
-                }
-                renderers[i].sharedMaterials = mats;
-            }
+            tile.building.buildingObj.ReplaceMaterials(willBuildingOnTileMat);
 
             willBuildBuilding.buildingObj.SetActive(false);
             return willBuildBuildingConfig;
@@ -200,14 +182,28 @@ namespace CityBuilder
             lastWillBuildTile.building = null;
         }
 
-        public void ActualBuildBuilding()
+        public void ConfirmBuild()
         {
             for(int i = 0; i < willBuildTiles.Count; ++i)
             {
                 Tile tile = willBuildTiles[i];
                 tile.isWillBuilding = false;
-
+                int buildID = tile.building.id;
+                GameObject.DestroyImmediate(tile.building.buildingObj);
+                BuildingConfig buildingConfig = GameManager.Instance.buildingDataBase.buildings[buildID];
+                tile.building.buildingObj = GameObject.Instantiate<GameObject>(buildingConfig.buildingObj, tile.tileObj.transform);
             }
+            willBuildTiles.Clear();
+
+            GameObject.DestroyImmediate(willBuildBuilding.buildingObj);
+            willBuildBuilding = null;
+
+            if (curWillBuildTile != null) curWillBuildTile.tileObj.ReplaceMaterials(tileNormalMat, false);
+        }
+
+        public void CancleAllWillBuild()
+        {
+
         }
 
         private bool CheckTilePosVailed(int x, int z)

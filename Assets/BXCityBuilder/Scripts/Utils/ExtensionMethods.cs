@@ -6,17 +6,30 @@ namespace CityBuilder
 {
     public static class ExtensinMethods
     {
-        public static void ReplaceMaterials(this GameObject go, Material mat)
+        public static void ReplaceMaterials(this GameObject go, Material mat, bool childs = true)
         {
-            var renderers = go.GetComponentsInChildren<Renderer>();
-            for (int i = 0; i < renderers.Length; ++i)
+            if (childs)
             {
-                var mats = renderers[i].sharedMaterials;
+                var renderers = go.GetComponentsInChildren<Renderer>();
+                for (int i = 0; i < renderers.Length; ++i)
+                {
+                    var mats = renderers[i].sharedMaterials;
+                    for (int k = 0; k < mats.Length; ++k)
+                    {
+                        mats[k] = mat;
+                    }
+                    renderers[i].sharedMaterials = mats;
+                }
+            }
+            else
+            {
+                var renderer = go.GetComponent<Renderer>();
+                var mats = renderer.sharedMaterials;
                 for (int k = 0; k < mats.Length; ++k)
                 {
                     mats[k] = mat;
                 }
-                renderers[i].sharedMaterials = mats;
+                renderer.sharedMaterials = mats;
             }
         }
     }
