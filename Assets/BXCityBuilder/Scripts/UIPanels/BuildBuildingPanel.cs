@@ -22,8 +22,18 @@ namespace CityBuilder
             Button backBtn = panel.Find("BackBtn").GetComponent<Button>();
             backBtn.onClick.AddListener(OnBackBtnClick);
 
-            Button exitBtn = panel.Find("ExitBtn").GetComponent<Button>();
+            Button exitBtn = panel.Find("BottomContainer/ExitBtn").GetComponent<Button>();
             exitBtn.onClick.AddListener(OnExitBtnClick);
+
+            Button leftRoteWorldViewBtn = panel.Find("BottomContainer/LeftRotateWorldViewBtn").GetComponent<Button>();
+            Button rightRoteWorldViewBtn = panel.Find("BottomContainer/RightRotateWorldViewBtn").GetComponent<Button>();
+            leftRoteWorldViewBtn.onClick.AddListener(OnLeftRotateWorldViewBtnClick);
+            rightRoteWorldViewBtn.onClick.AddListener(OnRightRotateWorldViewBtnClick);
+
+            Button zoomInWorldViewBtn = panel.Find("BottomContainer/ZoomInWorldVeiwBtn").GetComponent<Button>();
+            Button zoomOutWorldViewBtn = panel.Find("BottomContainer/ZoomOutWorldVeiwBtn").GetComponent<Button>();
+            zoomInWorldViewBtn.onClick.AddListener(OnZoomInWorldViewBtnClick);
+            zoomOutWorldViewBtn.onClick.AddListener(OnZoomOutWorldViewBtnClick);
 
             costWoodSlider = panel.Find("CostResourceContainer/WoodSlider").GetComponent<Slider>();
             costStoneSlider = panel.Find("CostResourceContainer/StoneSlider").GetComponent<Slider>();
@@ -67,7 +77,7 @@ namespace CityBuilder
             exitConfirmWindow.localScale = Vector3.zero;
             exitConfirmWindow.DOScale(1f, 0.5f).onComplete += () => UIMgr.Instance.UnFreezeAllUI();
 
-            BaseDataMgr.Instance.GetAllCostData(out int costWood, out int costStone, out int costCone, out int costPeople);
+            BaseDataMgr.Instance.GetAllBaseResourcesCostData(out int costWood, out int costStone, out int costCone, out int costPeople);
             string woodCountText = TextUtils.GetColoredString(GameManager.Instance.gameSettings.uiSettings.woodTextColor, costWood.ToString());
             string stoneCountText = TextUtils.GetColoredString(GameManager.Instance.gameSettings.uiSettings.stoneTextColor, costStone.ToString());
             string coneCountText = TextUtils.GetColoredString(GameManager.Instance.gameSettings.uiSettings.coneTextColor, costCone.ToString());
@@ -82,14 +92,47 @@ namespace CityBuilder
         {
             BaseDataMgr.Instance.ConfirmBuild();
             MapMgr.Instance.ConfirmBuild();
-            UIMgr.Instance.EnterPanel<MainPanel>("MainPanel");
+
+            exitConfirmWindow.DOComplete();
+            exitConfirmWindow.DOScale(0f, 0.5f).onComplete += () =>
+            {
+                exitConfirmPanel.gameObject.SetActive(false);
+                UIMgr.Instance.EnterPanel<MainPanel>("MainPanel");
+                UIMgr.Instance.RefreshPanel();
+            };
         }
 
         private void OnCancleAllWillBuildBtnClick()
         {
             BaseDataMgr.Instance.CancleAllWillBuild();
             MapMgr.Instance.CancleAllWillBuild();
-            UIMgr.Instance.EnterPanel<MainPanel>("MainPanel");
+
+            exitConfirmWindow.DOComplete();
+            exitConfirmWindow.DOScale(0f, 0.5f).onComplete += () =>
+            {
+                exitConfirmPanel.gameObject.SetActive(false);
+                UIMgr.Instance.EnterPanel<MainPanel>("MainPanel");
+            };
+        }
+
+        private void OnLeftRotateWorldViewBtnClick()
+        {
+            GameManager.Instance.RotateWorldViewCamera(45f);
+        }
+
+        private void OnRightRotateWorldViewBtnClick()
+        {
+            GameManager.Instance.RotateWorldViewCamera(-45f);
+        }
+
+        private void OnZoomInWorldViewBtnClick()
+        {
+            GameManager.Instance.ZoomWorldViewCamera(1);
+        }
+
+        private void OnZoomOutWorldViewBtnClick()
+        {
+            GameManager.Instance.ZoomWorldViewCamera(-1);
         }
 
         public override void OnPanelEnter()
@@ -103,7 +146,11 @@ namespace CityBuilder
             MapMgr.Instance.CancleCurSelectedTile();
             OnPanelRefresh();
 
-            panel.DOScale(1f, 0.6f);
+            UIMgr.Instance.FreezeAllUI();
+            panel.DOScale(1f, 0.6f).onComplete += () =>
+            {
+                UIMgr.Instance.UnFreezeAllUI();
+            };
         }
 
         public override void OnPanelExit()
@@ -120,9 +167,9 @@ namespace CityBuilder
 
         public override void OnPanelRefresh()
         {
-            BaseDataMgr.Instance.GetAllBaseData(out int maxWoodCount, out int maxStoneCount, out int maxConeCount, out int maxPeopleCount,
+            BaseDataMgr.Instance.GetAllBaseResourcesData(out int maxWoodCount, out int maxStoneCount, out int maxConeCount, out int maxPeopleCount,
                 out int woodCount, out int stoneCount, out int coneCount, out int peopleCount);
-            BaseDataMgr.Instance.GetAllCostData(out int costWood, out int costStone, out int costCone, out int costPeople);
+            BaseDataMgr.Instance.GetAllBaseResourcesCostData(out int costWood, out int costStone, out int costCone, out int costPeople);
 
             float costWoodValue = (float)costWood / woodCount;
             float costStoneValue = (float)costStone / stoneCount;
@@ -134,10 +181,10 @@ namespace CityBuilder
             haveConeText.text = "拥有: " + coneCount;
             havePeopleText.text = "拥有: " + peopleCount;
 
-            costWoodSlider.DOValue(costWoodValue, 0.2f);
-            costStoneSlider.DOValue(costStoneValue, 0.2f);
-            costConeSlider.DOValue(costConeValue, 0.2f);
-            costPeopleSlider.DOValue(costPeopleValue, 0.2f);
+            costWoodSlider.DOValue(costWoodValue, 0.5f);
+            costStoneSlider.DOValue(costStoneValue, 0.5f);
+            costConeSlider.DOValue(costConeValue, 0.5f);
+            costPeopleSlider.DOValue(costPeopleValue, 0.5f);
 
             costWoodText.text = costWood.ToString();
             costStoneText.text = costStone.ToString();

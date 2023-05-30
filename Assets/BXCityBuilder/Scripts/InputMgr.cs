@@ -20,7 +20,7 @@ namespace CityBuilder
         public Vector3 mousePrePosition;
         public Vector3 mousePosition;
         public Vector3 mouseMoveVec;
-        public Vector3 mouseLeaveScrennDir;
+        public Vector2 mouseLeaveScrennDir;
 
         private bool mouseLeftDownMoveing;
 

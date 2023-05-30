@@ -21,10 +21,6 @@ namespace CityBuilder
 
         [System.NonSerialized]
         public GameObject tileObj;
-        [System.NonSerialized]
-        public bool isWillBuilding;
-        [System.NonSerialized]
-        public int willBuildIndex;
 
         public Tile(int x, int z)
         {

@@ -240,8 +240,9 @@ namespace CityBuilder
         }
         private void OnFreeMouseLeaveScreen_MainPanel_BuilBuildingPanel()
         {
-            Vector3 camTargetPos = worldViewCam.transform.position + worldViewCam.transform.right * InputMgr.Instance.mouseLeaveScrennDir.x * Time.deltaTime * gameSettings.worldViewCameraSettings.horizontalLeaveScreenMoveSpeed;
-            camTargetPos += new Vector3(worldViewCam.transform.forward.x, 0, worldViewCam.transform.forward.z).normalized * InputMgr.Instance.mouseLeaveScrennDir.y * Time.deltaTime * gameSettings.worldViewCameraSettings.verticalLevaeScreenMoveSpeed;
+            Vector3 camTargetPos = worldViewCam.transform.position;
+            camTargetPos += worldViewCam.transform.right * InputMgr.Instance.mouseLeaveScrennDir.x * Time.deltaTime * gameSettings.worldViewCameraSettings.horizontalLeaveScreenMoveSpeed;
+            camTargetPos += worldViewCam.transform.up * InputMgr.Instance.mouseLeaveScrennDir.y * Time.deltaTime * gameSettings.worldViewCameraSettings.verticalLevaeScreenMoveSpeed;
             SetWorldViewCameraPos(camTargetPos);
         }
         private void OnFreeMouseMove_BuilBuildingPanel()

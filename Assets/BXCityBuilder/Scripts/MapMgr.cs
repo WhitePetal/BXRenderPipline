@@ -162,8 +162,6 @@ namespace CityBuilder
             tile.building = new Building(willBuildBuildingConfig);
             tile.building.buildingObj = GameObject.Instantiate<GameObject>(willBuildBuildingConfig.buildingObj, tile.tileObj.transform);
             tile.occupied = true;
-            tile.isWillBuilding = true;
-            tile.willBuildIndex = willBuildTiles.Count;
             willBuildTiles.Add(tile);
 
             var willBuildingOnTileMat = GameManager.Instance.gameSettings.buildingSettings.willBuildingOnTileMat;
@@ -177,7 +175,6 @@ namespace CityBuilder
         {
             Tile lastWillBuildTile = willBuildTiles[willBuildTiles.Count - 1];
             lastWillBuildTile.occupied = false;
-            lastWillBuildTile.isWillBuilding = false;
             GameObject.DestroyImmediate(lastWillBuildTile.building.buildingObj);
             lastWillBuildTile.building = null;
         }
@@ -187,7 +184,6 @@ namespace CityBuilder
             for(int i = 0; i < willBuildTiles.Count; ++i)
             {
                 Tile tile = willBuildTiles[i];
-                tile.isWillBuilding = false;
                 int buildID = tile.building.id;
                 GameObject.DestroyImmediate(tile.building.buildingObj);
                 BuildingConfig buildingConfig = GameManager.Instance.buildingDataBase.buildings[buildID];
@@ -203,7 +199,21 @@ namespace CityBuilder
 
         public void CancleAllWillBuild()
         {
+            for (int i = 0; i < willBuildTiles.Count; ++i)
+            {
+                Tile tile = willBuildTiles[i];
+                tile.occupied = false;
+                int buildID = tile.building.id;
+                GameObject.DestroyImmediate(tile.building.buildingObj);
+                tile.building.buildingObj = null;
+                tile.building = null;
+            }
+            willBuildTiles.Clear();
 
+            GameObject.DestroyImmediate(willBuildBuilding.buildingObj);
+            willBuildBuilding = null;
+
+            if (curWillBuildTile != null) curWillBuildTile.tileObj.ReplaceMaterials(tileNormalMat, false);
         }
 
         private bool CheckTilePosVailed(int x, int z)

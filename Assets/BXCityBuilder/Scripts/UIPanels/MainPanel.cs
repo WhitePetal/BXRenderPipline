@@ -28,7 +28,7 @@ namespace CityBuilder
             coneCountText = panel.Find("CurrencyContainer/ConeSlider/CurrentAmountText").GetComponent<Text>();
             peopleCountText = panel.Find("CurrencyContainer/PeopleSlider/CurrentAmountText").GetComponent<Text>();
 
-            BaseDataMgr.Instance.GetAllBaseData(out int maxWoodCount, out int maxStoneCount, out int maxConeCount, out int maxPeopleCount,
+            BaseDataMgr.Instance.GetAllBaseResourcesData(out int maxWoodCount, out int maxStoneCount, out int maxConeCount, out int maxPeopleCount,
                 out int woodCount, out int stoneCount, out int coneCount, out int peopleCount);
 
             maxWoodCountText.text = "最大: " + maxWoodCount.ToString();
@@ -98,7 +98,28 @@ namespace CityBuilder
 
         public override void OnPanelRefresh()
         {
-            
+            BaseDataMgr.Instance.GetAllBaseResourcesData(out int maxWood, out int maxStone, out int maxCone, out int maxPeople,
+                out int wood, out int stone, out int cone, out int people);
+
+            woodCountText.text = wood.ToString();
+            stoneCountText.text = stone.ToString();
+            coneCountText.text = cone.ToString();
+            peopleCountText.text = people.ToString();
+
+            maxWoodCountText.text = maxWood.ToString();
+            maxStoneCountText.text = maxStone.ToString();
+            maxConeCountText.text = maxCone.ToString();
+            maxPeopleCountText.text = maxPeople.ToString();
+
+            woodCountSlider.DOComplete();
+            stoneCountSlider.DOComplete();
+            coneCountSlider.DOComplete();
+            peopleCountSlider.DOComplete();
+
+            woodCountSlider.DOValue((float)wood / maxWood, 0.5f);
+            stoneCountSlider.DOValue((float)stone / maxStone, 0.5f);
+            coneCountSlider.DOValue((float)cone / maxCone, 0.5f);
+            peopleCountSlider.DOValue((float)people / maxPeople, 0.5f);
         }
 
         private void OnSaveBtnClick()

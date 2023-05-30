@@ -32,7 +32,7 @@ namespace CityBuilder
             }
         }
 
-        public void GetAllBaseData(out int maxWood, out int maxStone, out int maxCone, out int maxPeople,
+        public void GetAllBaseResourcesData(out int maxWood, out int maxStone, out int maxCone, out int maxPeople,
             out int wood, out int stone, out int cone, out int people)
         {
             maxWood = baseData.maxWood;
@@ -46,7 +46,7 @@ namespace CityBuilder
             people = baseData.pepole;
         }
 
-        public void GetAllCostData(out int costWood, out int costStone, out int costCone, out int costPeople)
+        public void GetAllBaseResourcesCostData(out int costWood, out int costStone, out int costCone, out int costPeople)
         {
             costWood = willCostWood;
             costStone = willCostStone;
@@ -113,7 +113,10 @@ namespace CityBuilder
 
         public void CancleAllWillBuild()
         {
-
+            willCostWood = 0;
+            willCostStone = 0;
+            willCostCone = 0;
+            willCostPeople = 0;
         }
     }
 }

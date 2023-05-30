@@ -88,7 +88,7 @@ MonoBehaviour:
       skyColor: {r: 0.25364897, g: 0.87577397, b: 0.9433962, a: 0}
       innerScatterIntensity: 2
       innerScatterDensity: 0.044
-      fogStartDistance: 50
+      fogStartDistance: 60
       outerScatterIntensity: 4
       outerScatterDensity: 0.2
   terrainSettings:
